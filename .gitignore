@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+observation/samples/raw_event_logs/*.json
+observation/samples/event_logs_by_policy/*.jsonl
+observation/samples/unified_events/*.jsonl
+observation/samples/dispatcher.log
+
+!observation/samples/raw_event_logs/.gitkeep
+!observation/samples/event_logs_by_policy/.gitkeep
+!observation/samples/unified_events/.gitkeep
+
+# OS
+.DS_Store
