@@ -17,3 +17,4 @@ observation/samples/collectors_events/*.jsonl
 
 # OS
 .DS_Store
+observation/samples/collectors_events/dns_events.jsonl
