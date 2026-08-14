@@ -32,17 +32,26 @@ def _append(path: str, obj: dict):
 
 
 def run_stdin_loop():
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            raw = json.loads(line)
-        except json.JSONDecodeError:
-            print(f"[dispatcher] skipping malformed line: {line[:100]}", file=sys.stderr)
-            continue
-        dispatch_raw_event(raw)
+    try:
+        for line in sys.stdin:
+            line = line.strip()
 
+            if not line:
+                continue
+
+            try:
+                raw = json.loads(line)
+            except json.JSONDecodeError:
+                print(
+                    f"[dispatcher] skipping malformed line: {line[:100]}",
+                    file=sys.stderr,
+                )
+                continue
+
+            dispatch_raw_event(raw)
+
+    except KeyboardInterrupt:
+        print("\n[dispatcher] stopped.")
 
 if __name__ == "__main__":
     run_stdin_loop()

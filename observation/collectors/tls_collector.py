@@ -1,10 +1,8 @@
 import json
 from pathlib import Path
 from datetime import datetime, timezone
-
 from scapy.all import sniff, TCP, IP, IPv6
-
-from ja3 import compute_ja3
+from ja4 import compute_ja4
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = BASE_DIR / "samples" / "collectors_events"
@@ -17,17 +15,23 @@ TLS_CLIENTHELLO_TYPE = 0x01
 EXT_SERVER_NAME = 0x0000
 EXT_SUPPORTED_GROUPS = 0x000a
 EXT_EC_POINT_FORMATS = 0x000b
+EXT_SIGNATURE_ALGORITHMS = 0x000d
 EXT_ALPN = 0x0010
+EXT_SUPPORTED_VERSIONS = 0x002b
 
-def current_timestamp():
-    return datetime.now(timezone.utc).isoformat()
-
+def packet_timestamp(packet):
+    return datetime.fromtimestamp(
+        float(packet.time),
+        tz=timezone.utc,
+    ).isoformat()
 
 def write_event(event: dict) -> None:
     """Append a single JSON event to tls_events.jsonl."""
     with OUTPUT_FILE.open("a", encoding="utf-8") as f:
         f.write(json.dumps(event) + "\n")
 
+def reset_output_file() -> None:
+    OUTPUT_FILE.write_text("", encoding="utf-8")
 
 def get_ip_layer(packet):
     """Return the IPv4 or IPv6 layer, whichever is present."""
@@ -77,6 +81,8 @@ def _parse_clienthello_fields(handshake: bytes) -> dict:
         "supported_groups": [],
         "ec_point_formats": [],
         "alpn": [],
+        "signature_algorithms": [],
+        "supported_versions": [],
     }
 
     if pos >= len(handshake):
@@ -119,6 +125,20 @@ def _parse_clienthello_fields(handshake: bytes) -> dict:
                 p += proto_len
             fields["alpn"] = protocols
 
+        elif ext_type == EXT_SIGNATURE_ALGORITHMS and len(ext_data) >= 2:
+            list_len = int.from_bytes(ext_data[0:2], "big")
+            fields["signature_algorithms"] = [
+                int.from_bytes(ext_data[2 + i:4 + i], "big")
+                for i in range(0, list_len, 2)
+            ]
+
+        elif ext_type == EXT_SUPPORTED_VERSIONS and len(ext_data) >= 1:
+            list_len = ext_data[0]
+            fields["supported_versions"] = [
+                int.from_bytes(ext_data[1 + i:3 + i], "big")
+                for i in range(0, list_len, 2)
+            ]
+
         pos += 4 + ext_len
 
     return fields
@@ -146,20 +166,30 @@ def extract_ec_point_formats(fields):
 def extract_alpn(fields):
     return fields["alpn"]
 
-def build_tls_event(handshake: bytes, ip, ports):
+
+def extract_signature_algorithms(fields):
+    return fields["signature_algorithms"]
+
+
+def extract_supported_versions(fields):
+    return fields["supported_versions"]
+
+def build_tls_event(handshake: bytes, ip, ports, timestamp):
     src_port, dst_port = ports
     fields = _parse_clienthello_fields(handshake)
 
-    ja3 = compute_ja3(
-        tls_version=fields["tls_version"],
+    ja4 = compute_ja4(
         ciphers=extract_cipher_suites(fields),
         extensions=extract_extensions(fields),
-        supported_groups=extract_supported_groups(fields),
-        ec_point_formats=extract_ec_point_formats(fields),
+        sni_present=extract_sni(fields) is not None,
+        alpn=extract_alpn(fields),
+        signature_algorithms=extract_signature_algorithms(fields),
+        legacy_version=fields["tls_version"],
+        supported_versions=extract_supported_versions(fields),
     )
 
     return {
-        "timestamp": current_timestamp(),
+        "timestamp": timestamp,
         "event_type": "tls_client_hello",
         "src_ip": ip.src,
         "dst_ip": ip.dst,
@@ -174,8 +204,12 @@ def build_tls_event(handshake: bytes, ip, ports):
         "supported_groups": extract_supported_groups(fields),
         "ec_point_formats": extract_ec_point_formats(fields),
         "alpn": extract_alpn(fields),
-        "ja3_string": ja3["ja3_string"],
-        "ja3_hash": ja3["ja3_hash"],
+        "signature_algorithms": extract_signature_algorithms(fields),
+        "supported_versions": extract_supported_versions(fields),
+        "ja4": ja4["ja4"],
+        "ja4_a": ja4["ja4_a"],
+        "ja4_b": ja4["ja4_b"],
+        "ja4_c": ja4["ja4_c"],
         "raw_clienthello_hex": handshake.hex(),
     }
 
@@ -194,27 +228,29 @@ def handle_packet(packet):
     ports = get_ports(packet)
 
     try:
-        event = build_tls_event(handshake, ip, ports)
+        event = build_tls_event(handshake, ip, ports, packet_timestamp(packet))
     except (IndexError, ValueError):
-        # Malformed / truncated ClientHello (e.g. segmented across
-        # packets) — skip rather than crash the collector.
+        # Malformed / truncated ClientHello (e.g. segmented across packets) — skip rather than crash the collector.
         return
 
     write_event(event)
     print(
         f"[TLS CLIENTHELLO] {event['sni']} "
         f"({event['src_ip']}:{event['src_port']} -> {event['dst_ip']}:{event['dst_port']}) "
-        f"ja3={event['ja3_hash']}"
+        f"ja4={event['ja4']}"
     )
 
 def main():
     print("Starting TLS collector...")
-    sniff(
-        filter="tcp port 443",
-        prn=handle_packet,
-        store=False,
-    )
-
+    reset_output_file()
+    try:
+        sniff(
+            filter="tcp port 443",
+            prn=handle_packet,
+            store=False,
+        )
+    except KeyboardInterrupt:
+        print("\n[TLS] Collector stopped.")
 
 if __name__ == "__main__":
     main()

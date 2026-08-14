@@ -5,12 +5,19 @@ from datetime import datetime
 BASE_DIR = Path(__file__).resolve().parent.parent
 INPUT_FILE = BASE_DIR / "samples" / "unified_events" / "unified_events.jsonl"
 OUTPUT_FILE = BASE_DIR / "samples" / "unified_events" / "correlated_events.jsonl"
+SSH_SESSIONS_OUTPUT_FILE = BASE_DIR / "samples" / "unified_events" / "ssh_sessions.jsonl"
 
 DNS_TIME_WINDOW_SECONDS = 5
-TLS_TIME_TOLERANCE_SECONDS = 2
+TLS_TIME_TOLERANCE_SECONDS = 5
+SSH_TIME_TOLERANCE_SECONDS = 5
+TCP_FLOW_TIME_TOLERANCE_SECONDS = 5
 
+TCP_FLOW_CORRELATION_METHOD = "five_tuple+start_ts"
 DNS_CORRELATION_METHOD = "resolved_ip+time"
 TLS_CORRELATION_METHOD = "five_tuple"
+SSH_CORRELATION_METHOD = "src_ip+src_port+dst_port22+time"
+
+SSH_PORT = 22
 
 
 def parse_ts(ts: str) -> datetime:
@@ -27,33 +34,32 @@ def load_events(path: Path) -> list:
     return events
 
 
+# ---------------------------------------------------------------------------
+# Per-tcp_connect correlation (DNS / TLS / SSH). Produces
+# correlated_events.jsonl.
+# ---------------------------------------------------------------------------
+
 def split_by_source(events: list):
-    dns_responses = [
-        e for e in events
-        if e["source"] == "dns" and e["event_type"] == "dns_response"
-    ]
-    tcp_connects = [
-        e for e in events
-        if e["source"] == "tetragon" and e["event_type"] == "tcp_connect"
-    ]
-    tls_hellos = [
-        e for e in events
-        if e["source"] == "tls" and e["event_type"] == "tls_client_hello"
-    ]
-    return dns_responses, tcp_connects, tls_hellos
+    dns_responses = [e for e in events if e["source"] == "dns" and e["event_type"] == "dns_response"]
+    tcp_connects = [e for e in events if e["source"] == "tetragon" and e["event_type"] == "tcp_connect"]
+    tls_hellos = [e for e in events if e["source"] == "tls" and e["event_type"] == "tls_client_hello"]
+    ssh_auth_success = [e for e in events if e["source"] == "ssh" and e["event_type"] == "ssh_auth_success"]
+    tcp_flows = [e for e in events if e["source"] == "tcp" and e["event_type"] == "tcp_flow"]
+    return dns_responses, tcp_connects, tls_hellos, ssh_auth_success, tcp_flows
 
 
 def index_dns_by_ip(dns_responses: list) -> dict:
     index = {}
     for dns in dns_responses:
-        resolved_ip = dns["extra"].get("resolved_ip")
-        if not resolved_ip:
-            continue
-        index.setdefault(resolved_ip, []).append(dns)
-
+        for answer in dns.get("extra", {}).get("answers", []):
+            if answer.get("type") not in ("A", "AAAA"):
+                continue
+            resolved_ip = answer.get("value")
+            if not resolved_ip:
+                continue
+            index.setdefault(resolved_ip, []).append(dns)
     for ip in index:
         index[ip].sort(key=lambda e: parse_ts(e["timestamp"]))
-
     return index
 
 
@@ -62,17 +68,88 @@ def index_tls_by_tuple(tls_hellos: list) -> dict:
     for tls in tls_hellos:
         key = (tls["src_ip"], tls["dst_ip"], tls["src_port"], tls["dst_port"], tls["transport"])
         index.setdefault(key, []).append(tls)
-
     for key in index:
         index[key].sort(key=lambda e: parse_ts(e["timestamp"]))
-
     return index
 
 
-def find_dns_match(tcp_event: dict, dns_index: dict):
+def index_ssh_by_src(ssh_events: list) -> dict:
+    index = {}
+    for ssh in ssh_events:
+        if ssh.get("src_ip") is None or ssh.get("src_port") is None:
+            continue
+        key = (ssh["src_ip"], ssh["src_port"])
+        index.setdefault(key, []).append(ssh)
+    for key in index:
+        index[key].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+def index_ssh_sessions_by_connection(sessions: list) -> dict:
+    """
+    Index SSH sessions by source IP and source port.
+
+    A TCP connection's source IP + source port identifies the SSH
+    connection in our current local observation model.
+    """
+    index = {}
+
+    for session in sessions:
+        key = (session.get("src_ip"), session.get("src_port"))
+
+        if None in key:
+            continue
+
+        index.setdefault(key, []).append(session)
+
+    for key in index:
+        index[key].sort(
+            key=lambda s: parse_ts(s["earliest_event_ts"])
+        )
+
+    return index
+
+def build_ssh_correlation_block(session: dict, tcp_event: dict) -> dict:
+    """
+    Convert an SSH session into the compact SSH information that will
+    become part of the canonical correlated event.
+    """
+
+    event_types = session.get("event_types_seen", [])
+
+    auth_failures = event_types.count("ssh_auth_failure")
+    auth_success = session.get("auth_success_ts") is not None
+
+    return {
+        "session_key": session.get("session_key"),
+        "username": session.get("username"),
+
+        "auth_attempts": auth_failures + (1 if auth_success else 0),
+        "auth_failures": auth_failures,
+        "auth_success": auth_success,
+        "auth_method": session.get("auth_method"),
+
+        "session_opened": session.get("session_opened_ts") is not None,
+        "session_opened_ts": session.get("session_opened_ts"),
+
+        "session_closed": session.get("session_closed_ts") is not None,
+        "session_closed_ts": session.get("session_closed_ts"),
+        "session_duration_seconds": session.get("session_duration_seconds"),
+
+        "disconnected": session.get("disconnected_ts") is not None,
+        "disconnected_ts": session.get("disconnected_ts"),
+
+        "tcp_connect_matched": session.get("tcp_connect_matched"),
+        "tcp_close_matched": session.get("tcp_close_matched"),
+        "connection_duration_seconds": session.get(
+            "connection_duration_seconds"
+        ),
+
+        "execve_matched": session.get("execve_matched"),
+        "execve_binary": session.get("execve_binary"),
+    }
+
+def find_dns_match(tcp_event, dns_index):
     candidates = dns_index.get(tcp_event["dst_ip"], [])
     tcp_ts = parse_ts(tcp_event["timestamp"])
-
     best, best_delta = None, None
     for dns in candidates:
         delta = (tcp_ts - parse_ts(dns["timestamp"])).total_seconds()
@@ -81,98 +158,388 @@ def find_dns_match(tcp_event: dict, dns_index: dict):
                 best, best_delta = dns, delta
         elif delta < 0:
             break
-
     return best, best_delta
 
 
-def find_tls_match(tcp_event: dict, tls_index: dict):
-    key = (
-        tcp_event["src_ip"], tcp_event["dst_ip"],
-        tcp_event["src_port"], tcp_event["dst_port"],
-        tcp_event["transport"],
-    )
+def find_tls_match(tcp_event, tls_index):
+    key = (tcp_event["src_ip"], tcp_event["dst_ip"], tcp_event["src_port"],
+           tcp_event["dst_port"], tcp_event["transport"])
     candidates = tls_index.get(key, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    best, best_delta = None, None
+    for tls in candidates:
+        delta = (parse_ts(tls["timestamp"]) - tcp_ts).total_seconds()
+        if 0 <= delta <= TLS_TIME_TOLERANCE_SECONDS:
+            if best is None or delta < best_delta:
+                best, best_delta = tls, delta
+    return best, best_delta
+
+
+def find_ssh_match(tcp_event, ssh_index):
+    if tcp_event.get("dst_port") != SSH_PORT:
+        return None, None
+    key = (tcp_event["src_ip"], tcp_event["src_port"])
+    candidates = ssh_index.get(key, [])
     tcp_ts = parse_ts(tcp_event["timestamp"])
 
     best, best_delta = None, None
-    for tls in candidates:
-        delta = abs((parse_ts(tls["timestamp"]) - tcp_ts).total_seconds())
-        if delta <= TLS_TIME_TOLERANCE_SECONDS:
+    for ssh in candidates:  # sorted ascending by timestamp
+        delta = (parse_ts(ssh["timestamp"]) - tcp_ts).total_seconds()
+        if delta >= 0:  # auth must happen at/after the connect, no upper bound
             if best is None or delta < best_delta:
-                best, best_delta = tls, delta
-
+                best, best_delta = ssh, delta
     return best, best_delta
 
 
-def build_enriched_event(tcp_event: dict, dns_match, dns_delta, tls_match, tls_delta) -> dict:
-    # Keep the complete normalized event (full extra + its own
-    # timestamp), not just a hand-picked subset, so nothing collected
-    # upstream is lost at this stage.
-    dns_block = None
-    if dns_match:
-        dns_block = dict(dns_match["extra"])
-        dns_block["timestamp"] = dns_match["timestamp"]
+def build_enriched_event(tcp_event, dns_match, dns_delta, tls_match, tls_delta, ssh_match, ssh_delta, tcp_flow_match, tcp_flow_delta):
+   dns_block = None
+   if dns_match:
+       dns_block = dict(dns_match["extra"])
+       dns_block["timestamp"] = dns_match["timestamp"]
+   tls_block = None
+   if tls_match:
+       tls_block = dict(tls_match["extra"])
+       tls_block["timestamp"] = tls_match["timestamp"]
+   ssh_block = None
+   if ssh_match:
+       ssh_block = dict(ssh_match["extra"])
+       ssh_block["timestamp"] = ssh_match["timestamp"]
+       ssh_block["dst_ip"] = tcp_event.get("dst_ip")
+   tcp_block = None
+   if tcp_flow_match:
+       tcp_block = dict(tcp_flow_match["extra"])
+   return {
+       "timestamp": tcp_event["timestamp"],
+       "process": tcp_event.get("process"),
 
-    tls_block = None
-    if tls_match:
-        tls_block = dict(tls_match["extra"])
-        tls_block["timestamp"] = tls_match["timestamp"]
+       "network": {
+           "src_ip": tcp_event["src_ip"],
+           "dst_ip": tcp_event["dst_ip"],
+           "src_port": tcp_event["src_port"],
+           "dst_port": tcp_event["dst_port"],
+           "transport": tcp_event["transport"],
+           "direction": tcp_event.get("direction"),
+       },
 
-    return {
-        "timestamp": tcp_event["timestamp"],
-        "process": tcp_event.get("process"),
-        "network": {
-            "src_ip": tcp_event["src_ip"],
-            "dst_ip": tcp_event["dst_ip"],
-            "src_port": tcp_event["src_port"],
-            "dst_port": tcp_event["dst_port"],
-            "transport": tcp_event["transport"],
-            "direction": tcp_event.get("direction"),
-        },
-        "dns": dns_block,
-        "tls": tls_block,
-        "correlation": {
-            "dns_matched": dns_match is not None,
-            "dns_method": DNS_CORRELATION_METHOD,
-            "dns_time_delta_ms": round(dns_delta * 1000) if dns_delta is not None else None,
-            "tls_matched": tls_match is not None,
-            "tls_method": TLS_CORRELATION_METHOD,
-            "tls_time_delta_ms": round(tls_delta * 1000) if tls_delta is not None else None,
-        },
-    }
+       "dns": dns_block,
+       "tls": tls_block,
+       "ssh": None,
+       "tcp": tcp_block,
+
+       "correlation": {
+           "dns_matched": dns_match is not None,
+           "dns_method": DNS_CORRELATION_METHOD,
+           "dns_time_delta_ms":
+               round(dns_delta * 1000) if dns_delta is not None else None,
+
+           "tls_matched": tls_match is not None,
+           "tls_method": TLS_CORRELATION_METHOD,
+           "tls_time_delta_ms":
+               round(tls_delta * 1000) if tls_delta is not None else None,
+
+           "ssh_matched": ssh_match is not None,
+           "ssh_method": SSH_CORRELATION_METHOD,
+           "ssh_time_delta_ms":
+               round(ssh_delta * 1000) if ssh_delta is not None else None,
+
+           "tcp_flow_matched": tcp_flow_match is not None,
+           "tcp_flow_method": TCP_FLOW_CORRELATION_METHOD,
+           "tcp_flow_time_delta_ms":
+               round(tcp_flow_delta * 1000) if tcp_flow_delta is not None else None,
+       },
+   }
 
 
 def correlate(events: list) -> list:
-    dns_responses, tcp_connects, tls_hellos = split_by_source(events)
+    dns_responses, tcp_connects, tls_hellos, ssh_events, tcp_flows = split_by_source(events)
+
     dns_index = index_dns_by_ip(dns_responses)
     tls_index = index_tls_by_tuple(tls_hellos)
+    ssh_index = index_ssh_by_src(ssh_events)
+    tcp_flow_index = index_tcp_flows_by_tuple(tcp_flows)
+
+    ssh_sessions, _ = build_ssh_sessions(events)
+    ssh_sessions_index = index_ssh_sessions_by_connection(ssh_sessions)
 
     enriched = []
+
     for tcp_event in tcp_connects:
         dns_match, dns_delta = find_dns_match(tcp_event, dns_index)
         tls_match, tls_delta = find_tls_match(tcp_event, tls_index)
-        enriched.append(
-            build_enriched_event(tcp_event, dns_match, dns_delta, tls_match, tls_delta)
+        ssh_match, ssh_delta = find_ssh_match(tcp_event, ssh_index)
+        tcp_flow_match, tcp_flow_delta = find_tcp_flow_match(tcp_event, tcp_flow_index)
+
+        ssh_session = None
+        if tcp_event.get("dst_port") == SSH_PORT:
+            key = (tcp_event.get("src_ip"), tcp_event.get("src_port"))
+            candidates = ssh_sessions_index.get(key, [])
+            tcp_ts = parse_ts(tcp_event["timestamp"])
+            best = None
+            for session in candidates:
+                if parse_ts(session["earliest_event_ts"]) >= tcp_ts:
+                    best = session
+                    break
+            if best is None:
+                for session in reversed(candidates):
+                    if parse_ts(session["earliest_event_ts"]) < tcp_ts:
+                        best = session
+                        break
+            ssh_session = best
+
+        ssh_block = None
+        if ssh_session is not None:
+            ssh_block = build_ssh_correlation_block(ssh_session, tcp_event)
+
+        event = build_enriched_event(
+            tcp_event, dns_match, dns_delta, tls_match, tls_delta,
+            ssh_match, ssh_delta, tcp_flow_match, tcp_flow_delta,
         )
+
+        if ssh_block is not None:
+            event["ssh"] = ssh_block
+            event["correlation"]["ssh_matched"] = True
+            event["correlation"]["ssh_method"] = "src_ip+src_port+ssh_session"
+
+        enriched.append(event)
 
     return enriched
 
+def build_ssh_sessions(events: list):
+    ssh_events = [e for e in events if e["source"] == "ssh"]
+
+    grouped = {}
+    orphans = []
+    for e in ssh_events:
+        key = e.get("extra", {}).get("session_key") or e.get("session_key")
+        if key is None:
+            orphans.append(e)
+            continue
+        grouped.setdefault(key, []).append(e)
+
+    sessions = []
+    for key, evs in grouped.items():
+        evs.sort(key=lambda e: parse_ts(e["timestamp"]))
+        record = {
+            "session_key": key,
+            "username": evs[0].get("extra", {}).get("username") or evs[0].get("username"),
+            "src_ip": evs[0]["src_ip"],
+            "src_port": evs[0]["src_port"],
+            "pid": evs[0].get("process", {}).get("pid") if evs[0].get("process") else None,
+            "event_types_seen": [e["event_type"] for e in evs],
+            "earliest_event_ts": evs[0]["timestamp"],
+            "auth_success_ts": None,
+            "auth_method": None,
+            "session_opened_ts": None,
+            "session_closed_ts": None,
+            "session_duration_seconds": None,
+            "disconnected_ts": None,
+        }
+        for e in evs:
+            extra = e.get("extra", {})
+            et = e["event_type"]
+            if et == "ssh_auth_success":
+                record["auth_success_ts"] = e["timestamp"]
+                record["auth_method"] = extra.get("auth_method")
+            elif et == "ssh_session_opened":
+                record["session_opened_ts"] = e["timestamp"]
+            elif et == "ssh_session_closed":
+                record["session_closed_ts"] = e["timestamp"]
+                record["session_duration_seconds"] = extra.get("session_duration_seconds")
+            elif et == "ssh_disconnected":
+                record["disconnected_ts"] = e["timestamp"]
+        sessions.append(record)
+
+    return sessions, orphans
+
+def index_tcp_events_by_tuple(events: list) -> dict:
+    """Index normalized tetragon tcp events (connect or close) by their
+    5-tuple, sorted by time."""
+    index = {}
+    for e in events:
+        key = (e["src_ip"], e["dst_ip"], e["src_port"], e["dst_port"], e["transport"])
+        index.setdefault(key, []).append(e)
+    for key in index:
+        index[key].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def find_session_tcp_connect(session: dict, tcp_connects_by_src: dict):
+    """Match a session to the Tetragon tcp_connect on the same 5-tuple that
+    occurred before any SSH activity was observed for it. TCP connect always
+    precedes authentication, sometimes by many seconds, so we match on
+    tuple + ordering rather than a small window around auth_success."""
+    anchor_ts_str = session.get("earliest_event_ts")
+    if anchor_ts_str is None:
+        return None, None
+    key = (session["src_ip"], session["src_port"])
+    candidates = [c for c in tcp_connects_by_src.get(key, []) if c.get("dst_port") == SSH_PORT]
+    anchor_ts = parse_ts(anchor_ts_str)
+
+    best = None
+    for c in candidates:  # sorted ascending
+        c_ts = parse_ts(c["timestamp"])
+        if c_ts <= anchor_ts:
+            best = c  # keep overwriting; last one <= anchor wins
+        else:
+            break
+    if best is None:
+        return None, None
+    delta = (anchor_ts - parse_ts(best["timestamp"])).total_seconds()
+    return best, delta
+
+
+def find_tcp_close_for_connect(tcp_connect_event: dict, closes_by_tuple: dict):
+    """First tcp_close on the same 5-tuple occurring at/after the connect."""
+    if tcp_connect_event is None:
+        return None
+    key = (tcp_connect_event["src_ip"], tcp_connect_event["dst_ip"],
+           tcp_connect_event["src_port"], tcp_connect_event["dst_port"],
+           tcp_connect_event["transport"])
+    candidates = closes_by_tuple.get(key, [])
+    connect_ts = parse_ts(tcp_connect_event["timestamp"])
+    for c in candidates:
+        if parse_ts(c["timestamp"]) >= connect_ts:
+            return c
+    return None
+
+
+def index_execve_by_pid(events: list) -> dict:
+    execs = [e for e in events if e["source"] == "tetragon" and e["event_type"] == "sys_execve"]
+    index = {}
+    for e in execs:
+        pid = (e.get("process") or {}).get("pid")
+        if pid is None:
+            continue
+        index.setdefault(pid, []).append(e)
+    for pid in index:
+        index[pid].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def find_execve_for_session(session: dict, execs_by_pid: dict):
+    pid = session.get("pid")
+    anchor_ts_str = session.get("earliest_event_ts")
+    if pid is None or anchor_ts_str is None:
+        return None
+
+    candidates = execs_by_pid.get(pid, [])
+    if not candidates:
+        return None
+
+    anchor_ts = parse_ts(anchor_ts_str)
+    best = None
+    for event in candidates:  # sorted ascending
+        event_ts = parse_ts(event["timestamp"])
+        if event_ts <= anchor_ts:
+            best = event
+        else:
+            break
+    return best or candidates[0]
+
+
+def correlate_ssh_sessions(events: list) -> list:
+    sessions, orphans = build_ssh_sessions(events)
+    if orphans:
+        print(f"[correlator] {len(orphans)} ssh event(s) had no session_key "
+              f"(e.g. pre-auth disconnects) and were excluded from sessions")
+
+    tcp_connects = [e for e in events if e["source"] == "tetragon" and e["event_type"] == "tcp_connect"]
+    tcp_closes = [e for e in events if e["source"] == "tetragon" and e["event_type"] == "tcp_close"]
+    execs_by_pid = index_execve_by_pid(events)
+
+    tcp_connects_by_src = {}
+    for c in tcp_connects:
+        key = (c["src_ip"], c["src_port"])
+        tcp_connects_by_src.setdefault(key, []).append(c)
+    for key in tcp_connects_by_src:
+        tcp_connects_by_src[key].sort(key=lambda e: parse_ts(e["timestamp"]))
+
+    closes_by_tuple = index_tcp_events_by_tuple(tcp_closes)
+
+    results = []
+    for session in sessions:
+        tcp_connect_match, connect_delta = find_session_tcp_connect(session, tcp_connects_by_src)
+        tcp_close_match = find_tcp_close_for_connect(tcp_connect_match, closes_by_tuple)
+        execve_match = find_execve_for_session(session, execs_by_pid)
+        connection_duration = None
+        if tcp_connect_match and tcp_close_match:
+            connection_duration = (
+                parse_ts(tcp_close_match["timestamp"]) - parse_ts(tcp_connect_match["timestamp"])
+            ).total_seconds()
+
+        results.append({
+            **session,
+            "tcp_connect_matched": tcp_connect_match is not None,
+            "tcp_connect_dst_ip": tcp_connect_match.get("dst_ip") if tcp_connect_match else None,
+            "tcp_connect_process": tcp_connect_match.get("process") if tcp_connect_match else None,
+            "tcp_connect_time_delta_ms": round(connect_delta * 1000) if connect_delta is not None else None,
+            "tcp_close_matched": tcp_close_match is not None,
+            "tcp_close_timestamp": tcp_close_match.get("timestamp") if tcp_close_match else None,
+            "connection_duration_seconds": connection_duration,
+            "execve_matched": execve_match is not None,
+            "execve_binary": (execve_match.get("process") or {}).get("name") if execve_match else None,
+            "execve_timestamp": execve_match.get("timestamp") if execve_match else None,
+        })
+
+    return results
+
+
+def index_tcp_flows_by_tuple(tcp_flows: list) -> dict:
+    index = {}
+    for flow in tcp_flows:
+        key = (flow["src_ip"], flow["dst_ip"], flow["src_port"], flow["dst_port"], flow["transport"])
+        index.setdefault(key, []).append(flow)
+    for key in index:
+        index[key].sort(key=lambda e: parse_ts(e["extra"]["start_ts"]))
+    return index
+
+
+def find_tcp_flow_match(tcp_event, tcp_flow_index):
+    key = (tcp_event["src_ip"], tcp_event["dst_ip"], tcp_event["src_port"],
+           tcp_event["dst_port"], tcp_event["transport"])
+    candidates = tcp_flow_index.get(key, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    best, best_delta = None, None
+    for flow in candidates:
+        delta = abs((parse_ts(flow["extra"]["start_ts"]) - tcp_ts).total_seconds())
+        if delta <= TCP_FLOW_TIME_TOLERANCE_SECONDS:
+            if best is None or delta < best_delta:
+                best, best_delta = flow, delta
+    return best, best_delta
 
 def main():
     events = load_events(INPUT_FILE)
     events.sort(key=lambda e: parse_ts(e["timestamp"]))
-    enriched = correlate(events)
 
+    enriched = correlate(events)
     with OUTPUT_FILE.open("w", encoding="utf-8") as f:
         for e in enriched:
             f.write(json.dumps(e) + "\n")
 
+    ssh_sessions = correlate_ssh_sessions(events)
+    with SSH_SESSIONS_OUTPUT_FILE.open("w", encoding="utf-8") as f:
+        for s in ssh_sessions:
+            f.write(json.dumps(s) + "\n")
+
     with_dns = sum(1 for e in enriched if e["correlation"]["dns_matched"])
     with_tls = sum(1 for e in enriched if e["correlation"]["tls_matched"])
+    with_ssh = sum(1 for e in enriched if e["correlation"]["ssh_matched"])
+    with_tcp_flow = sum(1 for e in enriched if e["correlation"]["tcp_flow_matched"])
+    sessions_with_tcp = sum(1 for s in ssh_sessions if s["tcp_connect_matched"])
+    sessions_with_close = sum(1 for s in ssh_sessions if s["tcp_close_matched"])
+    sessions_with_execve = sum(1 for s in ssh_sessions if s["execve_matched"])
+
     print(f"[correlator] {len(enriched)} tcp_connect events processed")
     print(f"[correlator] {with_dns} matched to a DNS response")
     print(f"[correlator] {with_tls} matched to a TLS ClientHello")
+    print(f"[correlator] {with_ssh} matched to an SSH auth event")
+    print(f"[correlator] {with_tcp_flow} matched to a TCP flow")
     print(f"[correlator] output -> {OUTPUT_FILE}")
+    print(f"[correlator] {len(ssh_sessions)} ssh sessions built")
+    print(f"[correlator] {sessions_with_tcp} sessions matched to a tcp_connect")
+    print(f"[correlator] {sessions_with_close} sessions matched to a tcp_close")
+    print(f"[correlator] {sessions_with_execve} sessions matched to a sys_execve")
+    print(f"[correlator] output -> {SSH_SESSIONS_OUTPUT_FILE}")
 
 
 if __name__ == "__main__":

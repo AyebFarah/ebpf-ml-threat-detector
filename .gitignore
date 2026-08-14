@@ -18,9 +18,6 @@ dist/
 .vscode/
 .idea/
 
-# Raw Tetragon captures
-observation/samples/raw_event_logs/*.json
-
 # Dispatcher output
 observation/samples/event_logs_by_policy/*.jsonl
 
