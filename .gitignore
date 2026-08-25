@@ -50,3 +50,9 @@ Thumbs.db
 *.tmp
 *.swp
 *.bak
+
+# SQLite database and runtime files
+*.db
+*.db-shm
+*.db-wal
+*.db-journal

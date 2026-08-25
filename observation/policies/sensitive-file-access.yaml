@@ -1,0 +1,61 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: "sensitive-file-access"
+spec:
+  kprobes:
+    - call: "security_file_permission"
+      syscall: false
+      args:
+        - index: 0
+          type: "file"
+        - index: 1
+          type: "int"
+          label: "mask"
+      selectors:
+        # Tier 1: credential/persistence paths -- naturally low volume,
+        # no rate limit, watch both reads and writes.
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/etc/shadow"
+                - "/etc/passwd"
+                - "/etc/sudoers"
+                - "/etc/ssh/"
+                - "/root/.ssh/"
+                - "/home/pharah/.ssh/"
+                - "/var/run/secrets/"
+                - "/run/secrets/"
+                - "/etc/cron."
+                - "/var/spool/cron/"
+                - "/etc/systemd/system/"
+                - "/usr/lib/systemd/system/"
+                - "/etc/ld.so.preload"
+          matchActions:
+            - action: "Post"
+        # Tier 2: /var/tmp -- stayed low volume in testing, no rate limit needed.
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/var/tmp/"
+          matchActions:
+            - action: "Post"
+        # Tier 3: /tmp and /dev/shm -- both confirmed high-churn from browser
+        # activity (Chromium/Brave shared memory + temp files). Write-only,
+        # rate-limited per thread.
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/tmp/"
+                - "/dev/shm/"
+            - index: 1
+              operator: "Equal"
+              values:
+                - "2"   # MAY_WRITE only
+          matchActions:
+            - action: "Post"
+              rateLimit: "30s"
+              rateLimitScope: "thread"

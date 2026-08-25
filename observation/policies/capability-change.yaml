@@ -1,0 +1,24 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: "capability-change"
+spec:
+  kprobes:
+    - call: "cap_capable"
+      syscall: false
+      args:
+        - index: 2
+          type: "int"
+          label: "cap"
+      selectors:
+        - matchArgs:
+            - index: 2
+              operator: "Equal"
+              values:
+                - "12"  # CAP_NET_ADMIN
+                - "13"  # CAP_NET_RAW
+                - "23"  # CAP_SYS_RESOURCE
+          matchActions:
+            - action: "Post"
+              rateLimit: "10s"
+              rateLimitScope: "thread"

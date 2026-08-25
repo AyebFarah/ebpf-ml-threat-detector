@@ -1,13 +1,13 @@
 import json
-from pathlib import Path
 from datetime import datetime, timezone
 from scapy.all import sniff, TCP, IP, IPv6
-from ja4 import compute_ja4
+from observation.collectors.ja4 import compute_ja4
+from observation import paths
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "samples" / "collectors_events"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_FILE = OUTPUT_DIR / "tls_events.jsonl"
+OUTPUT_FILE = paths.TLS_EVENTS_FILE
+
+def ensure_output_dir():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 TLS_HANDSHAKE_CONTENT_TYPE = 0x16
 TLS_CLIENTHELLO_TYPE = 0x01

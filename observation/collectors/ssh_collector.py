@@ -3,15 +3,13 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timezone
+from observation import paths
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(BASE_DIR))
-from common.session_key import session_key as _session_key
+OUTPUT_FILE = paths.SSH_EVENTS_FILE
 
-OUTPUT_DIR = BASE_DIR / "samples" / "collectors_events"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_FILE = OUTPUT_DIR / "ssh_events.jsonl"
+def ensure_output_dir():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 AUTH_LOG_PATH = Path("/var/log/auth.log")
 SSH_PORT = 22
@@ -68,6 +66,18 @@ def reset_output_file() -> None:
     OUTPUT_FILE.write_text("", encoding="utf-8")
 
 
+def session_key(src_ip, src_port, username):
+    """
+    Canonical SSH session identity: the client's (src_ip, src_port) plus
+    the authenticated username. This is the single definition used by
+    both ssh-collector.py (to tag events as they're collected) and
+    correlator.py (to re-join those events into sessions later).
+    """
+    if src_ip is None or src_port is None or username is None:
+        return None
+    return f"{src_ip}:{src_port}:{username}"
+
+
 def _base_event(timestamp: str, event_type: str, pid, src_ip=None, src_port=None,
                  username=None) -> dict:
 
@@ -90,7 +100,7 @@ def _base_event(timestamp: str, event_type: str, pid, src_ip=None, src_port=None
         "transport": "tcp",
         "direction": "inbound",
         "pid": pid,
-        "session_key": _session_key(src_ip, src_port, session_username),
+        "session_key": session_key(src_ip, src_port, session_username),
     }
 
 

@@ -1,13 +1,14 @@
 import json
 import traceback
+import threading
 from datetime import datetime, timezone
-from pathlib import Path
 from scapy.all import sniff, TCP, IP, IPv6
+from observation import paths
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "samples" / "collectors_events"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_FILE = OUTPUT_DIR / "tcp_events.jsonl"
+OUTPUT_FILE = paths.TCP_EVENTS_FILE
+
+def ensure_output_dir():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 FLAG_FIN = 0x01
 FLAG_SYN = 0x02
@@ -279,8 +280,13 @@ def handle_packet(packet):
 def main():
     print("Starting TCP collector...")
     reset_output_file()
+
     try:
-        sniff(filter="tcp", prn=handle_packet, store=False)
+        sniff(
+            filter="tcp",
+            prn=handle_packet,
+            store=False,
+        )
     except KeyboardInterrupt:
         print("\n[TCP] Collector stopped.")
     finally:

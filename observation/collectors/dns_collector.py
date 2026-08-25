@@ -1,14 +1,14 @@
 import json
 import socket
 import traceback
-from pathlib import Path
 from datetime import datetime, timezone
 from scapy.all import sniff, DNS, DNSQR, DNSRR, UDP, TCP, IP, IPv6
+from observation import paths
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "samples" / "collectors_events"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_FILE = OUTPUT_DIR / "dns_events.jsonl"
+OUTPUT_FILE = paths.DNS_EVENTS_FILE
+
+def ensure_output_dir():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 DNS_PORT = 53
 

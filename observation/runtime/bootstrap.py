@@ -2,53 +2,27 @@ import os
 import shutil
 import subprocess
 import sys
-from pathlib import Path
+from observation import paths
+from observation.pipeline.normalizer import main as run_normalizer
+from observation.pipeline.correlator import main as run_correlator
+from observation.database.loader import load_into_database
 
-OBSERVATION_DIR = Path(__file__).resolve().parent.parent
-
-COLLECTORS_DIR = OBSERVATION_DIR / "collectors"
-PIPELINE_DIR = OBSERVATION_DIR / "pipeline"
-SAMPLES_DIR = OBSERVATION_DIR / "samples"
-
-REQUIRED_DIRS = [
-    SAMPLES_DIR / "collectors_events",
-    SAMPLES_DIR / "event_logs_by_policy",
-    SAMPLES_DIR / "unified_events",
-    SAMPLES_DIR / "raw_event_logs",
-]
-
-REQUIRED_SCRIPTS = [
-    COLLECTORS_DIR / "dns_collector.py",
-    COLLECTORS_DIR / "tls_collector.py",
-    COLLECTORS_DIR / "ssh_collector.py",
-    COLLECTORS_DIR / "tcp_collector.py",
-    PIPELINE_DIR / "dispatcher.py",
-    PIPELINE_DIR / "normalizer.py",
-    PIPELINE_DIR / "correlator.py",
-]
-
-# ssh_collector is deliberately NOT critical: it enriches auth context but
-# the rest of the pipeline (network visibility via DNS/TLS/Tetragon) is
-# still fully valid without it. dns_collector/tls_collector/dispatcher stay
-# critical because losing any of them means incomplete network capture.
-CRITICAL_PROCESSES = {"dns_collector", "tls_collector", "ssh_collector", "tcp_collector", "dispatcher"}
 PYTHON = sys.executable
+
+CRITICAL_PROCESSES = {
+    "dns_collector",
+    "tls_collector",
+    "ssh_collector",
+    "tcp_collector",
+    "http_collector",
+    "dispatcher",
+}
 
 
 def create_required_directories():
-    for d in REQUIRED_DIRS:
+    for d in paths.REQUIRED_DIRS:
         d.mkdir(parents=True, exist_ok=True)
         print(f"[main] ensured directory: {d}")
-
-
-def verify_required_scripts():
-    missing = [str(s) for s in REQUIRED_SCRIPTS if not s.is_file()]
-    if missing:
-        print("[main] FATAL: required script(s) missing:")
-        for m in missing:
-            print(f"  - {m}")
-        sys.exit(1)
-    print("[main] all required scripts present.")
 
 
 def verify_dependencies() -> bool:
@@ -93,45 +67,43 @@ def verify_dependencies() -> bool:
 
 
 def build_commands(tetra_available: bool) -> dict:
-    """Build the {name: argv} map of subprocess commands to launch."""
     commands = {
-        "dns_collector": [PYTHON, str(COLLECTORS_DIR / "dns_collector.py")],
-        "tls_collector": [PYTHON, str(COLLECTORS_DIR / "tls_collector.py")],
-        "ssh_collector": [PYTHON, str(COLLECTORS_DIR / "ssh_collector.py")],
-        "ssh_collector": [PYTHON, str(COLLECTORS_DIR / "tcp_collector.py")],
-
+        "dns_collector": [PYTHON, "-u", "-m", "observation.collectors.dns_collector"],
+        "tls_collector": [PYTHON, "-u", "-m", "observation.collectors.tls_collector"],
+        "ssh_collector": [PYTHON, "-u", "-m", "observation.collectors.ssh_collector"],
+        "tcp_collector": [PYTHON, "-u", "-m", "observation.collectors.tcp_collector"],
+        "http_collector": [PYTHON, "-u", "-m", "observation.collectors.http_collector"],
     }
-
     if tetra_available:
         commands["dispatcher"] = [
             "bash", "-c",
-            f"tetra getevents -o json | {PYTHON} {PIPELINE_DIR / 'dispatcher.py'}",
+            f"tetra getevents -o json | {PYTHON} -u -m observation.pipeline.dispatcher",
         ]
-
     return commands
-
 
 def run_post_processing():
     print("[main] running normalizer...")
-    subprocess.run([PYTHON, str(PIPELINE_DIR / "normalizer.py")], check=False)
+    run_normalizer()
     print("[main] running correlator...")
-    subprocess.run([PYTHON, str(PIPELINE_DIR / "correlator.py")], check=False)
+    run_correlator()
+    print("[main] loading into database...")
+    load_into_database()
 
 def reset_event_log_files():
     policy_files = [
-        "tcp-connect.jsonl",
-        "dns-queries.jsonl",
-        "dot-queries.jsonl",
-        "ssh-sessions.jsonl",
-        "listening-ports.jsonl",
-        "process-lifecycle.jsonl",
-        "_unmapped.jsonl",
+        paths.TCP_CONNECT_POLICY_FILE,
+        paths.DNS_QUERIES_POLICY_FILE,
+        paths.DOT_QUERIES_POLICY_FILE,
+        paths.SSH_SESSIONS_POLICY_FILE,
+        paths.LISTENING_PORTS_POLICY_FILE,
+        paths.PROCESS_EXEC_POLICY_FILE,
+        paths.PROCESS_EXIT_POLICY_FILE,
+        paths.SENSITIVE_FILE_ACCESS_POLICY_FILE,
+        paths.SUDO_EXEC_POLICY_FILE,
+        paths.CAPABILITY_CHANGE_POLICY_FILE,
     ]
 
-    event_dir = SAMPLES_DIR / "event_logs_by_policy"
-
-    for filename in policy_files:
-        path = event_dir / filename
+    for path in policy_files:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("", encoding="utf-8")
 

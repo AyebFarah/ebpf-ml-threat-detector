@@ -1,21 +1,28 @@
 import json
-from pathlib import Path
 from datetime import datetime
+from observation import paths
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-INPUT_FILE = BASE_DIR / "samples" / "unified_events" / "unified_events.jsonl"
-OUTPUT_FILE = BASE_DIR / "samples" / "unified_events" / "correlated_events.jsonl"
-SSH_SESSIONS_OUTPUT_FILE = BASE_DIR / "samples" / "unified_events" / "ssh_sessions.jsonl"
+INPUT_FILE = paths.UNIFIED_EVENTS_FILE
+OUTPUT_FILE = paths.CORRELATED_EVENTS_FILE
+SSH_SESSIONS_OUTPUT_FILE = paths.SSH_SESSIONS_FILE
 
 DNS_TIME_WINDOW_SECONDS = 5
 TLS_TIME_TOLERANCE_SECONDS = 5
 SSH_TIME_TOLERANCE_SECONDS = 5
 TCP_FLOW_TIME_TOLERANCE_SECONDS = 5
+FILE_ACTIVITY_TIME_WINDOW_SECONDS = 30
+PRIVILEGE_ACTIVITY_TIME_WINDOW_SECONDS = 30
+HTTP_TIME_TOLERANCE_SECONDS = 5
 
+
+HTTP_CORRELATION_METHOD = "five_tuple"
 TCP_FLOW_CORRELATION_METHOD = "five_tuple+start_ts"
 DNS_CORRELATION_METHOD = "resolved_ip+time"
 TLS_CORRELATION_METHOD = "five_tuple"
 SSH_CORRELATION_METHOD = "src_ip+src_port+dst_port22+time"
+PROCESS_CONTEXT_METHOD = "pid+most_recent_exec_before_connect"
+FILE_ACTIVITY_METHOD = "pid+time_window"
+PRIVILEGE_ACTIVITY_METHOD = "pid+time_window"
 
 SSH_PORT = 22
 
@@ -24,7 +31,7 @@ def parse_ts(ts: str) -> datetime:
     return datetime.fromisoformat(ts.replace("Z", "+00:00"))
 
 
-def load_events(path: Path) -> list:
+def load_events(path: paths) -> list:
     events = []
     with path.open(encoding="utf-8") as f:
         for line in f:
@@ -45,7 +52,9 @@ def split_by_source(events: list):
     tls_hellos = [e for e in events if e["source"] == "tls" and e["event_type"] == "tls_client_hello"]
     ssh_auth_success = [e for e in events if e["source"] == "ssh" and e["event_type"] == "ssh_auth_success"]
     tcp_flows = [e for e in events if e["source"] == "tcp" and e["event_type"] == "tcp_flow"]
-    return dns_responses, tcp_connects, tls_hellos, ssh_auth_success, tcp_flows
+    http_requests = [e for e in events if e["source"] == "http" and e["event_type"] == "http_request"]
+    http_responses = [e for e in events if e["source"] == "http" and e["event_type"] == "http_response"]
+    return dns_responses, tcp_connects, tls_hellos, ssh_auth_success, tcp_flows, http_requests, http_responses
 
 
 def index_dns_by_ip(dns_responses: list) -> dict:
@@ -191,72 +200,148 @@ def find_ssh_match(tcp_event, ssh_index):
     return best, best_delta
 
 
-def build_enriched_event(tcp_event, dns_match, dns_delta, tls_match, tls_delta, ssh_match, ssh_delta, tcp_flow_match, tcp_flow_delta):
-   dns_block = None
-   if dns_match:
-       dns_block = dict(dns_match["extra"])
-       dns_block["timestamp"] = dns_match["timestamp"]
-   tls_block = None
-   if tls_match:
-       tls_block = dict(tls_match["extra"])
-       tls_block["timestamp"] = tls_match["timestamp"]
-   ssh_block = None
-   if ssh_match:
-       ssh_block = dict(ssh_match["extra"])
-       ssh_block["timestamp"] = ssh_match["timestamp"]
-       ssh_block["dst_ip"] = tcp_event.get("dst_ip")
-   tcp_block = None
-   if tcp_flow_match:
-       tcp_block = dict(tcp_flow_match["extra"])
-   return {
-       "timestamp": tcp_event["timestamp"],
-       "process": tcp_event.get("process"),
+def build_enriched_event(tcp_event, dns_match, dns_delta, tls_match, tls_delta, ssh_match, ssh_delta,
+                         tcp_flow_match, tcp_flow_delta, process_context, file_matches, privilege_matches,
+                         http_request_match, http_response_match, http_delta):
+    dns_block = None
+    if dns_match:
+        dns_block = dict(dns_match["extra"])
+        dns_block["timestamp"] = dns_match["timestamp"]
+    tls_block = None
+    if tls_match:
+        tls_block = dict(tls_match["extra"])
+        tls_block["timestamp"] = tls_match["timestamp"]
+    ssh_block = None
+    if ssh_match:
+        ssh_block = dict(ssh_match["extra"])
+        ssh_block["timestamp"] = ssh_match["timestamp"]
+        ssh_block["dst_ip"] = tcp_event.get("dst_ip")
+    tcp_block = None
+    if tcp_flow_match:
+        tcp_block = dict(tcp_flow_match["extra"])
 
-       "network": {
-           "src_ip": tcp_event["src_ip"],
-           "dst_ip": tcp_event["dst_ip"],
-           "src_port": tcp_event["src_port"],
-           "dst_port": tcp_event["dst_port"],
-           "transport": tcp_event["transport"],
-           "direction": tcp_event.get("direction"),
-       },
+    process_context_block = None
+    if process_context:
+        ctx_extra = process_context.get("extra", {})
+        process_context_block = {
+            "exec_id": ctx_extra.get("exec_id"),
+            "parent_exec_id": ctx_extra.get("parent_exec_id"),
+            "parent_binary": ctx_extra.get("parent_binary"),
+            "arguments": ctx_extra.get("arguments"),
+            "uid": ctx_extra.get("uid"),
+            "cwd": ctx_extra.get("cwd"),
+            "start_time": ctx_extra.get("start_time"),
+        }
 
-       "dns": dns_block,
-       "tls": tls_block,
-       "ssh": None,
-       "tcp": tcp_block,
+    file_activity_block = [
+        {
+            "timestamp": f["timestamp"],
+            "path": f.get("extra", {}).get("path"),
+            "operations": f.get("extra", {}).get("operations"),
+        }
+        for f in file_matches
+    ]
 
-       "correlation": {
-           "dns_matched": dns_match is not None,
-           "dns_method": DNS_CORRELATION_METHOD,
-           "dns_time_delta_ms":
-               round(dns_delta * 1000) if dns_delta is not None else None,
+    privilege_activity_block = [
+        {
+            "timestamp": p["timestamp"],
+            "event_type": p["event_type"],
+            "detail": (
+                p.get("extra", {}).get("arguments")
+                if p["event_type"] == "sudo_exec"
+                else p.get("extra", {}).get("capability")
+            ),
+        }
+        for p in privilege_matches
+    ]
 
-           "tls_matched": tls_match is not None,
-           "tls_method": TLS_CORRELATION_METHOD,
-           "tls_time_delta_ms":
-               round(tls_delta * 1000) if tls_delta is not None else None,
+    http_block = None
+    if http_request_match or http_response_match:
+        http_block = {}
+        if http_request_match:
+            http_block.update({
+                "method": http_request_match.get("extra", {}).get("method"),
+                "host": http_request_match.get("extra", {}).get("host"),
+                "path_hash": http_request_match.get("extra", {}).get("path_hash"),
+                "path_length": http_request_match.get("extra", {}).get("path_length"),
+                "user_agent_hash": http_request_match.get("extra", {}).get("user_agent_hash"),
+                "request_timestamp": http_request_match["timestamp"],
+            })
+        if http_response_match:
+            http_block.update({
+                "status_code": http_response_match.get("extra", {}).get("status_code"),
+                "content_type": http_response_match.get("extra", {}).get("content_type"),
+                "content_length": http_response_match.get("extra", {}).get("content_length"),
+                "response_timestamp": http_response_match["timestamp"],
+            })
 
-           "ssh_matched": ssh_match is not None,
-           "ssh_method": SSH_CORRELATION_METHOD,
-           "ssh_time_delta_ms":
-               round(ssh_delta * 1000) if ssh_delta is not None else None,
+    return {
+        "timestamp": tcp_event["timestamp"],
+        "process": tcp_event.get("process"),
+        "process_context": process_context_block,
+        "file_activity": file_activity_block,
+        "privilege_activity": privilege_activity_block,
 
-           "tcp_flow_matched": tcp_flow_match is not None,
-           "tcp_flow_method": TCP_FLOW_CORRELATION_METHOD,
-           "tcp_flow_time_delta_ms":
-               round(tcp_flow_delta * 1000) if tcp_flow_delta is not None else None,
-       },
-   }
+        "network": {
+            "src_ip": tcp_event["src_ip"],
+            "dst_ip": tcp_event["dst_ip"],
+            "src_port": tcp_event["src_port"],
+            "dst_port": tcp_event["dst_port"],
+            "transport": tcp_event["transport"],
+            "direction": tcp_event.get("direction"),
+        },
 
+        "dns": dns_block,
+        "tls": tls_block,
+        "ssh": None,
+        "tcp": tcp_block,
+        "http": http_block,
+
+        "correlation": {
+            "dns_matched": dns_match is not None,
+            "dns_method": DNS_CORRELATION_METHOD,
+            "dns_time_delta_ms": round(dns_delta * 1000) if dns_delta is not None else None,
+
+            "tls_matched": tls_match is not None,
+            "tls_method": TLS_CORRELATION_METHOD,
+            "tls_time_delta_ms": round(tls_delta * 1000) if tls_delta is not None else None,
+
+            "ssh_matched": ssh_match is not None,
+            "ssh_method": SSH_CORRELATION_METHOD,
+            "ssh_time_delta_ms": round(ssh_delta * 1000) if ssh_delta is not None else None,
+
+            "tcp_flow_matched": tcp_flow_match is not None,
+            "tcp_flow_method": TCP_FLOW_CORRELATION_METHOD,
+            "tcp_flow_time_delta_ms": round(tcp_flow_delta * 1000) if tcp_flow_delta is not None else None,
+
+            "process_context_matched": process_context is not None,
+            "process_context_method": PROCESS_CONTEXT_METHOD,
+
+            "file_activity_count": len(file_matches),
+            "file_activity_method": FILE_ACTIVITY_METHOD,
+
+            "privilege_activity_count": len(privilege_matches),
+            "privilege_activity_method": PRIVILEGE_ACTIVITY_METHOD,
+
+            "http_matched": http_block is not None,
+            "http_method": HTTP_CORRELATION_METHOD,
+            "http_time_delta_ms": round(http_delta * 1000) if http_delta is not None else None,
+        },
+    }
 
 def correlate(events: list) -> list:
-    dns_responses, tcp_connects, tls_hellos, ssh_events, tcp_flows = split_by_source(events)
+    dns_responses, tcp_connects, tls_hellos, ssh_events, tcp_flows, http_requests, http_responses = split_by_source(events)
 
     dns_index = index_dns_by_ip(dns_responses)
     tls_index = index_tls_by_tuple(tls_hellos)
     ssh_index = index_ssh_by_src(ssh_events)
     tcp_flow_index = index_tcp_flows_by_tuple(tcp_flows)
+    http_request_index = index_http_requests_by_tuple(http_requests)
+    http_response_index = index_http_responses_by_tuple(http_responses)
+
+    process_index = index_process_exec_by_pid(events)
+    file_index = index_events_by_pid(events, "file", {"file_access"})
+    privilege_index = index_events_by_pid(events, "privilege", {"sudo_exec", "capability_use"})
 
     ssh_sessions, _ = build_ssh_sessions(events)
     ssh_sessions_index = index_ssh_sessions_by_connection(ssh_sessions)
@@ -268,6 +353,14 @@ def correlate(events: list) -> list:
         tls_match, tls_delta = find_tls_match(tcp_event, tls_index)
         ssh_match, ssh_delta = find_ssh_match(tcp_event, ssh_index)
         tcp_flow_match, tcp_flow_delta = find_tcp_flow_match(tcp_event, tcp_flow_index)
+
+        process_context = find_process_context(tcp_event, process_index)
+        file_matches = find_nearby_events(tcp_event, file_index, FILE_ACTIVITY_TIME_WINDOW_SECONDS)
+        privilege_matches = find_nearby_events(tcp_event, privilege_index, PRIVILEGE_ACTIVITY_TIME_WINDOW_SECONDS)
+
+        http_request_match, http_req_delta = find_http_request_match(tcp_event, http_request_index)
+        http_response_match, http_resp_delta = find_http_response_match(tcp_event, http_response_index)
+        http_delta = http_req_delta if http_req_delta is not None else http_resp_delta
 
         ssh_session = None
         if tcp_event.get("dst_port") == SSH_PORT:
@@ -293,6 +386,8 @@ def correlate(events: list) -> list:
         event = build_enriched_event(
             tcp_event, dns_match, dns_delta, tls_match, tls_delta,
             ssh_match, ssh_delta, tcp_flow_match, tcp_flow_delta,
+            process_context, file_matches, privilege_matches,
+            http_request_match, http_response_match, http_delta,
         )
 
         if ssh_block is not None:
@@ -401,6 +496,137 @@ def find_tcp_close_for_connect(tcp_connect_event: dict, closes_by_tuple: dict):
         if parse_ts(c["timestamp"]) >= connect_ts:
             return c
     return None
+
+def index_process_exec_by_pid(events: list) -> dict:
+    execs = [e for e in events if e["source"] == "process" and e["event_type"] == "process_exec"]
+    index = {}
+    for e in execs:
+        pid = (e.get("process") or {}).get("pid")
+        if pid is None:
+            continue
+        index.setdefault(pid, []).append(e)
+    for pid in index:
+        index[pid].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def find_process_context(tcp_event, process_index):
+    """
+    The process_exec that 'owns' this connection: the most recent exec
+    for this pid at or before the connect timestamp. Same anchor logic
+    as find_session_tcp_connect, applied to process lineage instead of
+    SSH sessions.
+    """
+    pid = (tcp_event.get("process") or {}).get("pid")
+    if pid is None:
+        return None
+    candidates = process_index.get(pid, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    best = None
+    for e in candidates:  # sorted ascending
+        if parse_ts(e["timestamp"]) <= tcp_ts:
+            best = e
+        else:
+            break
+    return best
+
+def index_http_requests_by_tuple(http_requests: list) -> dict:
+    """
+    Same convention as TLS: key by the connection's own 5-tuple, since
+    a request is sent client -> server, same direction as tcp_connect.
+    """
+    index = {}
+    for req in http_requests:
+        key = (req["src_ip"], req["dst_ip"], req["src_port"], req["dst_port"], req["transport"])
+        index.setdefault(key, []).append(req)
+    for key in index:
+        index[key].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def index_http_responses_by_tuple(http_responses: list) -> dict:
+    """
+    Responses travel server -> client, the reverse direction of the
+    tcp_connect they belong to. Keyed on the response's own (src, dst)
+    as observed on the wire; find_http_response_match swaps the
+    tcp_event's tuple to look this index up.
+    """
+    index = {}
+    for resp in http_responses:
+        key = (resp["src_ip"], resp["dst_ip"], resp["src_port"], resp["dst_port"], resp["transport"])
+        index.setdefault(key, []).append(resp)
+    for key in index:
+        index[key].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def find_http_request_match(tcp_event, http_request_index):
+    key = (tcp_event["src_ip"], tcp_event["dst_ip"], tcp_event["src_port"],
+           tcp_event["dst_port"], tcp_event["transport"])
+    candidates = http_request_index.get(key, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    best, best_delta = None, None
+    for req in candidates:
+        delta = (parse_ts(req["timestamp"]) - tcp_ts).total_seconds()
+        if 0 <= delta <= HTTP_TIME_TOLERANCE_SECONDS:
+            if best is None or delta < best_delta:
+                best, best_delta = req, delta
+    return best, best_delta
+
+
+def find_http_response_match(tcp_event, http_response_index):
+    """
+    Look up the response index using the tcp_event's tuple reversed
+    (server ip/port as src, client ip/port as dst) since that's how
+    the response actually appears on the wire.
+    """
+    key = (tcp_event["dst_ip"], tcp_event["src_ip"], tcp_event["dst_port"],
+           tcp_event["src_port"], tcp_event["transport"])
+    candidates = http_response_index.get(key, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    best, best_delta = None, None
+    for resp in candidates:
+        delta = (parse_ts(resp["timestamp"]) - tcp_ts).total_seconds()
+        if 0 <= delta <= HTTP_TIME_TOLERANCE_SECONDS:
+            if best is None or delta < best_delta:
+                best, best_delta = resp, delta
+    return best, best_delta
+
+
+def index_events_by_pid(events: list, source: str, event_types: set) -> dict:
+    """Generic pid index for any (source, event_type) pair. Used for
+    file_access and privilege (sudo_exec/capability_use) events."""
+    index = {}
+    for e in events:
+        if e["source"] != source or e["event_type"] not in event_types:
+            continue
+        pid = (e.get("process") or {}).get("pid")
+        if pid is None:
+            continue
+        index.setdefault(pid, []).append(e)
+    for pid in index:
+        index[pid].sort(key=lambda e: parse_ts(e["timestamp"]))
+    return index
+
+
+def find_nearby_events(tcp_event, index, window_seconds):
+    """
+    All events for the same pid within +/- window_seconds of the
+    connection. Bidirectional on purpose: privilege escalation or file
+    writes can precede OR follow the connection depending on the
+    attack pattern (stage-then-connect vs connect-then-persist).
+    """
+    pid = (tcp_event.get("process") or {}).get("pid")
+    if pid is None:
+        return []
+    candidates = index.get(pid, [])
+    tcp_ts = parse_ts(tcp_event["timestamp"])
+    matches = []
+    for e in candidates:
+        delta = abs((parse_ts(e["timestamp"]) - tcp_ts).total_seconds())
+        if delta <= window_seconds:
+            matches.append(e)
+    return matches
 
 
 def index_execve_by_pid(events: list) -> dict:
@@ -528,12 +754,20 @@ def main():
     sessions_with_tcp = sum(1 for s in ssh_sessions if s["tcp_connect_matched"])
     sessions_with_close = sum(1 for s in ssh_sessions if s["tcp_close_matched"])
     sessions_with_execve = sum(1 for s in ssh_sessions if s["execve_matched"])
+    with_process_context = sum(1 for e in enriched if e["correlation"]["process_context_matched"])
+    with_file_activity = sum(1 for e in enriched if e["correlation"]["file_activity_count"] > 0)
+    with_privilege_activity = sum(1 for e in enriched if e["correlation"]["privilege_activity_count"] > 0)
+    with_http = sum(1 for e in enriched if e["correlation"]["http_matched"])
 
     print(f"[correlator] {len(enriched)} tcp_connect events processed")
     print(f"[correlator] {with_dns} matched to a DNS response")
     print(f"[correlator] {with_tls} matched to a TLS ClientHello")
     print(f"[correlator] {with_ssh} matched to an SSH auth event")
     print(f"[correlator] {with_tcp_flow} matched to a TCP flow")
+    print(f"[correlator] {with_http} matched to an HTTP request")
+    print(f"[correlator] {with_process_context} matched to process context")
+    print(f"[correlator] {with_file_activity} have nearby file activity")
+    print(f"[correlator] {with_privilege_activity} have nearby privilege activity")
     print(f"[correlator] output -> {OUTPUT_FILE}")
     print(f"[correlator] {len(ssh_sessions)} ssh sessions built")
     print(f"[correlator] {sessions_with_tcp} sessions matched to a tcp_connect")

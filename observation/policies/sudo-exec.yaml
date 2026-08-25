@@ -1,0 +1,16 @@
+# Tracks sudo/su/pkexec invocation via sys_execve + matchBinaries.
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: "sudo-exec"
+spec:
+  kprobes:
+    - call: "sys_execve"
+      syscall: true
+      selectors:
+        - matchBinaries:
+            - operator: "In"
+              values:
+                - "/usr/bin/sudo"
+                - "/usr/bin/su"
+                - "/usr/bin/pkexec"
