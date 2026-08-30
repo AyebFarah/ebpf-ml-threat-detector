@@ -12,26 +12,31 @@ class RunsRepository:
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
 
-    def start_run(self) -> int:
+    def start_run(self, scenario: str, label: str = "benign",
+                  notes: Optional[str] = None) -> int:
         cur = self.conn.execute(
-            "INSERT INTO observation_runs (started_at, status) VALUES (?, ?)",
-            (_now(), "running"),
+            """
+            INSERT INTO observation_runs (started_at, status, scenario, label, notes)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (_now(), "running", scenario, label, notes),
         )
         return cur.lastrowid
 
     def complete_run(self, run_id: int, correlated_events_count: int,
                      ssh_sessions_count: int, source_correlated_file: Optional[str] = None,
-                     source_ssh_sessions_file: Optional[str] = None) -> None:
+                     source_ssh_sessions_file: Optional[str] = None,
+                     duration_seconds: Optional[int] = None) -> None:
         self.conn.execute(
             """
             UPDATE observation_runs
             SET ended_at = ?, status = ?, correlated_events_count = ?,
                 ssh_sessions_count = ?, source_correlated_file = ?,
-                source_ssh_sessions_file = ?
+                source_ssh_sessions_file = ?, duration_seconds = ?
             WHERE run_id = ?
             """,
             (_now(), "completed", correlated_events_count, ssh_sessions_count,
-             source_correlated_file, source_ssh_sessions_file, run_id),
+             source_correlated_file, source_ssh_sessions_file, duration_seconds, run_id),
         )
 
     def fail_run(self, run_id: int, error: str) -> None:
