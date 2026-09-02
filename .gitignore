@@ -1,5 +1,4 @@
 # Python
-
 __pycache__/
 *.py[cod]
 *$py.class
@@ -26,6 +25,10 @@ observation/samples/collectors_events/*.jsonl
 
 # Unified / normalized events
 observation/samples/unified_events/*.jsonl
+
+# Attack runs data
+observation/samples/attack_runs/*.json
+
 
 # Logs
 observation/samples/*.log
@@ -55,6 +58,4 @@ Thumbs.db
 *.db-shm
 *.db-wal
 *.db-journal
-
-observation/attack_lab/runs/
 

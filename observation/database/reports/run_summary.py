@@ -2,12 +2,11 @@
 
 import sqlite3
 import sys
-from pathlib import Path
 
 from ... import paths
 
 
-SUMMARY_FILE = Path(__file__).parent / "run_summary.txt"
+SUMMARY_FILE = paths.RUN_SUMMARY_FILE
 
 
 def summarize(run_id: int):

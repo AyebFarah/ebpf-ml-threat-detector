@@ -2,7 +2,7 @@ import ipaddress
 
 # Only these subnets may ever be targeted by an attack script. Anything
 # outside this list is refused by the wrapper before the pipeline even
-# starts — this is the last line of defense against accidentally pointing
+# starts, this is the last line of defense against accidentally pointing
 # an attack tool at a real network.
 ALLOWED_TARGET_SUBNETS = [
     "192.168.56.0/24",

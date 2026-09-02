@@ -54,7 +54,7 @@ For every attack run, we record:
 This is stored in two places:
 
 1. **SQLite**: `attack_run_metadata` table, linked to `observation_runs.run_id`.
-2. **JSON manifest**: `observation/attack_lab/runs/<timestamp>_<scenario>_run<run_id>.json`.
+2. **JSON manifest**: `observation/samples/attack_runs/<timestamp>_<scenario>_run<run_id>.json`.
 
 This dual storage makes the data both queryable (SQL) and portable/self-describing (JSON).
 
@@ -377,4 +377,3 @@ The tight bracketing ensures that:
 ### 8.2. Adding a new near-miss scenario
 
 Same process, but place the script in `near_miss/` and label the run as `benign`.
-

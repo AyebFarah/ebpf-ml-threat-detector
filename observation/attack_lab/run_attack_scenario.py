@@ -5,7 +5,7 @@ Wrapper for attack-scenario collection runs. Handles:
   - waiting for collectors to be ready
   - running the attack script with precise start/end timestamps
   - stopping the pipeline (triggers post-processing: normalize/correlate/load)
-  - writing a JSON manifest to observation/attack_lab/runs/
+  - writing a JSON manifest to observation/samples/attack_runs/
   - inserting the attack_run_metadata row
 
 Usage:
@@ -29,16 +29,15 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
 from .pipeline_controller import AttackPipelineController
 from . import config
 from .config import is_target_allowed
 from .label_validator import validate_label
+from .. import paths
 from ..database.connection import connect, apply_migrations
 from ..database.repositories.attack_run_metadata import AttackRunMetadataRepository
 
-RUNS_DIR = Path(__file__).parent / "runs"
 COLLECTOR_WARMUP_SECONDS = 5
 SETTLE_SECONDS = 5
 
@@ -134,9 +133,9 @@ def main():
             manifest_path=None,
         )
 
-    RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    paths.ATTACK_RUNS_DIR.mkdir(parents=True, exist_ok=True)
     ts_slug = attack_start_ts.replace(":", "-").split("+")[0].split(".")[0]
-    manifest_path = RUNS_DIR / f"{ts_slug}_{args.scenario}_run{run_id}.json"
+    manifest_path = paths.ATTACK_RUNS_DIR / f"{ts_slug}_{args.scenario}_run{run_id}.json"
     manifest = {
         "run_id": run_id, "scenario": args.scenario, "label": label,
         "attack_command": attack_cmd, "parameters": parameters,

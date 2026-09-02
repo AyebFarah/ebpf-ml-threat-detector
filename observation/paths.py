@@ -2,10 +2,15 @@ from pathlib import Path
 
 OBSERVATION_DIR = Path(__file__).resolve().parent
 SAMPLES_DIR = OBSERVATION_DIR / "samples"
+ATTACK_LAB_DIR = OBSERVATION_DIR / "attack_lab"
+ATTACK_SCENARIOS_DIR = ATTACK_LAB_DIR / "scenarios"
+ATTACK_NEAR_MISS_DIR = ATTACK_LAB_DIR / "near_miss"
 
 COLLECTORS_EVENTS_DIR = SAMPLES_DIR / "collectors_events"
 EVENT_LOGS_BY_POLICY_DIR = SAMPLES_DIR / "event_logs_by_policy"
 UNIFIED_EVENTS_DIR = SAMPLES_DIR / "unified_events"
+ATTACK_RUNS_DIR = SAMPLES_DIR / "attack_runs"
+
 
 # Collector outputs
 DNS_EVENTS_FILE = COLLECTORS_EVENTS_DIR / "dns_events.jsonl"
@@ -51,9 +56,12 @@ REQUIRED_DIRS = (
     COLLECTORS_EVENTS_DIR,
     EVENT_LOGS_BY_POLICY_DIR,
     UNIFIED_EVENTS_DIR,
+    ATTACK_RUNS_DIR,
 )
 
 # Database
 DATABASE_DIR = OBSERVATION_DIR / "database"
 DATABASE_FILE = DATABASE_DIR / "observations.db"
 MIGRATIONS_DIR = DATABASE_DIR / "migrations"
+REPORTS_DIR = DATABASE_DIR / "reports"
+RUN_SUMMARY_FILE = REPORTS_DIR / "run_summary.txt"
