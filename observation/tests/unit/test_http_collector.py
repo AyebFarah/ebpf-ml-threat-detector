@@ -1,4 +1,4 @@
-from observation.collectors.http_collector import (
+from ...collectors.http_collector import (
     split_head, parse_headers, hash_value,
     REQUEST_LINE_RE, RESPONSE_LINE_RE,
 )

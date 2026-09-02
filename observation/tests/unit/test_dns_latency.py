@@ -1,4 +1,4 @@
-from observation.pipeline.normalizer import normalize_dns, attach_dns_response_latency
+from ...pipeline.normalizer import normalize_dns, attach_dns_response_latency
 
 QUERY = {
     "timestamp": "2026-08-20T12:00:00.000000000Z",

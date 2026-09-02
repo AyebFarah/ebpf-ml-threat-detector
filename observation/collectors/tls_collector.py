@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timezone
 from scapy.all import sniff, TCP, IP, IPv6
-from observation.collectors.ja4 import compute_ja4
-from observation import paths
+from .ja4 import compute_ja4
+from .. import paths
 
 OUTPUT_FILE = paths.TLS_EVENTS_FILE
 

@@ -19,7 +19,7 @@ Usage:
       --target-port 22 \
       --expected "Many SSH auth failures from one source IP to one target" \
       --notes "Lab VM, isolated network" \
-      --operator pharah \
+      --operator Username \
       -- ./observation/attack_lab/ssh_bruteforce.sh 192.168.56.10 testuser medium
 """
 from __future__ import annotations
@@ -31,12 +31,12 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from observation.attack_lab.pipeline_controller import AttackPipelineController
-from observation.attack_lab import config
-from observation.attack_lab.config import is_target_allowed
-from observation.attack_lab.label_validator import validate_label
-from observation.database.connection import connect, apply_migrations
-from observation.database.repositories.attack_run_metadata import AttackRunMetadataRepository
+from .pipeline_controller import AttackPipelineController
+from . import config
+from .config import is_target_allowed
+from .label_validator import validate_label
+from ..database.connection import connect, apply_migrations
+from ..database.repositories.attack_run_metadata import AttackRunMetadataRepository
 
 RUNS_DIR = Path(__file__).parent / "runs"
 COLLECTOR_WARMUP_SECONDS = 5

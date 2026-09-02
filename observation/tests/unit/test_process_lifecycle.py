@@ -1,7 +1,7 @@
 import json
-from observation.pipeline.dispatcher import dispatch_raw_event
-from observation.pipeline.normalizer import normalize_process_exec, normalize_process_exit
-from observation import paths
+from ...pipeline.dispatcher import dispatch_raw_event
+from ...pipeline.normalizer import normalize_process_exec, normalize_process_exit
+from ... import paths
 
 SAMPLE_EXEC = {
     "process_exec": {

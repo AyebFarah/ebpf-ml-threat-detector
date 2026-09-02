@@ -1,6 +1,6 @@
 import json
 import re
-from observation import paths
+from .. import paths
 from datetime import datetime
 
 

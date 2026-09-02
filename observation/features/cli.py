@@ -6,9 +6,9 @@ Usage:
     """
 
 import argparse
-from observation.database.connection import connect, apply_migrations
-from observation.features import extractor, baseline
-from observation.features.repositories.feature_windows import FeatureWindowsRepository
+from ..database.connection import connect, apply_migrations
+from . import extractor, baseline
+from .repositories.feature_windows import FeatureWindowsRepository
 
 
 def _resolve_run_ids(conn, run_ids: list[int] | None, all_runs: bool, exclude: list[int]) -> list[int]:

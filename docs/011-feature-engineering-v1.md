@@ -95,7 +95,7 @@ test membership against a character-set rule:
 - hex-like: label length ≥ 8, characters entirely from `[0-9a-fA-F]`
 
 Ratio = matching labels / total labels in the window. Implementation:
-`observation/features/string_features.py`.
+`observation/features/utils/string_features.py`.
 
 **Source:** `dns_observations.query_name`.
 

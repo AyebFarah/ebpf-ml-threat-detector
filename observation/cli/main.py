@@ -1,6 +1,6 @@
 import argparse
 import sys
-from observation.orchestrator import run
+from ..orchestrator import run
 
 def parse_args():
     parser = argparse.ArgumentParser(

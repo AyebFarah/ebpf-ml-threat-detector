@@ -2,13 +2,13 @@ from __future__ import annotations
 from collections import defaultdict
 from statistics import mean, stdev
 
-from observation.features.config import (
+from .config import (
     WELL_KNOWN_PORT_MAX, HIGH_PORT_MIN, RARE_JA4_THRESHOLD,
     SENSITIVE_TIER1_PREFIXES, SHELL_BINARIES, INTERPRETER_BINARIES,
 )
-from observation.features.entropy import shannon_entropy
-from observation.features.ip_utils import is_private_ip, is_external_ip
-from observation.features.string_features import domain_label_stats
+from .utils.entropy import shannon_entropy
+from .utils.ip_utils import is_private_ip, is_external_ip
+from .utils.string_features import domain_label_stats
 
 
 def _p95(values: list[float]) -> float | None:

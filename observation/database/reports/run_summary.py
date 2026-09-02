@@ -4,7 +4,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-from observation import paths
+from ... import paths
 
 
 SUMMARY_FILE = Path(__file__).parent / "run_summary.txt"

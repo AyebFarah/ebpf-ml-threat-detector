@@ -5,9 +5,9 @@ import sqlite3
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from observation.features.config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
-from observation.features import groups
-from observation.features.process_tree import build_ancestry_map, ProcessTreeDepthCalculator
+from .config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
+from . import groups
+from .process_tree import build_ancestry_map, ProcessTreeDepthCalculator
 
 
 def _parse_ts(ts: str) -> datetime:

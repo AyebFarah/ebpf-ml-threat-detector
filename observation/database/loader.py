@@ -1,11 +1,11 @@
 import json
 import time
 from pathlib import Path
-from observation import paths
-from observation.database.connection import connect, apply_migrations
-from observation.database.repositories.runs import RunsRepository
-from observation.database.repositories.correlated_events import CorrelatedEventsRepository
-from observation.database.repositories.ssh_sessions import SshSessionsRepository
+from .. import paths
+from .connection import connect, apply_migrations
+from .repositories.runs import RunsRepository
+from .repositories.correlated_events import CorrelatedEventsRepository
+from .repositories.ssh_sessions import SshSessionsRepository
 
 
 def _read_jsonl(path: Path) -> list:

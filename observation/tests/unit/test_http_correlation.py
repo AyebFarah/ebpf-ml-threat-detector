@@ -1,4 +1,4 @@
-from observation.pipeline.correlator import (
+from ...pipeline.correlator import (
     index_http_requests_by_tuple, index_http_responses_by_tuple,
     find_http_request_match, find_http_response_match,
     build_enriched_event, HTTP_CORRELATION_METHOD,

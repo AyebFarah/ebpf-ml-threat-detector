@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from observation import paths
+from .. import paths
 
 INPUT_FILE = paths.UNIFIED_EVENTS_FILE
 OUTPUT_FILE = paths.CORRELATED_EVENTS_FILE

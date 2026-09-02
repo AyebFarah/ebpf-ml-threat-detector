@@ -2,10 +2,10 @@ import os
 import shutil
 import subprocess
 import sys
-from observation import paths
-from observation.pipeline.normalizer import main as run_normalizer
-from observation.pipeline.correlator import main as run_correlator
-from observation.database.loader import load_into_database
+from .. import paths
+from ..pipeline.normalizer import main as run_normalizer
+from ..pipeline.correlator import main as run_correlator
+from ..database.loader import load_into_database
 
 PYTHON = sys.executable
 

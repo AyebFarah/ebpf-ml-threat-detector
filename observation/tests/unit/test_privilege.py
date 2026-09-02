@@ -1,4 +1,4 @@
-from observation.pipeline.normalizer import normalize_sudo_exec, normalize_capability_change
+from ...pipeline.normalizer import normalize_sudo_exec, normalize_capability_change
 
 SAMPLE_SUDO = {
     "process_kprobe": {

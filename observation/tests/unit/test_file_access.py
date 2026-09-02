@@ -1,4 +1,4 @@
-from observation.pipeline.normalizer import normalize_sensitive_file_access
+from ...pipeline.normalizer import normalize_sensitive_file_access
 
 SAMPLE = {
     "process_kprobe": {

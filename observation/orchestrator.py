@@ -1,6 +1,6 @@
 import time
-from observation.runtime import bootstrap
-from observation.runtime.supervisor import ProcessSupervisor
+from .runtime import bootstrap
+from .runtime.supervisor import ProcessSupervisor
 
 
 def start_pipeline() -> ProcessSupervisor:

@@ -3,7 +3,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timezone
-from observation import paths
+from .. import paths
 from pathlib import Path
 
 OUTPUT_FILE = paths.SSH_EVENTS_FILE

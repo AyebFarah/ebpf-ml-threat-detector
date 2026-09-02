@@ -1,13 +1,13 @@
 from __future__ import annotations
 import sqlite3
-from observation.database.models import CorrelatedEvent
-from observation.database.repositories.process_observations import ProcessObservationsRepository
-from observation.database.repositories.dns_observations import DnsObservationsRepository
-from observation.database.repositories.tls_observations import TlsObservationsRepository
-from observation.database.repositories.tcp_flow_observations import TcpFlowObservationsRepository
-from observation.database.repositories.http_observations import HttpObservationsRepository
-from observation.database.repositories.file_activity import FileActivityRepository
-from observation.database.repositories.privilege_activity import PrivilegeActivityRepository
+from ..models import CorrelatedEvent
+from .process_observations import ProcessObservationsRepository
+from .dns_observations import DnsObservationsRepository
+from .tls_observations import TlsObservationsRepository
+from .tcp_flow_observations import TcpFlowObservationsRepository
+from .http_observations import HttpObservationsRepository
+from .file_activity import FileActivityRepository
+from .privilege_activity import PrivilegeActivityRepository
 
 _CORE_COLUMNS = (
     "run_id", "timestamp", "src_ip", "dst_ip", "src_port", "dst_port",

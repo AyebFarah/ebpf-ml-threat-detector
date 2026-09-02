@@ -4,7 +4,7 @@ import re
 import traceback
 from datetime import datetime, timezone
 from scapy.all import sniff, TCP, IP, IPv6, Raw
-from observation import paths
+from .. import paths
 
 OUTPUT_FILE = paths.HTTP_EVENTS_FILE
 

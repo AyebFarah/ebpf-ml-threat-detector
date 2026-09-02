@@ -1,6 +1,6 @@
 import sqlite3
 from contextlib import contextmanager
-from observation import paths
+from .. import paths
 
 
 def _configure(conn: sqlite3.Connection) -> None:

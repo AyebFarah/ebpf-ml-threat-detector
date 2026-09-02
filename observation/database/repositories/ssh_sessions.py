@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sqlite3
-from observation.database.models import SshSessionRecord
+from ..models import SshSessionRecord
 
 _COLUMNS = (
     "run_id", "session_key", "username", "src_ip", "src_port", "pid",

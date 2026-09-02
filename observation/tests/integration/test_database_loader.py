@@ -1,14 +1,14 @@
 import pytest
 
-from observation import paths
-from observation.database.connection import apply_migrations, connect
-from observation.database.repositories.runs import RunsRepository
-from observation.database.repositories.correlated_events import CorrelatedEventsRepository
-from observation.database.repositories.dns_observations import DnsObservationsRepository
-from observation.database.repositories.tls_observations import TlsObservationsRepository
-from observation.database.repositories.tcp_flow_observations import TcpFlowObservationsRepository
-from observation.database.repositories.http_observations import HttpObservationsRepository
-from observation.database.repositories.file_activity import FileActivityRepository
+from ... import paths
+from ...database.connection import apply_migrations, connect
+from ...database.repositories.runs import RunsRepository
+from ...database.repositories.correlated_events import CorrelatedEventsRepository
+from ...database.repositories.dns_observations import DnsObservationsRepository
+from ...database.repositories.tls_observations import TlsObservationsRepository
+from ...database.repositories.tcp_flow_observations import TcpFlowObservationsRepository
+from ...database.repositories.http_observations import HttpObservationsRepository
+from ...database.repositories.file_activity import FileActivityRepository
 
 
 SAMPLE_RECORD = {
