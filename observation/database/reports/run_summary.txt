@@ -238,3 +238,63 @@ run_id=26  scenario=git_workflow  label=benign
   ssh_sessions       = 0
 ============================================================
 
+run_id=27  scenario=git_workflow  label=benign
+  status             = completed
+  duration_seconds   = 317
+  notes              = Git commands
+  tcp_connect_events = 40
+  tls_matched                = 0.8
+  dns_matched                = 0.8
+  process_context_matched    = 0.1
+  http_matched               = 0.1
+  ssh_sessions       = 0
+============================================================
+
+run_id=28  scenario=docker_workflow  label=benign
+  status             = completed
+  duration_seconds   = 249
+  notes              = docker, browsing
+  tcp_connect_events = 594
+  tls_matched                = 0.502
+  dns_matched                = 0.566
+  process_context_matched    = 0.976
+  http_matched               = 0.003
+  ssh_sessions       = 0
+============================================================
+
+run_id=29  scenario=docker_workflow  label=benign
+  status             = completed
+  duration_seconds   = 260
+  notes              = docker, browsing
+  tcp_connect_events = 126
+  tls_matched                = 0.905
+  dns_matched                = 0.889
+  process_context_matched    = 0.079
+  http_matched               = 0.0
+  ssh_sessions       = 0
+
+
+run_id=31  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_seconds   = 1892
+  notes              = IDEs, browsing
+  tcp_connect_events = 263
+  tls_matched                = 0.875
+  dns_matched                = 0.692
+  process_context_matched    = 0.548
+  http_matched               = 0.038
+  ssh_sessions       = 0
+============================================================
+
+run_id=32  scenario=system_update  label=benign
+  status             = completed
+  duration_seconds   = 286
+  notes              = Updates
+  tcp_connect_events = 24
+  tls_matched                = 0.708
+  dns_matched                = 0.542
+  process_context_matched    = 0.5
+  http_matched               = 0.042
+  ssh_sessions       = 0
+============================================================
+

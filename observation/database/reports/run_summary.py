@@ -79,6 +79,22 @@ def summarize(run_id: int):
 
         lines.append(f"  ssh_sessions       = {ssh}")
 
+        # Attack-run audit check: every attack:* labeled run must have a
+        # matching attack_run_metadata row (inserted automatically by the
+        # attack wrapper). A missing row means the run bypassed the wrapper
+        # (e.g. was created manually) and needs backfilling before it
+        # counts as audit-complete. Kept in `lines` so it's captured in
+        # both terminal output and the persisted summary file, not just
+        # flashed to the terminal and lost.
+        if run["label"] and run["label"].startswith("attack:"):
+            meta = conn.execute(
+                "SELECT 1 FROM attack_run_metadata WHERE run_id = ?", (run_id,)
+            ).fetchone()
+            if meta is None:
+                lines.append("  *** WARNING: attack run has NO attack_run_metadata row ***")
+            else:
+                lines.append("  attack_run_metadata      = present")
+
         summary = "\n".join(lines)
 
         # Print summary to terminal
