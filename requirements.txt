@@ -1,0 +1,5 @@
+# Network packet capture and protocol parsing
+scapy==2.6.1
+
+# Testing
+pytest==8.4.2
