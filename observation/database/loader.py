@@ -6,6 +6,7 @@ from .connection import connect, apply_migrations
 from .repositories.runs import RunsRepository
 from .repositories.correlated_events import CorrelatedEventsRepository
 from .repositories.ssh_sessions import SshSessionsRepository
+from .repositories.tcp_flows_raw import TcpFlowsRawRepository
 
 
 def _read_jsonl(path: Path) -> list:
@@ -20,12 +21,11 @@ def _read_jsonl(path: Path) -> list:
     return records
 
 
-def load_into_database(scenario: str, label: str = "benign",
-                       notes: str | None = None,
-                       duration_seconds: int | None = None) -> int:
+def load_into_database(scenario, label="benign", notes=None, duration_seconds=None):
     apply_migrations()
     correlated_records = _read_jsonl(paths.CORRELATED_EVENTS_FILE)
     ssh_session_records = _read_jsonl(paths.SSH_SESSIONS_FILE)
+    tcp_flow_records = _read_jsonl(paths.TCP_EVENTS_FILE)
 
     with connect() as conn:
         runs = RunsRepository(conn)
@@ -33,6 +33,7 @@ def load_into_database(scenario: str, label: str = "benign",
         try:
             correlated_count = CorrelatedEventsRepository(conn).insert_many(run_id, correlated_records)
             ssh_count = SshSessionsRepository(conn).insert_many(run_id, ssh_session_records)
+            tcp_flow_raw_count = TcpFlowsRawRepository(conn).insert_many(run_id, tcp_flow_records)
             runs.complete_run(
                 run_id,
                 correlated_events_count=correlated_count,
@@ -44,10 +45,9 @@ def load_into_database(scenario: str, label: str = "benign",
         except Exception as exc:
             runs.fail_run(run_id, str(exc))
             raise
-
     print(f"[db] run {run_id} ({scenario}/{label}): inserted {correlated_count} correlated events "
           f"(with DNS/TLS/TCP/HTTP/file/privilege detail rows), "
-          f"{ssh_count} ssh sessions -> {paths.DATABASE_FILE}")
+          f"{ssh_count} ssh sessions, {tcp_flow_raw_count} raw tcp flows -> {paths.DATABASE_FILE}")
     return run_id
 
 

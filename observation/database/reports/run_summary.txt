@@ -297,4 +297,55 @@ run_id=32  scenario=system_update  label=benign
   http_matched               = 0.042
   ssh_sessions       = 0
 ============================================================
+run_id=1  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+  status             = completed
+  duration_seconds   = 10
+  notes              = hydra medium intensity
+  tcp_connect_events = 1
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 5
+  attack_run_metadata      = present
+============================================================
+
+run_id=2  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  duration_seconds   = 3
+  notes              = verifying flow-only fallback works for this scenario too
+  tcp_connect_events = 2
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 1
+  attack_run_metadata      = present
+============================================================
+
+run_id=3  scenario=port_scan  label=attack:port_scan:T1046
+  status             = completed
+  duration_seconds   = 0
+  notes              = clean rerun, killed orphaned tetra getevents processes first
+  tcp_connect_events = 1
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 0
+  attack_run_metadata      = present
+============================================================
+
+run_id=4  scenario=memory_dump  label=attack:memory_dump:T1003
+  status             = completed
+  duration_seconds   = 97
+  notes              = simulated credential dumping via /proc scraping
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  ssh_sessions       = 0
+  attack_run_metadata      = present
+============================================================
 

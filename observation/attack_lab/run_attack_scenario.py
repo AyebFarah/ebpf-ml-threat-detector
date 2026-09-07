@@ -39,7 +39,7 @@ from ..database.connection import connect, apply_migrations
 from ..database.repositories.attack_run_metadata import AttackRunMetadataRepository
 
 COLLECTOR_WARMUP_SECONDS = 5
-SETTLE_SECONDS = 5
+SETTLE_SECONDS = 10
 
 
 def _now_iso() -> str:

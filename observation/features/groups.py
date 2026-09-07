@@ -43,10 +43,19 @@ def basic_counts(rows, ssh_total) -> dict:
         "ssh_attempt_count": ssh_total,
     }
 
-
-def network_topology(rows) -> dict:
+def network_topology(rows, extra_flows=None) -> dict:
     dst_ips = [r["dst_ip"] for r in rows if r["dst_ip"]]
     dst_ports = [r["dst_port"] for r in rows if r["dst_port"] is not None]
+
+    if extra_flows:
+        seen = {(r["dst_ip"], r["dst_port"]) for r in rows if r["dst_ip"] and r["dst_port"] is not None}
+        for f in extra_flows:
+            key = (f["dst_ip"], f["dst_port"])
+            if f["dst_ip"] and f["dst_port"] is not None and key not in seen:
+                seen.add(key)
+                dst_ips.append(f["dst_ip"])
+                dst_ports.append(f["dst_port"])
+
     src_ports = {r["src_port"] for r in rows if r["src_port"] is not None}
     ip_counts = defaultdict(int)
     for ip in dst_ips:
