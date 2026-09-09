@@ -336,11 +336,12 @@ Result:
 
 ### 6.2. Near-miss run
 
-Same command, but:
+Scripts are run with the same commands as a benign traffic.
 
-- Script from `near_miss/`.
-- `--family` and `--technique` can still be MITRE-like (for documentation), but label in DB is `benign`.
-- `notes` indicate “Near-miss: legitimate admin activity”.
+**Example :**
+
+python3 -m observation.cli.main --scenario ssh_retry_storm --label benign --notes "near miss: misconfigured backup script retrying SSH"
+
 
 ---
 
@@ -362,18 +363,3 @@ The tight bracketing ensures that:
 - Labels are trustworthy for training and evaluation.
 
 ---
-
-## 8. Extending the lab
-
-### 8.1. Adding a new attack scenario
-
-1. Create a new script in `scenarios/` with:
-  - Parameter parsing (target, intensity).
-  - Clear header/footer with timestamps.
-  - Attack logic.
-2. Make it executable.
-3. Run it via the wrapper with appropriate `--scenario`, `--family`, `--technique`.
-
-### 8.2. Adding a new near-miss scenario
-
-Same process, but place the script in `near_miss/` and label the run as `benign`.
