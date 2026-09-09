@@ -61,7 +61,7 @@ def summarize(run_id: int):
             f"scenario={run['scenario']}  "
             f"label={run['label']}",
             f"  status             = {run['status']}",
-            f"  duration_seconds   = {run['duration_seconds']}",
+            f"  duration_ms        = {run['duration_ms']}",
             f"  notes              = {run['notes']}",
             f"  tcp_connect_events = {total}",
         ]

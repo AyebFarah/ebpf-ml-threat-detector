@@ -7,9 +7,6 @@ from .. import paths
 
 OUTPUT_FILE = paths.TCP_EVENTS_FILE
 
-def ensure_output_dir():
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-
 FLAG_FIN = 0x01
 FLAG_SYN = 0x02
 FLAG_RST = 0x04
@@ -30,6 +27,9 @@ SWEEP_INTERVAL_PACKETS = 200
 _flows = {}
 _packet_counter = 0
 
+
+def ensure_output_dir():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 def packet_timestamp(packet):
     return datetime.fromtimestamp(float(packet.time), tz=timezone.utc).isoformat()
@@ -68,7 +68,7 @@ def flow_key(ip_a, port_a, ip_b, port_b):
     """
     Canonical, direction-independent key. A SYN and its SYN-ACK reply
     have swapped src/dst, so we sort the endpoint pair rather than
-    keying on raw src/dst — otherwise every reply would look like a
+    keying on raw src/dst, otherwise every reply would look like a
     brand-new flow.
     """
     a, b = (ip_a, port_a), (ip_b, port_b)
@@ -139,9 +139,9 @@ def update_flow_counters(flow, ip, tcp, packet, timestamp):
 
 
 def finalize_flow(flow, end_ts, reason):
-    duration = None
+    duration_ms = None
     try:
-        duration = (parse_ts(end_ts) - parse_ts(flow["start_ts"])).total_seconds()
+        duration_ms = round((parse_ts(end_ts) - parse_ts(flow["start_ts"])).total_seconds() * 1000, 3)
     except ValueError:
         pass
 
@@ -165,7 +165,7 @@ def finalize_flow(flow, end_ts, reason):
         "direction": "outbound",
         "start_ts": flow["start_ts"],
         "end_ts": end_ts,
-        "duration_seconds": duration,
+        "duration_ms": duration_ms,
         "handshake_completed": flow["handshake_completed"],
         "handshake_rtt_ms": handshake_rtt_ms,
         "termination_reason": reason,
@@ -187,7 +187,7 @@ def finalize_flow(flow, end_ts, reason):
     print(
         f"[TCP FLOW] {event['src_ip']}:{event['src_port']} -> "
         f"{event['dst_ip']}:{event['dst_port']} reason={reason} "
-        f"dur={duration} pkts={event['packets_out']}/{event['packets_in']} "
+        f"dur={duration_ms} ms pkts={event['packets_out']}/{event['packets_in']} "
         f"bytes={event['bytes_out']}/{event['bytes_in']}"
     )
 

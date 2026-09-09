@@ -10,11 +10,12 @@ class PrivilegeActivityRepository:
         if not privilege_activity:
             return
         self.conn.executemany(
-            "INSERT INTO privilege_activity_events (correlated_event_id, timestamp, event_type, detail) "
-            "VALUES (?, ?, ?, ?)",
+            "INSERT INTO privilege_activity_events (correlated_event_id, timestamp, event_type, detail, source_event_key) "
+            "VALUES (?, ?, ?, ?, ?)",
             [
                 (correlated_event_id, p.get("timestamp"), p.get("event_type"),
-                 str(p.get("detail")) if p.get("detail") is not None else None)
+                 str(p.get("detail")) if p.get("detail") is not None else None,
+                 p.get("source_event_key"))
                 for p in privilege_activity
             ],
         )

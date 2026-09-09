@@ -68,7 +68,7 @@ A TCP flow contains information such as:
 - `transport`
 - `start_ts`
 - `end_ts`
-- `duration_seconds`
+- `duration_ms`
 - `packets_sent`
 - `packets_received`
 - `bytes_sent`

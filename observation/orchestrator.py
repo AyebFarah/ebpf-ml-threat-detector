@@ -19,16 +19,16 @@ def start_pipeline() -> ProcessSupervisor:
 
 def stop_pipeline_and_postprocess(supervisor: ProcessSupervisor, scenario: str,
                                   label: str, notes: str | None,
-                                  duration_seconds: int) -> int:
+                                  duration_ms: int) -> int:
     """Stops all collectors and runs post-processing (normalize/correlate/
     load). Returns the resulting run_id."""
     supervisor.stop_all()
     print("[orchestrator] all collectors stopped.")
     print(f"[orchestrator] running post-processing (scenario={scenario}, "
-          f"label={label}, duration={duration_seconds}s)...")
+          f"label={label}, duration={duration_ms}ms)...")
     return bootstrap.run_post_processing(
         scenario=scenario, label=label, notes=notes,
-        duration_seconds=duration_seconds,
+        duration_ms=duration_ms,
     )
 
 
@@ -58,13 +58,13 @@ def run(post_process: bool = True, scenario: str | None = None,
     except KeyboardInterrupt:
         print("\n[orchestrator] Ctrl+C received.")
     finally:
-        duration_seconds = int(time.time() - start_ts)
+        duration_ms = int((time.time() - start_ts) * 1000)
         if post_process:
             if not scenario:
                 scenario = input("[orchestrator] Scenario name for this run: ").strip()
                 if not scenario:
                     scenario = "untagged"
-            stop_pipeline_and_postprocess(supervisor, scenario, label, notes, duration_seconds)
+            stop_pipeline_and_postprocess(supervisor, scenario, label, notes, duration_ms)
         else:
             supervisor.stop_all()
             print("[orchestrator] all collectors stopped.")

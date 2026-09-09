@@ -31,11 +31,13 @@ def _basename(path):
     return path.rsplit("/", 1)[-1] if path else None
 
 
-def basic_counts(rows, ssh_total) -> dict:
+def basic_counts(rows, ssh_total, extra_flows=None) -> dict:
     n = len(rows)
+    flow_count = n + (len(extra_flows) if extra_flows else 0)
     return {
         "event_count": n,
         "tcp_connect_count": n,
+        "total_flow_count": flow_count,
         "tcp_close_count": sum(1 for r in rows if r["tcp_flow_matched"]),
         "dns_query_count": sum(1 for r in rows if r["dns_domain"]),
         "tls_connection_count": sum(1 for r in rows if r["tls_matched"]),
@@ -46,17 +48,13 @@ def basic_counts(rows, ssh_total) -> dict:
 def network_topology(rows, extra_flows=None) -> dict:
     dst_ips = [r["dst_ip"] for r in rows if r["dst_ip"]]
     dst_ports = [r["dst_port"] for r in rows if r["dst_port"] is not None]
+    src_ports = {r["src_port"] for r in rows if r["src_port"] is not None}
 
     if extra_flows:
-        seen = {(r["dst_ip"], r["dst_port"]) for r in rows if r["dst_ip"] and r["dst_port"] is not None}
-        for f in extra_flows:
-            key = (f["dst_ip"], f["dst_port"])
-            if f["dst_ip"] and f["dst_port"] is not None and key not in seen:
-                seen.add(key)
-                dst_ips.append(f["dst_ip"])
-                dst_ports.append(f["dst_port"])
+        dst_ips += [f["dst_ip"] for f in extra_flows if f["dst_ip"]]
+        dst_ports += [f["dst_port"] for f in extra_flows if f["dst_port"] is not None]
+        src_ports |= {f["src_port"] for f in extra_flows if f.get("src_port") is not None}
 
-    src_ports = {r["src_port"] for r in rows if r["src_port"] is not None}
     ip_counts = defaultdict(int)
     for ip in dst_ips:
         ip_counts[ip] += 1
@@ -125,11 +123,29 @@ def rate_and_burstiness(rows, window_start, window_end, traffic: dict) -> dict:
     }
 
 
-def dns_features(rows) -> dict:
+def dns_features(rows, extra_events=None) -> dict:
     domains = [r["dns_domain"] for r in rows if r["dns_domain"]]
     resolved_ips = {r["dns_resolved_ip"] for r in rows if r["dns_resolved_ip"]}
     dns_latencies = [r["dns_latency_ms"] for r in rows if r["dns_latency_ms"] is not None]
     nxdomain = sum(1 for r in rows if r["dns_rcode"] == 3)
+
+    if extra_events:
+        seen = {r.get("dedup_key") for r in rows if r.get("dedup_key")}
+        for e in extra_events:
+            key = e.get("dedup_key")
+            if key and key in seen:
+                continue
+            if key:
+                seen.add(key)
+            if e.get("dns_domain"):
+                domains.append(e["dns_domain"])
+            if e.get("dns_resolved_ip"):
+                resolved_ips.add(e["dns_resolved_ip"])
+            if e.get("dns_latency_ms") is not None:
+                dns_latencies.append(e["dns_latency_ms"])
+            if e.get("dns_rcode") == 3:
+                nxdomain += 1
+
     dstats = domain_label_stats(domains)
     return {
         "unique_domain_count": len(set(domains)),
@@ -140,7 +156,6 @@ def dns_features(rows) -> dict:
         "dns_response_latency_mean_ms": mean(dns_latencies) if dns_latencies else None,
         "dns_response_latency_p95_ms": _p95(dns_latencies),
     }
-
 
 def tls_features(rows, ja4_baseline: dict) -> dict:
     import json
@@ -214,9 +229,37 @@ def process_features(rows, depth_calc) -> dict:
 
 
 def privilege_and_file_features(rows, file_events, privilege_events, window_end) -> dict:
-    """Timing features only see privilege/file events already correlated
-    to a network connection in this run (±30s window from correlator.py).
-    See docs/011 for the honest scope of this."""
+    file_events = [fe for fe in file_events if fe["_ts"] is not None and fe["_ts"] <= window_end]
+    privilege_events = [pe for pe in privilege_events if pe["_ts"] is not None and pe["_ts"] <= window_end]
+    net_ts = [r["_ts"] for r in rows if r["_ts"] is not None and r["_ts"] <= window_end]
+
+    # Dedupe by source_event_key. The correlator's ±30s bidirectional
+    # attachment window (find_nearby_events) can legitimately attach the
+    # same real file/privilege event to multiple nearby tcp_connect
+    # events, each attachment gets its own DB row (own id), but they
+    # all describe one real occurrence. Without this, counts would
+    # inflate based on how many nearby connections happened to exist,
+    # not on how much privilege/file activity actually occurred.
+    seen_file_keys, deduped_file_events = set(), []
+    for fe in file_events:
+        key = fe.get("source_event_key")
+        if key and key in seen_file_keys:
+            continue
+        if key:
+            seen_file_keys.add(key)
+        deduped_file_events.append(fe)
+    file_events = deduped_file_events
+
+    seen_priv_keys, deduped_priv_events = set(), []
+    for pe in privilege_events:
+        key = pe.get("source_event_key")
+        if key and key in seen_priv_keys:
+            continue
+        if key:
+            seen_priv_keys.add(key)
+        deduped_priv_events.append(pe)
+    privilege_events = deduped_priv_events
+
     sensitive_touch = sum(
         1 for fe in file_events
         if fe["path"] and any(fe["path"].startswith(p) for p in SENSITIVE_TIER1_PREFIXES)
@@ -227,9 +270,8 @@ def privilege_and_file_features(rows, file_events, privilege_events, window_end)
     su_count = sum(1 for pe in privilege_events if pe["detail"] and pe["detail"].strip().startswith("su "))
     capability_count = sum(1 for pe in privilege_events if pe["event_type"] == "capability_use")
 
-    priv_ts = [pe["_ts"] for pe in privilege_events if pe["_ts"]]
-    file_ts = [fe["_ts"] for fe in file_events if fe["_ts"]]
-    net_ts = [r["_ts"] for r in rows]
+    priv_ts = [pe["_ts"] for pe in privilege_events]
+    file_ts = [fe["_ts"] for fe in file_events]
 
     return {
         "sensitive_file_event_count": sensitive_touch,
@@ -251,7 +293,6 @@ def privilege_and_file_features(rows, file_events, privilege_events, window_end)
             sum(1 for t in net_ts if t > max(file_ts)) if file_ts else None
         ),
     }
-
 
 def ssh_features(ssh_sessions_in_window) -> dict:
     ssh_success = sum(1 for s in ssh_sessions_in_window if s["auth_success_ts"])

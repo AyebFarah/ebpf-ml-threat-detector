@@ -1,6 +1,7 @@
 CREATE TABLE tcp_flows_raw (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     run_id INTEGER NOT NULL REFERENCES observation_runs(run_id) ON DELETE CASCADE,
+    dedup_key TEXT NOT NULL,
     src_ip TEXT,
     src_port INTEGER,
     dst_ip TEXT,
@@ -9,7 +10,7 @@ CREATE TABLE tcp_flows_raw (
     direction TEXT,
     start_ts TEXT,
     end_ts TEXT,
-    duration_seconds REAL,
+    duration_ms INTEGER,
     handshake_completed INTEGER,
     handshake_rtt_ms REAL,
     termination_reason TEXT,
@@ -18,6 +19,8 @@ CREATE TABLE tcp_flows_raw (
     bytes_out INTEGER,
     bytes_in INTEGER,
     retransmissions INTEGER,
-    raw_json TEXT
+    raw_json TEXT,
+    UNIQUE(run_id, dedup_key)
 );
 CREATE INDEX idx_tcp_flows_raw_run_id ON tcp_flows_raw(run_id);
+

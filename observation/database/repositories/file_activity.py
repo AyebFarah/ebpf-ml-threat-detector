@@ -10,11 +10,11 @@ class FileActivityRepository:
         if not file_activity:
             return
         self.conn.executemany(
-            "INSERT INTO file_activity_events (correlated_event_id, timestamp, path, operations) "
-            "VALUES (?, ?, ?, ?)",
+            "INSERT INTO file_activity_events (correlated_event_id, timestamp, path, operations, source_event_key) "
+            "VALUES (?, ?, ?, ?, ?)",
             [
                 (correlated_event_id, f.get("timestamp"), f.get("path"),
-                 ",".join(f.get("operations") or []))
+                 ",".join(f.get("operations") or []), f.get("source_event_key"))
                 for f in file_activity
             ],
         )
