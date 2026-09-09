@@ -47,7 +47,7 @@ For every attack run, we record:
 - **Identity**: `run_id`, `scenario`, `label`.
 - **Attack semantics**: `attack_family`, `attack_technique` (MITRE ATT&CK ID).
 - **Operational details**: `tool`, `tool_version`, `target_host`, `target_port`, `intensity`.
-- **Timing**: `attack_start_ts`, `attack_end_ts`, `duration_seconds`.
+- **Timing**: `attack_start_ts`, `attack_end_ts`, `duration_ms`.
 - **Expectations**: `expected_behavior` (short description of what the telemetry should look like).
 - **Provenance**: `operator`, `notes`, full attack command line.
 
@@ -215,7 +215,7 @@ Standard run metadata:
 - `started_at`, `ended_at`, `status`.
 - `scenario`: e.g. `ssh_bruteforce`, `admin_nmap_inventory`.
 - `label`: `benign` or `attack:<family>:<technique>`.
-- `notes`, `duration_seconds`.
+- `notes`, `duration_ms`.
 
 ### 4.2. `attack_run_metadata`
 
@@ -249,7 +249,7 @@ Example:
   },
   "attack_start_ts": "2026-08-31T11:00:05+02:00",
   "attack_end_ts": "2026-08-31T11:00:35+02:00",
-  "duration_seconds": 30,
+  "duration_ms": 30000,
   "tool": "hydra",
   "tool_version": "0.9.1",
   "target_host": "192.168.56.10",

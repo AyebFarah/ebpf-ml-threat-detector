@@ -11,7 +11,7 @@ from . import extractor, baseline
 from .repositories.feature_windows import FeatureWindowsRepository
 
 
-def _resolve_run_ids(conn, run_ids: list[int] | None, all_runs: bool, exclude: list[int]) -> list[int]:
+def _resolve_run_ids(conn, run_ids, all_runs, exclude):
     if all_runs:
         rows = conn.execute(
             "SELECT run_id FROM observation_runs WHERE status = 'completed'"
@@ -36,7 +36,7 @@ def _process_run(run_id: int, ja4_baseline: dict):
 def main():
     parser = argparse.ArgumentParser(description="Build feature_windows from correlated_events")
     parser.add_argument("--run-id", type=int, action="append", dest="run_ids",
-                        help="Process one run_id (repeatable: --run-id 7 --run-id 8)")
+                        help="Process one run_id")
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--exclude", type=int, nargs="*", default=[])
     args = parser.parse_args()
@@ -44,13 +44,13 @@ def main():
     apply_migrations()
 
     with connect() as conn:
-        print("[features] building JA4 rarity baseline from benign runs...")
-        ja4_baseline = baseline.build_ja4_baseline(conn)
-        print(f"[features] baseline: {len(ja4_baseline)} distinct JA4 fingerprints")
         run_ids = _resolve_run_ids(conn, args.run_ids, args.all, args.exclude)
+        print("[features] building JA4 rarity baseline from benign runs...")
+        ja4_baseline = baseline.build_ja4_baseline(conn, exclude_run_ids=args.exclude)
+        print(f"[features] baseline: {len(ja4_baseline)} distinct JA4 fingerprints")
 
     if not run_ids:
-        parser.error("Specify --run-id N (repeatable) or --all")
+        parser.error("Specify --run-id N or --all")
 
     failures = []
     for run_id in run_ids:

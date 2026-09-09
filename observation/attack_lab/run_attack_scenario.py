@@ -37,6 +37,7 @@ from .label_validator import validate_label
 from .. import paths
 from ..database.connection import connect, apply_migrations
 from ..database.repositories.attack_run_metadata import AttackRunMetadataRepository
+from ..database.repositories.runs import RunsRepository
 
 COLLECTOR_WARMUP_SECONDS = 5
 SETTLE_SECONDS = 10
@@ -102,21 +103,31 @@ def main():
     controller.start()
     controller.wait_ready()
 
-    attack_start_ts = _now_iso()
-    print(f"[wrapper] attack starting at {attack_start_ts}")
-    result = subprocess.run(attack_cmd)
-    attack_end_ts = _now_iso()
-    print(f"[wrapper] attack finished at {attack_end_ts} (exit code {result.returncode})")
+    run_id = None
+    try:
+        attack_start_ts = _now_iso()
+        print(f"[wrapper] attack starting at {attack_start_ts}")
+        result = subprocess.run(attack_cmd)
+        attack_end_ts = _now_iso()
+        print(f"[wrapper] attack finished at {attack_end_ts} (exit code {result.returncode})")
 
-    time.sleep(SETTLE_SECONDS)  # let trailing packets/events land before stopping capture
+        time.sleep(SETTLE_SECONDS)
 
-    duration_seconds = int(
-        (datetime.fromisoformat(attack_end_ts) - datetime.fromisoformat(attack_start_ts)).total_seconds()
-    )
-    run_id = controller.stop_and_postprocess(
-        scenario=args.scenario, label=label, notes=args.notes,
-        duration_seconds=duration_seconds,
-    )
+        duration_delta = datetime.fromisoformat(attack_end_ts) - datetime.fromisoformat(attack_start_ts)
+        duration_ms = int(duration_delta.total_seconds() * 1000)
+
+        run_id = controller.stop_and_postprocess(
+            scenario=args.scenario, label=label, notes=args.notes,
+            duration_ms=duration_ms,
+        )
+    finally:
+        if run_id is None and controller.supervisor is not None:
+            # stop_and_postprocess never completed
+            print("[wrapper] attack run did not complete normally, stopping collectors")
+            controller.supervisor.stop_all()
+
+    if run_id is None:
+        sys.exit(1)
 
     tool_version = _tool_version(args.tool) if args.tool else None
     parameters = {"raw_command": attack_cmd}
@@ -132,6 +143,7 @@ def main():
             expected_behavior=args.expected, notes=args.notes, operator=args.operator,
             manifest_path=None,
         )
+        RunsRepository(conn).mark_completed(run_id)
 
     paths.ATTACK_RUNS_DIR.mkdir(parents=True, exist_ok=True)
     ts_slug = attack_start_ts.replace(":", "-").split("+")[0].split(".")[0]
@@ -140,7 +152,7 @@ def main():
         "run_id": run_id, "scenario": args.scenario, "label": label,
         "attack_command": attack_cmd, "parameters": parameters,
         "attack_start_ts": attack_start_ts, "attack_end_ts": attack_end_ts,
-        "duration_seconds": duration_seconds, "tool": args.tool,
+        "duration_ms": duration_ms, "tool": args.tool,
         "tool_version": tool_version, "target_host": args.target,
         "target_port": args.target_port, "intensity": args.intensity,
         "expected_behavior": args.expected, "notes": args.notes,

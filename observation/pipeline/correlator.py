@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 from .. import paths
+from .event_keys import make_source_event_key
+
 
 INPUT_FILE = paths.UNIFIED_EVENTS_FILE
 OUTPUT_FILE = paths.CORRELATED_EVENTS_FILE
@@ -233,27 +235,29 @@ def build_enriched_event(tcp_event, dns_match, dns_delta, tls_match, tls_delta, 
             "start_time": ctx_extra.get("start_time"),
         }
 
-    file_activity_block = [
-        {
-            "timestamp": f["timestamp"],
-            "path": f.get("extra", {}).get("path"),
-            "operations": f.get("extra", {}).get("operations"),
-        }
-        for f in file_matches
-    ]
+        file_activity_block = [
+            {
+                "timestamp": f["timestamp"],
+                "path": f.get("extra", {}).get("path"),
+                "operations": f.get("extra", {}).get("operations"),
+                "source_event_key": make_source_event_key(f),
+            }
+            for f in file_matches
+        ]
 
-    privilege_activity_block = [
-        {
-            "timestamp": p["timestamp"],
-            "event_type": p["event_type"],
-            "detail": (
-                p.get("extra", {}).get("arguments")
-                if p["event_type"] == "sudo_exec"
-                else p.get("extra", {}).get("capability")
-            ),
-        }
-        for p in privilege_matches
-    ]
+        privilege_activity_block = [
+            {
+                "timestamp": p["timestamp"],
+                "event_type": p["event_type"],
+                "detail": (
+                    p.get("extra", {}).get("arguments")
+                    if p["event_type"] == "sudo_exec"
+                    else p.get("extra", {}).get("capability")
+                ),
+                "source_event_key": make_source_event_key(p),
+            }
+            for p in privilege_matches
+        ]
 
     http_block = None
     if http_request_match or http_response_match:

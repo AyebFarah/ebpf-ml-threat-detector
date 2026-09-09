@@ -149,7 +149,7 @@ def test_start_run_stores_metadata(db):
 
         row = conn.execute(
             """
-            SELECT scenario, label, notes, duration_seconds
+            SELECT scenario, label, notes, duration_ms
             FROM observation_runs
             WHERE run_id = ?
             """,
@@ -159,7 +159,7 @@ def test_start_run_stores_metadata(db):
         assert row["scenario"] == "browser_light"
         assert row["label"] == "benign"
         assert row["notes"] == "Chrome + YouTube"
-        assert row["duration_seconds"] is None
+        assert row["duration_ms"] is None
 
 
 def test_complete_run_stores_duration(db):
@@ -176,7 +176,7 @@ def test_complete_run_stores_duration(db):
             run_id=run_id,
             correlated_events_count=10,
             ssh_sessions_count=0,
-            duration_seconds=300,
+            duration_ms=300000,
         )
 
         row = conn.execute(
@@ -185,7 +185,7 @@ def test_complete_run_stores_duration(db):
                 started_at,
                 ended_at,
                 status,
-                duration_seconds
+                duration_ms
             FROM observation_runs
             WHERE run_id = ?
             """,
@@ -195,7 +195,7 @@ def test_complete_run_stores_duration(db):
         assert row["started_at"] is not None
         assert row["ended_at"] is not None
         assert row["status"] == "completed"
-        assert row["duration_seconds"] == 300
+        assert row["duration_ms"] == 300000
 
 
 def test_insert_creates_parent_and_all_child_rows(db):

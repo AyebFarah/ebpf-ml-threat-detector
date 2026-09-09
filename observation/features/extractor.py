@@ -43,7 +43,7 @@ def fetch_run_rows(conn: sqlite3.Connection, run_id: int) -> list[dict]:
         dns.query_name AS dns_domain, dns.resolved_ip AS dns_resolved_ip,
         dns.rcode AS dns_rcode, dns.response_latency_ms AS dns_latency_ms,
         tls.sni AS tls_sni, tls.ja4 AS tls_ja4, tls.tls_version AS tls_version,
-        flow.duration_seconds AS flow_duration,
+        flow.duration_ms AS flow_duration_ms,
         flow.bytes_out AS bytes_sent, flow.bytes_in AS bytes_received,
         flow.packets_out AS packets_sent, flow.packets_in AS packets_received,
         flow.termination_reason AS termination_reason,
@@ -60,8 +60,18 @@ def fetch_run_rows(conn: sqlite3.Connection, run_id: int) -> list[dict]:
             ORDER BY ce.timestamp \
             """
     rows = [dict(r) for r in conn.execute(query, (run_id,)).fetchall()]
+
     for r in rows:
         r["_ts"] = _parse_ts(r["timestamp"])
+
+        # Database stores milliseconds.
+        # Feature groups use seconds as floating-point values.
+        r["flow_duration"] = (
+            r["flow_duration_ms"] / 1000.0
+            if r["flow_duration_ms"] is not None
+            else None
+        )
+
     return rows
 
 
@@ -69,7 +79,7 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
     """Every TCP flow captured for this run, independent of correlator
     matching. Used two ways:
       1. Merged into host-level network_topology() alongside
-         correlated_events rows, always — since correlated_events can
+         correlated_events rows, always, since correlated_events can
          under-represent real network activity (e.g. attacker-initiated
          scans, where Tetragon's tcp_connect never fires on this host).
       2. As the sole source for flow-only windowing when correlated_events
@@ -81,7 +91,7 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
     """
     rows = conn.execute(
         """SELECT id, src_ip, src_port, dst_ip, dst_port, start_ts, end_ts,
-                  duration_seconds, termination_reason, packets_out, packets_in,
+                  duration_ms, termination_reason, packets_out, packets_in,
                   bytes_out, bytes_in
            FROM tcp_flows_raw WHERE run_id = ?""",
         (run_id,),
@@ -103,7 +113,11 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
             "dns_domain": None, "dns_resolved_ip": None,
             "dns_rcode": None, "dns_latency_ms": None,
             "tls_sni": None, "tls_ja4": None, "tls_version": None,
-            "flow_duration": r["duration_seconds"],
+            "flow_duration": (
+                r["duration_ms"] / 1000.0
+                if r["duration_ms"] is not None
+                else None
+            ),
             "bytes_sent": r["bytes_out"], "bytes_received": r["bytes_in"],
             "packets_sent": r["packets_out"], "packets_received": r["packets_in"],
             "termination_reason": r["termination_reason"],
@@ -113,13 +127,45 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
         })
     return pseudo_rows
 
+def fetch_run_dns_events_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]:
+    """Every DNS query/response captured for this run, independent of
+    correlator matching. Merged into host-level dns_features() alongside
+    correlated_events rows, always, since correlated_events can never
+    see NXDOMAIN responses at all (they have no answer IP, so the
+    correlator's resolved_ip-based matching, never attaches
+    them to a connection). This is the DNS equivalent of the
+    tcp_flows_raw gap: dns_tunneling-style traffic can be completely
+    invisible to dns_features() without this merge, even when
+    correlated_events isn't empty for the run.
+    """
+    rows = conn.execute(
+        """SELECT id, dedup_key, timestamp, query_name, rcode, resolved_ip, ttl
+           FROM dns_events_raw WHERE run_id = ?""",
+        (run_id,),
+    ).fetchall()
+
+    pseudo_events = []
+    for r in rows:
+        r = dict(r)
+        pseudo_events.append({
+            "event_id": f"dns_raw_{r['id']}",
+            "dedup_key": r["dedup_key"],
+            "timestamp": r["timestamp"],
+            "_ts": _parse_ts(r["timestamp"]) if r["timestamp"] else None,
+            "dns_domain": r["query_name"],
+            "dns_rcode": r["rcode"],
+            "dns_resolved_ip": r["resolved_ip"],
+            "dns_latency_ms": None,
+        })
+    return pseudo_events
+
 
 def fetch_activity(conn: sqlite3.Connection, event_ids: list[int], table: str) -> dict:
     if not event_ids:
         return {}
     placeholders = ",".join("?" for _ in event_ids)
-    cols = "correlated_event_id, timestamp, path, operations" if table == "file_activity_events" \
-        else "correlated_event_id, timestamp, event_type, detail"
+    cols = "correlated_event_id, timestamp, path, operations, source_event_key" if table == "file_activity_events" \
+        else "correlated_event_id, timestamp, event_type, detail, source_event_key"
     rows = [dict(r) for r in conn.execute(
         f"SELECT {cols} FROM {table} WHERE correlated_event_id IN ({placeholders})", event_ids
     ).fetchall()]
@@ -147,7 +193,8 @@ def generate_windows(min_ts, max_ts, window_seconds, stride_seconds):
 
 
 def _aggregate(rows, window_start, window_end, file_activity, privilege_activity,
-               ssh_in_window, ja4_baseline, depth_calc, extra_flows=None) -> dict:
+               ssh_in_window, ja4_baseline, depth_calc, extra_flows=None,
+               extra_dns_events=None) -> dict:
     event_ids = [r["event_id"] for r in rows]
     file_events, privilege_events = [], []
     for eid in event_ids:
@@ -157,12 +204,12 @@ def _aggregate(rows, window_start, window_end, file_activity, privilege_activity
     traffic = groups.traffic_volume(rows)
 
     result = {}
-    result.update(groups.basic_counts(rows, len(ssh_in_window)))
+    result.update(groups.basic_counts(rows, len(ssh_in_window), extra_flows=extra_flows))
     result.update(groups.network_topology(rows, extra_flows=extra_flows))
     result.update(traffic)
     result.update(groups.flow_dynamics(rows))
     result.update(groups.rate_and_burstiness(rows, window_start, window_end, traffic))
-    result.update(groups.dns_features(rows))
+    result.update(groups.dns_features(rows, extra_events=extra_dns_events))
     result.update(groups.tls_features(rows, ja4_baseline))
     result.update(groups.http_features(rows))
     result.update(groups.process_features(rows, depth_calc))
@@ -190,8 +237,9 @@ def build_feature_windows(conn: sqlite3.Connection, run_id: int, ja4_baseline: d
 
     rows = fetch_run_rows(conn, run_id)
     flow_rows = fetch_run_tcp_flows_raw(conn, run_id)
+    dns_rows = fetch_run_dns_events_raw(conn, run_id)
 
-    if not rows and not flow_rows:
+    if not rows and not flow_rows and not dns_rows:
         return []
 
     if rows:
@@ -200,21 +248,25 @@ def build_feature_windows(conn: sqlite3.Connection, run_id: int, ja4_baseline: d
             scenario, label_int, attack_family, attack_technique,
             aggregation_version=AGGREGATION_VERSION,
             extra_flow_rows=flow_rows,
+            extra_dns_rows=dns_rows,
         )
 
     print(f"[features] run_id={run_id}: no correlated_events rows, "
-          f"building flow-only windows from {len(flow_rows)} tcp_flows_raw rows")
+          f"building flow-only windows from {len(flow_rows)} tcp_flows_raw rows "
+          f"and {len(dns_rows)} dns_events_raw rows")
     return _build_windows_from_rows(
         conn, run_id, flow_rows, ja4_baseline, window_seconds, stride_seconds,
         scenario, label_int, attack_family, attack_technique,
         aggregation_version=FLOW_ONLY_AGGREGATION_VERSION,
         flow_only=True,
+        extra_dns_rows=dns_rows,
     )
 
 
 def _build_windows_from_rows(conn, run_id, rows, ja4_baseline, window_seconds, stride_seconds,
                               scenario, label_int, attack_family, attack_technique,
-                              aggregation_version, flow_only=False, extra_flow_rows=None) -> list[dict]:
+                              aggregation_version, flow_only=False, extra_flow_rows=None,
+                              extra_dns_rows=None) -> list[dict]:
     event_ids = [r["event_id"] for r in rows]
 
     if flow_only:
@@ -231,18 +283,25 @@ def _build_windows_from_rows(conn, run_id, rows, ja4_baseline, window_seconds, s
     timestamps = [r["_ts"] for r in rows]
     if extra_flow_rows:
         timestamps += [f["_ts"] for f in extra_flow_rows if f["_ts"]]
+    if extra_dns_rows:
+        timestamps += [d["_ts"] for d in extra_dns_rows if d["_ts"]]
+    if not timestamps:
+        return []
     windows = generate_windows(min(timestamps), max(timestamps), window_seconds, stride_seconds)
 
     results = []
     for w_start, w_end in windows:
         in_window = [r for r in rows if w_start <= r["_ts"] < w_end]
-        if not in_window and not extra_flow_rows:
-            continue
 
         in_window_extra_flows = None
         if extra_flow_rows:
             in_window_extra_flows = [f for f in extra_flow_rows if f["_ts"] and w_start <= f["_ts"] < w_end]
-        if not in_window and not in_window_extra_flows:
+
+        in_window_extra_dns = None
+        if extra_dns_rows:
+            in_window_extra_dns = [d for d in extra_dns_rows if d["_ts"] and w_start <= d["_ts"] < w_end]
+
+        if not in_window and not in_window_extra_flows and not in_window_extra_dns:
             continue
 
         ssh_in_window = [
@@ -254,7 +313,7 @@ def _build_windows_from_rows(conn, run_id, rows, ja4_baseline, window_seconds, s
             run_id, w_start, w_end, "host", str(run_id), in_window,
             file_activity, privilege_activity, ssh_in_window, ja4_baseline, depth_calc,
             scenario, label_int, attack_family, attack_technique, aggregation_version,
-            extra_flows=in_window_extra_flows,
+            extra_flows=in_window_extra_flows, extra_dns_events=in_window_extra_dns,
         ))
 
         if not flow_only:
@@ -286,9 +345,10 @@ def _build_windows_from_rows(conn, run_id, rows, ja4_baseline, window_seconds, s
 def _build_row(run_id, w_start, w_end, entity_type, entity_id, rows,
                file_activity, privilege_activity, ssh_in_window, ja4_baseline, depth_calc,
                scenario, label_int, attack_family, attack_technique, aggregation_version,
-               extra_flows=None) -> dict:
+               extra_flows=None, extra_dns_events=None) -> dict:
     features = _aggregate(rows, w_start, w_end, file_activity, privilege_activity,
-                          ssh_in_window, ja4_baseline, depth_calc, extra_flows=extra_flows)
+                          ssh_in_window, ja4_baseline, depth_calc,
+                          extra_flows=extra_flows, extra_dns_events=extra_dns_events)
     return {
         "run_id": run_id,
         "window_start_ts": w_start.isoformat(),

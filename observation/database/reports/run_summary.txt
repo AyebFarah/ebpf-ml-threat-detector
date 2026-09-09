@@ -1,6 +1,6 @@
 run_id=4  scenario=idle_desktop  label=benign
   status             = completed
-  duration_seconds   = 585
+  duration_ms   = 585000
   notes              = laptop plugged in, no apps open (only intellij), night, bluetooth on
   tcp_connect_events = 354
   tls_matched                = 0.508
@@ -12,7 +12,7 @@ run_id=4  scenario=idle_desktop  label=benign
 
 run_id=5  scenario=idle_desktop  label=benign
   status             = completed
-  duration_seconds   = 572
+  duration_ms   = 572000
   notes              = laptop plugged in, no apps open (only intellij), night, bluetooth on
   tcp_connect_events = 363
   tls_matched                = 0.51
@@ -24,7 +24,7 @@ run_id=5  scenario=idle_desktop  label=benign
 
 run_id=6  scenario=browser_heavy  label=benign
   status             = completed
-  duration_seconds   = 627
+  duration_ms   = 627000
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
   tcp_connect_events = 524
   tls_matched                = 0.578
@@ -36,7 +36,7 @@ run_id=6  scenario=browser_heavy  label=benign
 
 run_id=7  scenario=browser_heavy  label=benign
   status             = completed
-  duration_seconds   = 1308
+  duration_ms   = 1308000
   notes              = Heavy browsing: multiple tabs, video, docs and social
   tcp_connect_events = 736
   tls_matched                = 0.649
@@ -48,7 +48,7 @@ run_id=7  scenario=browser_heavy  label=benign
 
 run_id=8  scenario=browser_light  label=benign
   status             = completed
-  duration_seconds   = 851
+  duration_ms   = 851000
   notes              = Light browsing: articles, one/two tabs
   tcp_connect_events = 513
   tls_matched                = 0.52
@@ -60,7 +60,7 @@ run_id=8  scenario=browser_light  label=benign
 
 run_id=9  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 1943
+  duration_ms   = 1943000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 3156
   tls_matched                = 0.527
@@ -72,7 +72,7 @@ run_id=9  scenario=mixed_workday  label=benign
 
 run_id=10  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 733
+  duration_ms   = 733000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 1266
   tls_matched                = 0.451
@@ -84,7 +84,7 @@ run_id=10  scenario=mixed_workday  label=benign
 
 run_id=11  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 1793
+  duration_ms   = 1793000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 716
   tls_matched                = 0.514
@@ -96,7 +96,7 @@ run_id=11  scenario=mixed_workday  label=benign
 
 run_id=12  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 4079
+  duration_ms   = 4079000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 1682
   tls_matched                = 0.429
@@ -108,7 +108,7 @@ run_id=12  scenario=mixed_workday  label=benign
 
 run_id=16  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 296
+  duration_ms   = 296000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 25
   tls_matched                = 0.88
@@ -120,7 +120,7 @@ run_id=16  scenario=mixed_workday  label=benign
 
 run_id=17  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 2473
+  duration_ms   = 2473000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 618
   tls_matched                = 0.57
@@ -132,7 +132,7 @@ run_id=17  scenario=mixed_workday  label=benign
 
 run_id=18  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 3391
+  duration_ms   = 3391000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 589
   tls_matched                = 0.908
@@ -144,7 +144,7 @@ run_id=18  scenario=mixed_workday  label=benign
 
 run_id=19  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 918
+  duration_ms   = 918000
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
   tcp_connect_events = 44
   tls_matched                = 0.886
@@ -156,7 +156,7 @@ run_id=19  scenario=mixed_workday  label=benign
 
 run_id=20  scenario=package_update  label=benign
   status             = completed
-  duration_seconds   = 2275
+  duration_ms   = 2275000
   notes              = Package updating, software installation
   tcp_connect_events = 131
   tls_matched                = 0.832
@@ -168,7 +168,7 @@ run_id=20  scenario=package_update  label=benign
 
 run_id=21  scenario=ssh_admin  label=benign
   status             = completed
-  duration_seconds   = 225
+  duration_ms   = 225000
   notes              = Establishing ssh sessions from a VM (192.168.122.250)
   tcp_connect_events = 30
   tls_matched                = 0.933
@@ -180,7 +180,7 @@ run_id=21  scenario=ssh_admin  label=benign
 
 run_id=22  scenario=broswer_light  label=benign
   status             = completed
-  duration_seconds   = 1012
+  duration_ms   = 1012000
   notes              = Light browsing: documentation, sites
   tcp_connect_events = 246
   tls_matched                = 0.967
@@ -192,7 +192,7 @@ run_id=22  scenario=broswer_light  label=benign
 
 run_id=23  scenario=broswer_light  label=benign
   status             = completed
-  duration_seconds   = 1075
+  duration_ms   = 1075000
   notes              = Light browsing: documentation, sites
   tcp_connect_events = 566
   tls_matched                = 0.894
@@ -204,7 +204,7 @@ run_id=23  scenario=broswer_light  label=benign
 
 run_id=24  scenario=ssh_admin  label=benign
   status             = completed
-  duration_seconds   = 223
+  duration_ms   = 223000
   notes              = Establishing ssh sessions
   tcp_connect_events = 16
   tls_matched                = 1.0
@@ -216,7 +216,7 @@ run_id=24  scenario=ssh_admin  label=benign
 
 run_id=25  scenario=ssh_admin  label=benign
   status             = completed
-  duration_seconds   = 389
+  duration_ms   = 389000
   notes              = Establishing ssh sessions
   tcp_connect_events = 30
   tls_matched                = 0.867
@@ -228,7 +228,7 @@ run_id=25  scenario=ssh_admin  label=benign
 
 run_id=26  scenario=git_workflow  label=benign
   status             = completed
-  duration_seconds   = 621
+  duration_ms   = 621000
   notes              = Git commands
   tcp_connect_events = 104
   tls_matched                = 0.923
@@ -240,7 +240,7 @@ run_id=26  scenario=git_workflow  label=benign
 
 run_id=27  scenario=git_workflow  label=benign
   status             = completed
-  duration_seconds   = 317
+  duration_ms   = 317000
   notes              = Git commands
   tcp_connect_events = 40
   tls_matched                = 0.8
@@ -252,7 +252,7 @@ run_id=27  scenario=git_workflow  label=benign
 
 run_id=28  scenario=docker_workflow  label=benign
   status             = completed
-  duration_seconds   = 249
+  duration_ms   = 249000
   notes              = docker, browsing
   tcp_connect_events = 594
   tls_matched                = 0.502
@@ -264,7 +264,7 @@ run_id=28  scenario=docker_workflow  label=benign
 
 run_id=29  scenario=docker_workflow  label=benign
   status             = completed
-  duration_seconds   = 260
+  duration_ms   = 260000
   notes              = docker, browsing
   tcp_connect_events = 126
   tls_matched                = 0.905
@@ -276,7 +276,7 @@ run_id=29  scenario=docker_workflow  label=benign
 
 run_id=31  scenario=mixed_workday  label=benign
   status             = completed
-  duration_seconds   = 1892
+  duration_ms   = 1892000
   notes              = IDEs, browsing
   tcp_connect_events = 263
   tls_matched                = 0.875
@@ -288,7 +288,7 @@ run_id=31  scenario=mixed_workday  label=benign
 
 run_id=32  scenario=system_update  label=benign
   status             = completed
-  duration_seconds   = 286
+  duration_ms   = 286000
   notes              = Updates
   tcp_connect_events = 24
   tls_matched                = 0.708
@@ -297,37 +297,11 @@ run_id=32  scenario=system_update  label=benign
   http_matched               = 0.042
   ssh_sessions       = 0
 ============================================================
-run_id=1  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+run_id=1  scenario=port_scan  label=attack:port_scan:T1046
   status             = completed
-  duration_seconds   = 10
-  notes              = hydra medium intensity
-  tcp_connect_events = 1
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 5
-  attack_run_metadata      = present
-============================================================
-
-run_id=2  scenario=network_discovery  label=attack:network_discovery:T1046
-  status             = completed
-  duration_seconds   = 3
-  notes              = verifying flow-only fallback works for this scenario too
-  tcp_connect_events = 2
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 1
-  attack_run_metadata      = present
-============================================================
-
-run_id=3  scenario=port_scan  label=attack:port_scan:T1046
-  status             = completed
-  duration_seconds   = 0
-  notes              = clean rerun, killed orphaned tetra getevents processes first
-  tcp_connect_events = 1
+  duration_ms   = 0
+  notes              = rerun after tcp_flows_raw fix
+  tcp_connect_events = 3
   tls_matched                = 0.0
   dns_matched                = 0.0
   process_context_matched    = 1.0
@@ -336,10 +310,53 @@ run_id=3  scenario=port_scan  label=attack:port_scan:T1046
   attack_run_metadata      = present
 ============================================================
 
-run_id=4  scenario=memory_dump  label=attack:memory_dump:T1003
+run_id=1  scenario=port_scan  label=attack:port_scan:T1046
   status             = completed
-  duration_seconds   = 97
-  notes              = simulated credential dumping via /proc scraping
+  duration_ms        = 310000
+  duration_ms   = 0
+  notes              = rerun after tcp_flows_raw fix
+  tcp_connect_events = 3
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 0
+  attack_run_metadata      = present
+============================================================
+
+run_id=2  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  duration_ms        = 15875000
+  duration_ms   = 15000
+  notes              = attacker pivots into victim via valid SSH key auth
+  tcp_connect_events = 4
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 5
+  attack_run_metadata      = present
+============================================================
+
+run_id=3  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  duration_ms        = 3552000
+  duration_ms   = 3000
+  notes              = verifying flow-only fallback works for this scenario too
+  tcp_connect_events = 5
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 1
+  attack_run_metadata      = present
+============================================================
+
+run_id=4  scenario=service_enumeration  label=attack:service_enumeration:T1082
+  status             = completed
+  duration_ms        = 6673000
+  duration_ms   = 6000
+  notes              = recon-style host enumeration
   tcp_connect_events = 0
   tls_matched                = None
   dns_matched                = None
