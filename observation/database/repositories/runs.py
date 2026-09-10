@@ -12,27 +12,37 @@ class RunsRepository:
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
 
-     def start_run(self, scenario, label="benign", notes=None, started_at=None):
-         started_at = started_at or _now()
-         cur = self.conn.execute(
-             "INSERT INTO observation_runs (started_at, status, scenario, label, notes) VALUES (?, ?, ?, ?, ?)",
-             (started_at, "running", scenario, label, notes),
-         )
-         return cur.lastrowid
+    def start_run(self, scenario: str, label: str = "benign",
+                  notes: Optional[str] = None, started_at: Optional[str] = None) -> int:
+        started_at = started_at or _now()
+        cur = self.conn.execute(
+            """
+            INSERT INTO observation_runs (started_at, status, scenario, label, notes)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (started_at, "running", scenario, label, notes),
+        )
+        return cur.lastrowid
 
-     def complete_run(self, run_id, correlated_events_count, ssh_sessions_count,
-                      source_correlated_file=None, source_ssh_sessions_file=None,
-                      duration_ms=None, status="completed", ended_at=None):
-         ended_at = ended_at or _now()
-         self.conn.execute(
-             """UPDATE observation_runs
-                SET ended_at = ?, status = ?, correlated_events_count = ?,
-                    ssh_sessions_count = ?, source_correlated_file = ?,
-                    source_ssh_sessions_file = ?, duration_ms = ?
-                WHERE run_id = ?""",
-             (ended_at, status, correlated_events_count, ssh_sessions_count,
-              source_correlated_file, source_ssh_sessions_file, duration_ms, run_id),
-         )
+    def complete_run(self, run_id: int, correlated_events_count: int,
+                     ssh_sessions_count: int, source_correlated_file: Optional[str] = None,
+                     source_ssh_sessions_file: Optional[str] = None,
+                     duration_ms: Optional[int] = None,
+                     status: str = "completed",
+                     ended_at: Optional[str] = None,
+                     ) -> None:
+        ended_at = ended_at or _now()
+        self.conn.execute(
+            """
+            UPDATE observation_runs
+            SET ended_at = ?, status = ?, correlated_events_count = ?,
+                ssh_sessions_count = ?, source_correlated_file = ?,
+                source_ssh_sessions_file = ?, duration_ms = ?
+            WHERE run_id = ?
+            """,
+            (ended_at, status, correlated_events_count, ssh_sessions_count,
+             source_correlated_file, source_ssh_sessions_file, duration_ms, run_id),
+        )
 
     def mark_completed(self, run_id: int) -> None:
         """Flip a run from awaiting_metadata to completed. Called by the

@@ -83,14 +83,18 @@ def build_commands(tetra_available: bool) -> dict:
 
 def run_post_processing(scenario: str, label: str = "benign",
                         notes: str | None = None,
-                        duration_ms: int | None = None) -> int:
+                        duration_ms: int | None = None,
+                        capture_start_ts: str | None = None,
+                        capture_end_ts: str | None = None) -> int:
     print("[main] running normalizer...")
     run_normalizer()
     print("[main] running correlator...")
     run_correlator()
     print("[main] loading into database...")
     return load_into_database(scenario=scenario, label=label, notes=notes,
-                              duration_ms=duration_ms)
+                              duration_ms=duration_ms,
+                              capture_start_ts=capture_start_ts,
+                              capture_end_ts=capture_end_ts)
 
 def reset_event_log_files():
     policy_files = [

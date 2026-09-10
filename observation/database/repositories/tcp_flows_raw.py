@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from ..pipeline.event_keys import make_tcp_flow_dedup_key
+from ...pipeline.event_keys import make_tcp_flow_dedup_key
 
 
 class TcpFlowsRawRepository:

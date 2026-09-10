@@ -1,8 +1,7 @@
 from __future__ import annotations
 import json
 import sqlite3
-from ..pipeline.event_keys import make_dns_dedup_key
-
+from ...pipeline.event_keys import make_dns_dedup_key
 
 class DnsEventsRawRepository:
     def __init__(self, conn: sqlite3.Connection):

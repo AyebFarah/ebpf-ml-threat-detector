@@ -297,38 +297,11 @@ run_id=32  scenario=system_update  label=benign
   http_matched               = 0.042
   ssh_sessions       = 0
 ============================================================
-run_id=1  scenario=port_scan  label=attack:port_scan:T1046
-  status             = completed
-  duration_ms   = 0
-  notes              = rerun after tcp_flows_raw fix
-  tcp_connect_events = 3
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 0
-  attack_run_metadata      = present
-============================================================
 
-run_id=1  scenario=port_scan  label=attack:port_scan:T1046
+run_id=1  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
   status             = completed
-  duration_ms        = 310000
-  duration_ms   = 0
-  notes              = rerun after tcp_flows_raw fix
-  tcp_connect_events = 3
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 0
-  attack_run_metadata      = present
-============================================================
-
-run_id=2  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
-  status             = completed
-  duration_ms        = 15875000
-  duration_ms   = 15000
-  notes              = attacker pivots into victim via valid SSH key auth
+  duration_ms        = 10292
+  notes              = Bruteforcing: Guess username and password combinations to gain unauthorized access to the victim
   tcp_connect_events = 4
   tls_matched                = 0.0
   dns_matched                = 0.0
@@ -338,12 +311,24 @@ run_id=2  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
   attack_run_metadata      = present
 ============================================================
 
+run_id=2  scenario=port_scan  label=attack:port_scan:T1046
+  status             = completed
+  duration_ms        = 328
+  notes              = Port scan: sending network packets to a range of port addresses
+  tcp_connect_events = 5
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 0
+  attack_run_metadata      = present
+============================================================
+
 run_id=3  scenario=network_discovery  label=attack:network_discovery:T1046
   status             = completed
-  duration_ms        = 3552000
-  duration_ms   = 3000
-  notes              = verifying flow-only fallback works for this scenario too
-  tcp_connect_events = 5
+  duration_ms        = 4080
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network.
+  tcp_connect_events = 6
   tls_matched                = 0.0
   dns_matched                = 0.0
   process_context_matched    = 1.0
@@ -352,17 +337,32 @@ run_id=3  scenario=network_discovery  label=attack:network_discovery:T1046
   attack_run_metadata      = present
 ============================================================
 
-run_id=4  scenario=service_enumeration  label=attack:service_enumeration:T1082
+run_id=4  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
   status             = completed
-  duration_ms        = 6673000
-  duration_ms   = 6000
-  notes              = recon-style host enumeration
-  tcp_connect_events = 0
-  tls_matched                = None
-  dns_matched                = None
-  process_context_matched    = None
-  http_matched               = None
-  ssh_sessions       = 0
+  duration_ms        = 15989
+  notes              = Lateral movement: move progressively through a network after gaining initial access
+  tcp_connect_events = 7
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 5
   attack_run_metadata      = present
 ============================================================
+
+run_id=5  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  duration_ms        = 11535
+  notes              = Lateral movement: move progressively through a network after gaining initial access
+  tcp_connect_events = 8
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  ssh_sessions       = 10
+  attack_run_metadata      = present
+============================================================
+
+
+
 

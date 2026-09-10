@@ -22,7 +22,8 @@ def _read_jsonl(path: Path) -> list:
     return records
 
 
-def load_into_database(scenario, label="benign", notes=None, duration_ms=None):
+def load_into_database(scenario, label="benign", notes=None, duration_ms=None,
+                       capture_start_ts=None, capture_end_ts=None):
     apply_migrations()
     correlated_records = _read_jsonl(paths.CORRELATED_EVENTS_FILE)
     ssh_session_records = _read_jsonl(paths.SSH_SESSIONS_FILE)
@@ -33,7 +34,10 @@ def load_into_database(scenario, label="benign", notes=None, duration_ms=None):
     status = "awaiting_metadata" if is_attack else "completed"
 
     with connect() as conn:
-        run_id = RunsRepository(conn).start_run(scenario=scenario, label=label, notes=notes)
+        run_id = RunsRepository(conn).start_run(
+            scenario=scenario, label=label, notes=notes,
+            started_at=capture_start_ts,
+        )
 
     try:
         with connect() as conn:
@@ -46,6 +50,7 @@ def load_into_database(scenario, label="benign", notes=None, duration_ms=None):
                 source_correlated_file=str(paths.CORRELATED_EVENTS_FILE),
                 source_ssh_sessions_file=str(paths.SSH_SESSIONS_FILE),
                 duration_ms=duration_ms, status=status,
+                ended_at=capture_end_ts,
             )
     except Exception as exc:
         with connect() as conn:

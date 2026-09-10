@@ -1,10 +1,21 @@
 from datetime import datetime, timezone
+import time
+from ..runtime import bootstrap
+from ..runtime.supervisor import ProcessSupervisor
+
 
 class AttackPipelineController:
     def __init__(self, warmup_seconds: int = 5):
         self.warmup_seconds = warmup_seconds
         self.supervisor = None
         self.capture_start_ts = None
+
+    def wait_ready(self):
+        print(
+            f"[controller] waiting {self.warmup_seconds}s "
+            "for collectors to warm up..."
+        )
+        time.sleep(self.warmup_seconds)
 
     def start(self) -> None:
         self.capture_start_ts = datetime.now(timezone.utc).isoformat()

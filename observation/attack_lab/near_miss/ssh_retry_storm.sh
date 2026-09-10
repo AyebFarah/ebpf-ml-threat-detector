@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Simulates a misconfigured backup/monitoring script retrying SSH with a
-# WRONG but consistent credential — legitimate automation, not an attack.
+# WRONG but consistent credential, legitimate automation, not an attack.
 # Key difference from ssh_bruteforce: single password retried, not a
 # wordlist, and much lower rate (a real cron-triggered retry loop, not
 # a brute-force burst).

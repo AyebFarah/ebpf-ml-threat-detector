@@ -13,7 +13,7 @@ class TcpFlowObservationsRepository:
         self.conn.execute(
             """
             INSERT INTO tcp_flow_observations (
-                correlated_event_id, start_ts, end_ts, duration_seconds,
+                correlated_event_id, start_ts, end_ts, duration_ms,
                 handshake_completed, handshake_rtt_ms, termination_reason,
                 packets_out, packets_in, bytes_out, bytes_in,
                 retransmissions, raw_json
@@ -23,7 +23,7 @@ class TcpFlowObservationsRepository:
                 correlated_event_id,
                 tcp_block.get("start_ts"),
                 tcp_block.get("end_ts"),
-                tcp_block.get("duration_seconds"),
+                tcp_block.get("duration_ms"),
                 int(bool(tcp_block.get("handshake_completed"))),
                 tcp_block.get("handshake_rtt_ms"),
                 tcp_block.get("termination_reason"),
