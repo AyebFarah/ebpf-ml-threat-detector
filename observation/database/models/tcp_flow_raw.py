@@ -1,12 +1,15 @@
 from typing import Optional
-from sqlalchemy import Float, ForeignKey, Integer, Text, UniqueConstraint
+from sqlalchemy import Float, ForeignKey, Index, Integer, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class TcpFlowRaw(Base):
     __tablename__ = "tcp_flows_raw"
-    __table_args__ = (UniqueConstraint("run_id", "dedup_key", name="uq_tcp_flows_raw_run_dedup"),)
+    __table_args__ = (
+        UniqueConstraint("run_id", "dedup_key", name="uq_tcp_flows_raw_run_dedup"),
+        Index("idx_tcp_flows_raw_run_id", "run_id"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"))
     dedup_key: Mapped[str] = mapped_column(Text)

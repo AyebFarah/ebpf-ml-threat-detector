@@ -1,11 +1,15 @@
 from typing import Optional
-from sqlalchemy import Float, ForeignKey, Integer, Text
+from sqlalchemy import Float, ForeignKey, Index, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class SshSession(Base):
     __tablename__ = "ssh_sessions"
+    __table_args__ = (
+        Index("idx_ssh_sessions_run_id", "run_id"),
+        Index("idx_ssh_sessions_session_key", "session_key"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"))
     session_key: Mapped[Optional[str]] = mapped_column(Text)

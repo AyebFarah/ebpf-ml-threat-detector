@@ -1,11 +1,15 @@
 from typing import Optional
-from sqlalchemy import ForeignKey, Integer, Text, text
+from sqlalchemy import ForeignKey, Index, Integer, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class AttackRunMetadata(Base):
     __tablename__ = "attack_run_metadata"
+    __table_args__ = (
+        Index("idx_attack_run_metadata_family", "attack_family"),
+        Index("idx_attack_run_metadata_technique", "attack_technique"),
+    )
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"), primary_key=True)
     attack_family: Mapped[str] = mapped_column(Text)
     attack_technique: Mapped[str] = mapped_column(Text)

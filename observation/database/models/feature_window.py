@@ -1,12 +1,18 @@
 from typing import Optional
 
-from sqlalchemy import Float, ForeignKey, Integer, Text, text
+from sqlalchemy import Float, ForeignKey, Index, Integer, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class FeatureWindow(Base):
     __tablename__ = "feature_windows"
+    __table_args__ = (
+        Index("idx_feature_windows_run_id", "run_id"),
+        Index("idx_feature_windows_entity", "entity_type", "entity_id"),
+        Index("idx_feature_windows_timestamp", "window_start_ts", "window_end_ts"),
+        Index("idx_feature_windows_label", "label"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"))
     window_start_ts: Mapped[str] = mapped_column(Text)

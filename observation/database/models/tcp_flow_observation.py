@@ -1,11 +1,14 @@
 from typing import Optional
-from sqlalchemy import Float, ForeignKey, Integer, Text
+from sqlalchemy import Float, ForeignKey, Index, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class TcpFlowObservation(Base):
     __tablename__ = "tcp_flow_observations"
+    __table_args__ = (
+        Index("idx_tcp_flow_observations_correlated_event_id", "correlated_event_id"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     correlated_event_id: Mapped[int] = mapped_column(ForeignKey("correlated_events.id", ondelete="CASCADE"))
     start_ts: Mapped[Optional[str]] = mapped_column(Text)

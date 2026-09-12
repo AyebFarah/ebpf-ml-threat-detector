@@ -1,11 +1,16 @@
 from typing import Optional
-from sqlalchemy import Float, ForeignKey, Integer, Text
+from sqlalchemy import Float, ForeignKey, Index, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class DnsObservation(Base):
     __tablename__ = "dns_observations"
+    __table_args__ = (
+        Index("idx_dns_observations_correlated_event_id", "correlated_event_id"),
+        Index("idx_dns_observations_query_name", "query_name"),
+        Index("idx_dns_observations_resolved_ip", "resolved_ip"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     correlated_event_id: Mapped[int] = mapped_column(ForeignKey("correlated_events.id", ondelete="CASCADE"))
     timestamp: Mapped[Optional[str]] = mapped_column(Text)

@@ -1,12 +1,16 @@
 from typing import Optional
-from sqlalchemy import ForeignKey, Integer, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, Integer, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from observation.database.models.base import Base
 
 
 class DnsEventRaw(Base):
     __tablename__ = "dns_events_raw"
-    __table_args__ = (UniqueConstraint("run_id", "dedup_key", name="uq_dns_events_raw_run_dedup"),)
+    __table_args__ = (
+        UniqueConstraint("run_id", "dedup_key", name="uq_dns_events_raw_run_dedup"),
+        Index("idx_dns_events_raw_run_id", "run_id"),
+        Index("idx_dns_events_raw_query_name", "query_name"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"))
     dedup_key: Mapped[str] = mapped_column(Text)
