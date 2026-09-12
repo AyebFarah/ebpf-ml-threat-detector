@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import inspect, select
 
 from observation import paths
 from observation.database.connection import apply_migrations, connect
@@ -117,12 +118,7 @@ def db(tmp_path, monkeypatch):
 
 def test_migrations_create_all_nine_tables(db):
     with connect() as conn:
-        tables = {
-            row["name"]
-            for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
-        }
+        tables = set(inspect(conn.get_bind()).get_table_names())
 
     expected = {
         "observation_runs",
@@ -147,14 +143,10 @@ def test_start_run_stores_metadata(db):
             notes="Chrome + YouTube",
         )
 
-        row = conn.execute(
-            """
-            SELECT scenario, label, notes, duration_ms
-            FROM observation_runs
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()
+        row = conn.execute(select(
+            ObservationRun.scenario, ObservationRun.label,
+            ObservationRun.notes, ObservationRun.duration_ms,
+        ).where(ObservationRun.run_id == run_id)).mappings().one()
 
         assert row["scenario"] == "browser_light"
         assert row["label"] == "benign"
@@ -179,18 +171,10 @@ def test_complete_run_stores_duration(db):
             duration_ms=300000,
         )
 
-        row = conn.execute(
-            """
-            SELECT
-                started_at,
-                ended_at,
-                status,
-                duration_ms
-            FROM observation_runs
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()
+        row = conn.execute(select(
+            ObservationRun.started_at, ObservationRun.ended_at,
+            ObservationRun.status, ObservationRun.duration_ms,
+        ).where(ObservationRun.run_id == run_id)).mappings().one()
 
         assert row["started_at"] is not None
         assert row["ended_at"] is not None
@@ -212,14 +196,9 @@ def test_insert_creates_parent_and_all_child_rows(db):
 
         assert count == 1
 
-        parent = conn.execute(
-            """
-            SELECT *
-            FROM correlated_events
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()
+        parent = conn.execute(select(CorrelatedEventModel.__table__).where(
+            CorrelatedEventModel.run_id == run_id
+        )).mappings().one()
 
         # Core table has NO TLS/DNS/HTTP detail columns.
         # Verify the hybrid split.
@@ -282,14 +261,9 @@ def test_no_dns_block_produces_no_dns_observation_row(db):
             [record],
         )
 
-        parent = conn.execute(
-            """
-            SELECT *
-            FROM correlated_events
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()
+        parent = conn.execute(select(CorrelatedEventModel.__table__).where(
+            CorrelatedEventModel.run_id == run_id
+        )).mappings().one()
 
         dns_rows = DnsObservationsRepository(conn).for_correlated_event(
             parent["id"]
@@ -314,20 +288,11 @@ def test_feature_query_needs_no_joins_for_core_flags(db):
             [SAMPLE_RECORD],
         )
 
-        row = conn.execute(
-            """
-            SELECT
-                dns_matched,
-                tls_matched,
-                tcp_flow_matched,
-                http_matched,
-                dns_time_delta_ms,
-                tls_time_delta_ms
-            FROM correlated_events
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()
+        row = conn.execute(select(
+            CorrelatedEventModel.dns_matched, CorrelatedEventModel.tls_matched,
+            CorrelatedEventModel.tcp_flow_matched, CorrelatedEventModel.http_matched,
+            CorrelatedEventModel.dns_time_delta_ms, CorrelatedEventModel.tls_time_delta_ms,
+        ).where(CorrelatedEventModel.run_id == run_id)).mappings().one()
 
         assert row["dns_matched"] == 1
         assert row["tls_time_delta_ms"] == 50

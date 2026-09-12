@@ -32,7 +32,7 @@ class CorrelatedEventsRepository:
     child repository using the parent's newly-generated id.
     """
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
         self.process_repo = ProcessObservationsRepository(conn)
         self.dns_repo = DnsObservationsRepository(conn)
@@ -44,12 +44,13 @@ class CorrelatedEventsRepository:
 
     def insert_many(self, run_id: int, records: list) -> int:
         events = [CorrelatedEvent.from_record(run_id, r) for r in records]
-        placeholders = ", ".join("?" for _ in _CORE_COLUMNS)
-        insert_sql = f"INSERT INTO correlated_events ({', '.join(_CORE_COLUMNS)}) VALUES ({placeholders})"
-
         for e in events:
-            cur = self.conn.execute(insert_sql, tuple(getattr(e, col) for col in _CORE_COLUMNS))
-            correlated_event_id = cur.lastrowid
+            model = CorrelatedEventModel(**{
+                column: getattr(e, column) for column in _CORE_COLUMNS
+            })
+            self.conn.add(model)
+            self.conn.flush()
+            correlated_event_id = model.id
 
             self.process_repo.insert(correlated_event_id, e.process_context_block)
             self.dns_repo.insert(correlated_event_id, e.dns_block)

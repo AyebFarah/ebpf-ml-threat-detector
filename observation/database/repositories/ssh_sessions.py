@@ -14,16 +14,15 @@ _COLUMNS = (
 
 
 class SshSessionsRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert_many(self, run_id: int, records: list) -> int:
         sessions = [SshSessionRecord.from_record(run_id, r) for r in records]
-        placeholders = ", ".join("?" for _ in _COLUMNS)
-        self.conn.executemany(
-            f"INSERT INTO ssh_sessions ({', '.join(_COLUMNS)}) VALUES ({placeholders})",
-            [tuple(getattr(s, col) for col in _COLUMNS) for s in sessions],
-        )
+        self.conn.add_all([
+            SshSession(**{column: getattr(record, column) for column in _COLUMNS})
+            for record in sessions
+        ])
         return len(sessions)
 
     def for_run(self, run_id: int) -> list:

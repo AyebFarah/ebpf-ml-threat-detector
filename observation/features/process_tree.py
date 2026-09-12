@@ -1,22 +1,24 @@
 #Full documentation on docs/011-feature-engineering-v1.md, section 'process_tree_depth_max
 from __future__ import annotations
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from observation.database.models import CorrelatedEventModel, ProcessObservation
 
 
-def build_ancestry_map(conn: sqlite3.Connection, run_id: int) -> dict[str, str | None]:
+def build_ancestry_map(conn: Session, run_id: int) -> dict[str, str | None]:
     """exec_id -> parent_exec_id, for every distinct process_observations row
     attached to a correlated_event in this run. Only covers processes that
     generated at least one network connection in this run"""
-    rows = conn.execute(
-        """
-        SELECT DISTINCT po.exec_id, po.parent_exec_id
-        FROM process_observations po
-                 JOIN correlated_events ce ON ce.id = po.correlated_event_id
-        WHERE ce.run_id = ? AND po.exec_id IS NOT NULL
-        """,
-        (run_id,),
-    ).fetchall()
-    return {r["exec_id"]: r["parent_exec_id"] for r in rows}
+    rows = conn.execute(select(
+        ProcessObservation.exec_id, ProcessObservation.parent_exec_id
+    ).join(
+        CorrelatedEventModel,
+        CorrelatedEventModel.id == ProcessObservation.correlated_event_id,
+    ).where(
+        CorrelatedEventModel.run_id == run_id,
+        ProcessObservation.exec_id.is_not(None),
+    ).distinct())
+    return {row.exec_id: row.parent_exec_id for row in rows}
 
 
 class ProcessTreeDepthCalculator:

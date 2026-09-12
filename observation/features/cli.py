@@ -13,10 +13,10 @@ from observation.features.repositories.feature_windows import FeatureWindowsRepo
 
 def _resolve_run_ids(conn, run_ids, all_runs, exclude):
     if all_runs:
-        rows = conn.execute(
-            "SELECT run_id FROM observation_runs WHERE status = 'completed'"
-        ).fetchall()
-        return [r["run_id"] for r in rows if r["run_id"] not in exclude]
+        run_ids = conn.execute(select(ObservationRun.run_id).where(
+            ObservationRun.status == "completed"
+        )).scalars()
+        return [run_id for run_id in run_ids if run_id not in exclude]
     return [rid for rid in (run_ids or []) if rid not in exclude]
 
 

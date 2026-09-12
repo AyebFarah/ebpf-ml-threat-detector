@@ -29,6 +29,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+from sqlalchemy import update
 
 from observation.attack_lab.pipeline_controller import AttackPipelineController
 from observation.attack_lab import config
@@ -162,10 +163,9 @@ def main():
     print(f"[wrapper] manifest written -> {manifest_path}")
 
     with connect() as conn:
-        conn.execute(
-            "UPDATE attack_run_metadata SET manifest_path = ? WHERE run_id = ?",
-            (str(manifest_path), run_id),
-        )
+        conn.execute(update(AttackRunMetadata).where(
+            AttackRunMetadata.run_id == run_id
+        ).values(manifest_path=str(manifest_path)))
 
     print(f"[wrapper] run_id={run_id} complete. "
           f"Run 'python3 -m observation.database.reports.run_summary {run_id}'")

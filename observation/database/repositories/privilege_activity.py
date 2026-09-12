@@ -1,27 +1,24 @@
 from __future__ import annotations
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from observation.database.models import PrivilegeActivityEvent
 
 
 class PrivilegeActivityRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert_many(self, correlated_event_id: int, privilege_activity: list) -> None:
         if not privilege_activity:
             return
-        self.conn.executemany(
-            "INSERT INTO privilege_activity_events (correlated_event_id, timestamp, event_type, detail, source_event_key) "
-            "VALUES (?, ?, ?, ?, ?)",
-            [
-                (correlated_event_id, p.get("timestamp"), p.get("event_type"),
-                 str(p.get("detail")) if p.get("detail") is not None else None,
-                 p.get("source_event_key"))
-                for p in privilege_activity
-            ],
-        )
+        self.conn.add_all([PrivilegeActivityEvent(
+            correlated_event_id=correlated_event_id, timestamp=item.get("timestamp"),
+            event_type=item.get("event_type"),
+            detail=str(item.get("detail")) if item.get("detail") is not None else None,
+            source_event_key=item.get("source_event_key"),
+        ) for item in privilege_activity])
 
     def for_correlated_event(self, correlated_event_id: int) -> list:
-        return self.conn.execute(
-            "SELECT * FROM privilege_activity_events WHERE correlated_event_id = ? ORDER BY timestamp",
-            (correlated_event_id,),
-        ).fetchall()
+        return list(self.conn.execute(select(PrivilegeActivityEvent.__table__).where(
+            PrivilegeActivityEvent.correlated_event_id == correlated_event_id
+        ).order_by(PrivilegeActivityEvent.timestamp)).mappings())
