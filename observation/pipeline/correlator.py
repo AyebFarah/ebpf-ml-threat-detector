@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
-from .. import paths
-from .event_keys import make_source_event_key
+from observation import paths
+from observation.pipeline.event_keys import make_source_event_key
 
 
 INPUT_FILE = paths.UNIFIED_EVENTS_FILE

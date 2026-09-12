@@ -3,7 +3,7 @@ import socket
 import traceback
 from datetime import datetime, timezone
 from scapy.all import sniff, DNS, DNSQR, DNSRR, UDP, TCP, IP, IPv6
-from .. import paths
+from observation import paths
 
 OUTPUT_FILE = paths.DNS_EVENTS_FILE
 

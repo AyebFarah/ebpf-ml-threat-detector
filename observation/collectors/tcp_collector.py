@@ -3,7 +3,7 @@ import traceback
 import threading
 from datetime import datetime, timezone
 from scapy.all import sniff, TCP, IP, IPv6
-from .. import paths
+from observation import paths
 
 OUTPUT_FILE = paths.TCP_EVENTS_FILE
 

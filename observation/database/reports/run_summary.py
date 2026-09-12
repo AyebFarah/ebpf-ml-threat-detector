@@ -3,7 +3,7 @@
 import sqlite3
 import sys
 
-from ... import paths
+from observation import paths
 
 
 SUMMARY_FILE = paths.RUN_SUMMARY_FILE

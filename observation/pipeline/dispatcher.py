@@ -1,6 +1,6 @@
 import json
 import sys
-from .. import paths
+from observation import paths
 
 
 def dispatch_raw_event(raw: dict):

@@ -5,9 +5,9 @@ import sqlite3
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from .config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
-from . import groups
-from .process_tree import build_ancestry_map, ProcessTreeDepthCalculator
+from observation.features.config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
+from observation.features import groups
+from observation.features.process_tree import build_ancestry_map, ProcessTreeDepthCalculator
 
 FLOW_ONLY_AGGREGATION_VERSION = "flow_only_15s_5s_v1"
 

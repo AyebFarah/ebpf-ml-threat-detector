@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import time
-from ..runtime import bootstrap
-from ..runtime.supervisor import ProcessSupervisor
+from observation.runtime import bootstrap
+from observation.runtime.supervisor import ProcessSupervisor
 
 
 class AttackPipelineController:
