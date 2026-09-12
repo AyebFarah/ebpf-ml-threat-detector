@@ -1,6 +1,9 @@
 from __future__ import annotations
-import sqlite3
-from ..models import SshSessionRecord
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+
+from observation.database.records import SshSessionRecord
+from observation.database.models import SshSession
 
 _COLUMNS = (
     "run_id", "session_key", "username", "src_ip", "src_port", "pid",
@@ -14,19 +17,20 @@ _COLUMNS = (
 
 
 class SshSessionsRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert_many(self, run_id: int, records: list) -> int:
         sessions = [SshSessionRecord.from_record(run_id, r) for r in records]
-        placeholders = ", ".join("?" for _ in _COLUMNS)
-        self.conn.executemany(
-            f"INSERT INTO ssh_sessions ({', '.join(_COLUMNS)}) VALUES ({placeholders})",
-            [tuple(getattr(s, col) for col in _COLUMNS) for s in sessions],
-        )
+        self.conn.add_all([
+            SshSession(**{column: getattr(record, column) for column in _COLUMNS})
+            for record in sessions
+        ])
         return len(sessions)
 
     def for_run(self, run_id: int) -> list:
-        return self.conn.execute(
-            "SELECT * FROM ssh_sessions WHERE run_id = ? ORDER BY earliest_event_ts", (run_id,)
-        ).fetchall()
+        return list(self.conn.execute(
+            select(SshSession.__table__).where(
+                SshSession.run_id == run_id
+            ).order_by(SshSession.earliest_event_ts)
+        ).mappings())

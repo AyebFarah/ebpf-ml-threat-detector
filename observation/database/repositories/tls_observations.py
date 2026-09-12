@@ -1,45 +1,33 @@
 from __future__ import annotations
 import json
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from observation.database.models import CorrelatedEventModel, TlsObservation
 
 
 class TlsObservationsRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert(self, correlated_event_id: int, tls_block: dict) -> None:
         if not tls_block:
             return
-        self.conn.execute(
-            """
-            INSERT INTO tls_observations (
-                correlated_event_id, timestamp, sni, ja4, tls_version, raw_json
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                correlated_event_id,
-                tls_block.get("timestamp"),
-                tls_block.get("sni"),
-                tls_block.get("ja4"),
-                tls_block.get("tls_version"),
-                json.dumps(tls_block),
-            ),
-        )
+        self.conn.add(TlsObservation(
+            correlated_event_id=correlated_event_id, timestamp=tls_block.get("timestamp"),
+            sni=tls_block.get("sni"), ja4=tls_block.get("ja4"),
+            tls_version=tls_block.get("tls_version"), raw_json=json.dumps(tls_block),
+        ))
 
     def for_correlated_event(self, correlated_event_id: int) -> list:
-        return self.conn.execute(
-            "SELECT * FROM tls_observations WHERE correlated_event_id = ?",
-            (correlated_event_id,),
-        ).fetchall()
+        return list(self.conn.execute(select(TlsObservation.__table__).where(
+            TlsObservation.correlated_event_id == correlated_event_id
+        )).mappings())
 
     def for_ja4(self, ja4: str, run_id: int = None) -> list:
         if run_id is None:
-            return self.conn.execute(
-                "SELECT * FROM tls_observations WHERE ja4 = ?", (ja4,)
-            ).fetchall()
-        return self.conn.execute(
-            "SELECT t.* FROM tls_observations t "
-            "JOIN correlated_events ce ON ce.id = t.correlated_event_id "
-            "WHERE t.ja4 = ? AND ce.run_id = ?",
-            (ja4, run_id),
-        ).fetchall()
+            statement = select(TlsObservation.__table__).where(TlsObservation.ja4 == ja4)
+        else:
+            statement = select(TlsObservation.__table__).join(
+                CorrelatedEventModel, CorrelatedEventModel.id == TlsObservation.correlated_event_id
+            ).where(TlsObservation.ja4 == ja4, CorrelatedEventModel.run_id == run_id)
+        return list(self.conn.execute(statement).mappings())

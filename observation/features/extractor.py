@@ -1,13 +1,20 @@
 from __future__ import annotations
 import hashlib
 import json
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 from collections import defaultdict
 from datetime import datetime, timezone
 
 from .config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
 from . import groups
 from .process_tree import build_ancestry_map, ProcessTreeDepthCalculator
+from observation.database.models import (
+    CorrelatedEventModel, DnsEventRaw, DnsObservation, FileActivityEvent,
+    HttpObservation, ObservationRun, PrivilegeActivityEvent,
+    ProcessObservation, SshSession, TcpFlowObservation, TcpFlowRaw,
+    TlsObservation,
+)
 
 FLOW_ONLY_AGGREGATION_VERSION = "flow_only_15s_5s_v1"
 
@@ -30,36 +37,33 @@ def five_tuple_hash(src_ip, src_port, dst_ip, dst_port, transport) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
-def fetch_run_rows(conn: sqlite3.Connection, run_id: int) -> list[dict]:
-    query = """
-            SELECT
-                ce.id AS event_id, ce.timestamp AS timestamp,
-        ce.src_ip AS src_ip, ce.src_port AS src_port,
-        ce.dst_ip AS dst_ip, ce.dst_port AS dst_port,
-        ce.process_pid AS pid, ce.process_name AS binary,
-        ce.tls_matched AS tls_matched, ce.dns_matched AS dns_matched,
-        ce.http_matched AS http_matched, ce.tcp_flow_matched AS tcp_flow_matched,
-        po.exec_id AS exec_id, po.parent_binary AS parent_binary, po.uid AS uid,
-        dns.query_name AS dns_domain, dns.resolved_ip AS dns_resolved_ip,
-        dns.rcode AS dns_rcode, dns.response_latency_ms AS dns_latency_ms,
-        tls.sni AS tls_sni, tls.ja4 AS tls_ja4, tls.tls_version AS tls_version,
-        flow.duration_ms AS flow_duration_ms,
-        flow.bytes_out AS bytes_sent, flow.bytes_in AS bytes_received,
-        flow.packets_out AS packets_sent, flow.packets_in AS packets_received,
-        flow.termination_reason AS termination_reason,
-        http.host AS http_host, http.method AS http_method,
-        http.status_code AS http_status, http.path_length AS http_path_length,
-        http.content_length AS http_content_length
-            FROM correlated_events ce
-                LEFT JOIN process_observations   po   ON po.correlated_event_id   = ce.id
-                LEFT JOIN dns_observations       dns  ON dns.correlated_event_id  = ce.id
-                LEFT JOIN tls_observations       tls  ON tls.correlated_event_id  = ce.id
-                LEFT JOIN tcp_flow_observations  flow ON flow.correlated_event_id = ce.id
-                LEFT JOIN http_observations      http ON http.correlated_event_id = ce.id
-            WHERE ce.run_id = ?
-            ORDER BY ce.timestamp \
-            """
-    rows = [dict(r) for r in conn.execute(query, (run_id,)).fetchall()]
+def fetch_run_rows(conn: Session, run_id: int) -> list[dict]:
+    statement = select(
+        CorrelatedEventModel.id.label("event_id"), CorrelatedEventModel.timestamp,
+        CorrelatedEventModel.src_ip, CorrelatedEventModel.src_port,
+        CorrelatedEventModel.dst_ip, CorrelatedEventModel.dst_port,
+        CorrelatedEventModel.process_pid.label("pid"), CorrelatedEventModel.process_name.label("binary"),
+        CorrelatedEventModel.tls_matched, CorrelatedEventModel.dns_matched,
+        CorrelatedEventModel.http_matched, CorrelatedEventModel.tcp_flow_matched,
+        ProcessObservation.exec_id, ProcessObservation.parent_binary, ProcessObservation.uid,
+        DnsObservation.query_name.label("dns_domain"), DnsObservation.resolved_ip.label("dns_resolved_ip"),
+        DnsObservation.rcode.label("dns_rcode"), DnsObservation.response_latency_ms.label("dns_latency_ms"),
+        TlsObservation.sni.label("tls_sni"), TlsObservation.ja4.label("tls_ja4"),
+        TlsObservation.tls_version,
+        TcpFlowObservation.duration_ms.label("flow_duration_ms"),
+        TcpFlowObservation.bytes_out.label("bytes_sent"), TcpFlowObservation.bytes_in.label("bytes_received"),
+        TcpFlowObservation.packets_out.label("packets_sent"), TcpFlowObservation.packets_in.label("packets_received"),
+        TcpFlowObservation.termination_reason,
+        HttpObservation.host.label("http_host"), HttpObservation.method.label("http_method"),
+        HttpObservation.status_code.label("http_status"), HttpObservation.path_length.label("http_path_length"),
+        HttpObservation.content_length.label("http_content_length"),
+    ).outerjoin(ProcessObservation, ProcessObservation.correlated_event_id == CorrelatedEventModel.id
+    ).outerjoin(DnsObservation, DnsObservation.correlated_event_id == CorrelatedEventModel.id
+    ).outerjoin(TlsObservation, TlsObservation.correlated_event_id == CorrelatedEventModel.id
+    ).outerjoin(TcpFlowObservation, TcpFlowObservation.correlated_event_id == CorrelatedEventModel.id
+    ).outerjoin(HttpObservation, HttpObservation.correlated_event_id == CorrelatedEventModel.id
+    ).where(CorrelatedEventModel.run_id == run_id).order_by(CorrelatedEventModel.timestamp)
+    rows = [dict(row) for row in conn.execute(statement).mappings()]
 
     for r in rows:
         r["_ts"] = _parse_ts(r["timestamp"])
@@ -75,7 +79,7 @@ def fetch_run_rows(conn: sqlite3.Connection, run_id: int) -> list[dict]:
     return rows
 
 
-def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]:
+def fetch_run_tcp_flows_raw(conn: Session, run_id: int) -> list[dict]:
     """Every TCP flow captured for this run, independent of correlator
     matching. Used two ways:
       1. Merged into host-level network_topology() alongside
@@ -89,13 +93,13 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
     mode, and so timestamp-based window filtering works identically to
     correlated_events rows.
     """
-    rows = conn.execute(
-        """SELECT id, src_ip, src_port, dst_ip, dst_port, start_ts, end_ts,
-                  duration_ms, termination_reason, packets_out, packets_in,
-                  bytes_out, bytes_in
-           FROM tcp_flows_raw WHERE run_id = ?""",
-        (run_id,),
-    ).fetchall()
+    rows = conn.execute(select(
+        TcpFlowRaw.id, TcpFlowRaw.src_ip, TcpFlowRaw.src_port, TcpFlowRaw.dst_ip,
+        TcpFlowRaw.dst_port, TcpFlowRaw.start_ts, TcpFlowRaw.end_ts,
+        TcpFlowRaw.duration_ms, TcpFlowRaw.termination_reason,
+        TcpFlowRaw.packets_out, TcpFlowRaw.packets_in,
+        TcpFlowRaw.bytes_out, TcpFlowRaw.bytes_in,
+    ).where(TcpFlowRaw.run_id == run_id)).mappings()
 
     pseudo_rows = []
     for r in rows:
@@ -127,7 +131,7 @@ def fetch_run_tcp_flows_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]
         })
     return pseudo_rows
 
-def fetch_run_dns_events_raw(conn: sqlite3.Connection, run_id: int) -> list[dict]:
+def fetch_run_dns_events_raw(conn: Session, run_id: int) -> list[dict]:
     """Every DNS query/response captured for this run, independent of
     correlator matching. Merged into host-level dns_features() alongside
     correlated_events rows, always, since correlated_events can never
@@ -138,11 +142,11 @@ def fetch_run_dns_events_raw(conn: sqlite3.Connection, run_id: int) -> list[dict
     invisible to dns_features() without this merge, even when
     correlated_events isn't empty for the run.
     """
-    rows = conn.execute(
-        """SELECT id, dedup_key, timestamp, query_name, rcode, resolved_ip, ttl
-           FROM dns_events_raw WHERE run_id = ?""",
-        (run_id,),
-    ).fetchall()
+    rows = conn.execute(select(
+        DnsEventRaw.id, DnsEventRaw.dedup_key, DnsEventRaw.timestamp,
+        DnsEventRaw.query_name, DnsEventRaw.rcode, DnsEventRaw.resolved_ip,
+        DnsEventRaw.ttl,
+    ).where(DnsEventRaw.run_id == run_id)).mappings()
 
     pseudo_events = []
     for r in rows:
@@ -160,15 +164,13 @@ def fetch_run_dns_events_raw(conn: sqlite3.Connection, run_id: int) -> list[dict
     return pseudo_events
 
 
-def fetch_activity(conn: sqlite3.Connection, event_ids: list[int], table: str) -> dict:
+def fetch_activity(conn: Session, event_ids: list[int], table: str) -> dict:
     if not event_ids:
         return {}
-    placeholders = ",".join("?" for _ in event_ids)
-    cols = "correlated_event_id, timestamp, path, operations, source_event_key" if table == "file_activity_events" \
-        else "correlated_event_id, timestamp, event_type, detail, source_event_key"
-    rows = [dict(r) for r in conn.execute(
-        f"SELECT {cols} FROM {table} WHERE correlated_event_id IN ({placeholders})", event_ids
-    ).fetchall()]
+    model = FileActivityEvent if table == "file_activity_events" else PrivilegeActivityEvent
+    rows = [dict(row) for row in conn.execute(select(model.__table__).where(
+        model.correlated_event_id.in_(event_ids)
+    )).mappings()]
     out = defaultdict(list)
     for r in rows:
         r["_ts"] = _parse_ts(r["timestamp"]) if r["timestamp"] else None
@@ -176,10 +178,10 @@ def fetch_activity(conn: sqlite3.Connection, event_ids: list[int], table: str) -
     return out
 
 
-def fetch_ssh_sessions(conn: sqlite3.Connection, run_id: int) -> list[dict]:
-    return [dict(r) for r in conn.execute(
-        "SELECT * FROM ssh_sessions WHERE run_id = ?", (run_id,)
-    ).fetchall()]
+def fetch_ssh_sessions(conn: Session, run_id: int) -> list[dict]:
+    return [dict(row) for row in conn.execute(select(SshSession.__table__).where(
+        SshSession.run_id == run_id
+    )).mappings()]
 
 
 def generate_windows(min_ts, max_ts, window_seconds, stride_seconds):
@@ -219,7 +221,7 @@ def _aggregate(rows, window_start, window_end, file_activity, privilege_activity
     return result
 
 
-def build_feature_windows(conn: sqlite3.Connection, run_id: int, ja4_baseline: dict,
+def build_feature_windows(conn: Session, run_id: int, ja4_baseline: dict,
                           window_seconds: int = WINDOW_SECONDS,
                           stride_seconds: int = STRIDE_SECONDS) -> list[dict]:
     """Correlated_events is enriched with tcp_flows_raw for host-level
@@ -227,9 +229,9 @@ def build_feature_windows(conn: sqlite3.Connection, run_id: int, ja4_baseline: d
     since correlated_events can under-represent real network activity
     even when it isn't completely empty (e.g. network_discovery producing
     2 correlated_events out of 63 real flows). See docs/011."""
-    run_row = conn.execute(
-        "SELECT scenario, label FROM observation_runs WHERE run_id = ?", (run_id,)
-    ).fetchone()
+    run_row = conn.execute(select(
+        ObservationRun.scenario, ObservationRun.label
+    ).where(ObservationRun.run_id == run_id)).mappings().first()
     if run_row is None:
         return []
     scenario = run_row["scenario"]

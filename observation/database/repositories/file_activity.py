@@ -1,41 +1,34 @@
 from __future__ import annotations
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from observation.database.models import CorrelatedEventModel, FileActivityEvent
 
 
 class FileActivityRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert_many(self, correlated_event_id: int, file_activity: list) -> None:
         if not file_activity:
             return
-        self.conn.executemany(
-            "INSERT INTO file_activity_events (correlated_event_id, timestamp, path, operations, source_event_key) "
-            "VALUES (?, ?, ?, ?, ?)",
-            [
-                (correlated_event_id, f.get("timestamp"), f.get("path"),
-                 ",".join(f.get("operations") or []), f.get("source_event_key"))
-                for f in file_activity
-            ],
-        )
+        self.conn.add_all([FileActivityEvent(
+            correlated_event_id=correlated_event_id, timestamp=item.get("timestamp"),
+            path=item.get("path"), operations=",".join(item.get("operations") or []),
+            source_event_key=item.get("source_event_key"),
+        ) for item in file_activity])
 
     def for_correlated_event(self, correlated_event_id: int) -> list:
-        return self.conn.execute(
-            "SELECT * FROM file_activity_events WHERE correlated_event_id = ? ORDER BY timestamp",
-            (correlated_event_id,),
-        ).fetchall()
+        return list(self.conn.execute(select(FileActivityEvent.__table__).where(
+            FileActivityEvent.correlated_event_id == correlated_event_id
+        ).order_by(FileActivityEvent.timestamp)).mappings())
 
     def for_path(self, path: str, run_id: int = None) -> list:
-        if run_id is None:
-            return self.conn.execute(
-                "SELECT fae.*, ce.run_id FROM file_activity_events fae "
-                "JOIN correlated_events ce ON ce.id = fae.correlated_event_id "
-                "WHERE fae.path = ? ORDER BY fae.timestamp",
-                (path,),
-            ).fetchall()
-        return self.conn.execute(
-            "SELECT fae.* FROM file_activity_events fae "
-            "JOIN correlated_events ce ON ce.id = fae.correlated_event_id "
-            "WHERE fae.path = ? AND ce.run_id = ? ORDER BY fae.timestamp",
-            (path, run_id),
-        ).fetchall()
+        statement = select(FileActivityEvent.__table__).join(
+            CorrelatedEventModel,
+            CorrelatedEventModel.id == FileActivityEvent.correlated_event_id,
+        ).where(FileActivityEvent.path == path)
+        if run_id is not None:
+            statement = statement.where(CorrelatedEventModel.run_id == run_id)
+        return list(self.conn.execute(
+            statement.order_by(FileActivityEvent.timestamp)
+        ).mappings())

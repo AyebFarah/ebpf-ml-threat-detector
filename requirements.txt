@@ -1,5 +1,8 @@
 # Network packet capture and protocol parsing
 scapy==2.6.1
 
+# Database access and ORM
+SQLAlchemy==2.0.43
+
 # Testing
 pytest==8.4.2

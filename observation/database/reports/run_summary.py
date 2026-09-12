@@ -1,60 +1,42 @@
 """Usage: python3 -m observation.database.reports.run_summary <run_id>"""
 
-import sqlite3
 import sys
+from sqlalchemy import case, func, select
 
-from ... import paths
+from observation import paths
+from observation.database.connection import connect
+from observation.database.models import AttackRunMetadata, CorrelatedEventModel, ObservationRun, SshSession
 
 
 SUMMARY_FILE = paths.RUN_SUMMARY_FILE
 
 
 def summarize(run_id: int):
-    conn = sqlite3.connect(paths.DATABASE_FILE)
-    conn.row_factory = sqlite3.Row
-
-    try:
-        run = conn.execute(
-            "SELECT * FROM observation_runs WHERE run_id = ?",
-            (run_id,),
-        ).fetchone()
+    with connect() as conn:
+        run = conn.execute(select(ObservationRun.__table__).where(
+            ObservationRun.run_id == run_id
+        )).mappings().first()
 
         if run is None:
             message = f"No run with run_id={run_id}"
             print(message)
             return
 
-        total = conn.execute(
-            """
-            SELECT COUNT(*) AS c
-            FROM correlated_events
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()["c"]
+        total = conn.scalar(select(func.count()).select_from(CorrelatedEventModel).where(
+            CorrelatedEventModel.run_id == run_id
+        ))
 
         def rate(col):
-            result = conn.execute(
-                f"""
-                SELECT AVG(
-                    CASE WHEN {col} THEN 1.0 ELSE 0 END
-                ) AS r
-                FROM correlated_events
-                WHERE run_id = ?
-                """,
-                (run_id,),
-            ).fetchone()["r"]
+            column = getattr(CorrelatedEventModel, col)
+            result = conn.scalar(select(func.avg(case((column != 0, 1.0), else_=0.0))).where(
+                CorrelatedEventModel.run_id == run_id
+            ))
 
             return round(result, 3) if result is not None else None
 
-        ssh = conn.execute(
-            """
-            SELECT COUNT(*) AS c
-            FROM ssh_sessions
-            WHERE run_id = ?
-            """,
-            (run_id,),
-        ).fetchone()["c"]
+        ssh = conn.scalar(select(func.count()).select_from(SshSession).where(
+            SshSession.run_id == run_id
+        ))
 
         lines = [
             f"run_id={run['run_id']}  "
@@ -86,9 +68,9 @@ def summarize(run_id: int):
         # both terminal output and the persisted summary file, not just
         # flashed to the terminal and lost.
         if run["label"] and run["label"].startswith("attack:"):
-            meta = conn.execute(
-                "SELECT 1 FROM attack_run_metadata WHERE run_id = ?", (run_id,)
-            ).fetchone()
+            meta = conn.scalar(select(AttackRunMetadata.run_id).where(
+                AttackRunMetadata.run_id == run_id
+            ))
             if meta is None:
                 lines.append("  *** WARNING: attack run has NO attack_run_metadata row ***")
             else:
@@ -107,10 +89,6 @@ def summarize(run_id: int):
             f.write("\n\n")
 
         print(f"\nSummary appended to: {SUMMARY_FILE}")
-
-    finally:
-        conn.close()
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

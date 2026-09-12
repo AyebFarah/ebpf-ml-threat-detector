@@ -1,5 +1,8 @@
 from __future__ import annotations
-import sqlite3
+from sqlalchemy.orm import Session
+from sqlalchemy import delete, insert
+
+from observation.database.models import FeatureWindow
 
 _COLUMNS = [
     "run_id", "window_start_ts", "window_end_ts", "entity_type", "entity_id",
@@ -36,37 +39,34 @@ _COLUMNS = [
     "network_events_after_privilege_event", "network_events_after_sensitive_file_access",
     "ssh_success_count", "ssh_failure_count", "ssh_failure_ratio",
     "ssh_session_count", "mean_ssh_session_duration_sec",
-    "contributing_event_ids",
+    "contributing_event_ids", "total_flow_count",
 ]
 
 
 class FeatureWindowsRepository:
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: Session):
         self.conn = conn
 
     def insert_many(self, windows: list[dict]) -> int:
-        placeholders = ", ".join(f":{c}" for c in _COLUMNS)
-        col_list = ", ".join(_COLUMNS)
-        sql = f"INSERT INTO feature_windows ({col_list}) VALUES ({placeholders})"
-        for w in windows:
-            self.conn.execute(sql, {c: w.get(c) for c in _COLUMNS})
+        if windows:
+            self.conn.execute(insert(FeatureWindow), [
+                {column: window.get(column) for column in _COLUMNS}
+                for window in windows
+            ])
         return len(windows)
 
     def delete_for_run(self, run_id: int) -> int:
-        cur = self.conn.execute("DELETE FROM feature_windows WHERE run_id = ?", (run_id,))
-        return cur.rowcount
+        result = self.conn.execute(
+            delete(FeatureWindow).where(FeatureWindow.run_id == run_id)
+        )
+        return result.rowcount
 
     def upsert_for_run(self, run_id: int, windows: list[dict]) -> int:
         """Replace all feature_windows rows for run_id atomically, nested
         safely inside the outer connect() transaction via SAVEPOINT"""
-        self.conn.execute("SAVEPOINT feature_upsert")
-        try:
+        with self.conn.begin_nested():
             deleted = self.delete_for_run(run_id)
             print(f"[features] deleting existing windows for run_id={run_id} ({deleted} removed)")
             count = self.insert_many(windows)
             print(f"[features] inserting {count} windows for run_id={run_id}")
-            self.conn.execute("RELEASE SAVEPOINT feature_upsert")
             return count
-        except Exception:
-            self.conn.execute("ROLLBACK TO SAVEPOINT feature_upsert")
-            raise
