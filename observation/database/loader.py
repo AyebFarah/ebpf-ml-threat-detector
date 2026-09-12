@@ -59,7 +59,7 @@ def load_into_database(scenario, label="benign", notes=None, duration_ms=None,
 
     print(f"[db] run {run_id} ({scenario}/{label}): inserted {correlated_count} correlated events "
           f"(with DNS/TLS/TCP/HTTP/file/privilege detail rows), "
-          f"{ssh_count} ssh sessions, {tcp_flow_raw_count} raw tcp flows -> {paths.DATABASE_FILE}")
+          f"{ssh_count} ssh sessions, {tcp_flow_raw_count} raw tcp flows, {dns_raw_count} raw dns events -> {paths.DATABASE_FILE}")
     return run_id
 
 

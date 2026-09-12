@@ -1,368 +1,216 @@
-run_id=4  scenario=idle_desktop  label=benign
+run_id=1  scenario=browser_heavy  label=benign
   status             = completed
-  duration_ms   = 585000
-  notes              = laptop plugged in, no apps open (only intellij), night, bluetooth on
-  tcp_connect_events = 354
-  tls_matched                = 0.508
-  dns_matched                = 0.099
-  process_context_matched    = 0.0
-  http_matched               = 0.492
-  ssh_sessions       = 0
-============================================================
-
-run_id=5  scenario=idle_desktop  label=benign
-  status             = completed
-  duration_ms   = 572000
-  notes              = laptop plugged in, no apps open (only intellij), night, bluetooth on
-  tcp_connect_events = 363
-  tls_matched                = 0.51
-  dns_matched                = 0.113
-  process_context_matched    = 0.0
-  http_matched               = 0.49
-  ssh_sessions       = 0
-============================================================
-
-run_id=6  scenario=browser_heavy  label=benign
-  status             = completed
-  duration_ms   = 627000
+  duration_ms        = 950487
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
-  tcp_connect_events = 524
-  tls_matched                = 0.578
-  dns_matched                = 0.214
+  tcp_connect_events = 312
+  tls_matched                = 0.865
+  dns_matched                = 0.772
+  process_context_matched    = 0.849
+  http_matched               = 0.01
+  ssh_sessions       = 0
+============================================================
+
+run_id=2  scenario=idle_desktop  label=benign
+  status             = completed
+  duration_ms        = 545450
+  notes              = laptop plugged in, no open apps (only intellij), night
+  tcp_connect_events = 11
+  tls_matched                = 0.818
+  dns_matched                = 1.0
   process_context_matched    = 0.0
-  http_matched               = 0.42
+  http_matched               = 0.182
   ssh_sessions       = 0
 ============================================================
 
-run_id=7  scenario=browser_heavy  label=benign
+run_id=3  scenario=browser_heavy  label=benign
   status             = completed
-  duration_ms   = 1308000
-  notes              = Heavy browsing: multiple tabs, video, docs and social
-  tcp_connect_events = 736
-  tls_matched                = 0.649
-  dns_matched                = 0.341
-  process_context_matched    = 0.124
-  http_matched               = 0.346
+  duration_ms        = 556608
+  notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  tcp_connect_events = 233
+  tls_matched                = 0.884
+  dns_matched                = 0.841
+  process_context_matched    = 0.948
+  http_matched               = 0.009
   ssh_sessions       = 0
 ============================================================
 
-run_id=8  scenario=browser_light  label=benign
+run_id=4  scenario=browser_heavy  label=benign
   status             = completed
-  duration_ms   = 851000
-  notes              = Light browsing: articles, one/two tabs
-  tcp_connect_events = 513
-  tls_matched                = 0.52
-  dns_matched                = 0.125
+  duration_ms        = 944131
+  notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  tcp_connect_events = 109
+  tls_matched                = 0.872
+  dns_matched                = 0.936
   process_context_matched    = 0.0
-  http_matched               = 0.48
+  http_matched               = 0.037
   ssh_sessions       = 0
 ============================================================
 
-run_id=9  scenario=mixed_workday  label=benign
+run_id=5  scenario=browser_heavy  label=benign
   status             = completed
-  duration_ms   = 1943000
+  duration_ms        = 692552
+  notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  tcp_connect_events = 128
+  tls_matched                = 0.773
+  dns_matched                = 0.82
+  process_context_matched    = 0.617
+  http_matched               = 0.047
+  ssh_sessions       = 0
+============================================================
+
+run_id=6  scenario=idle_desktop  label=benign
+  status             = completed
+  duration_ms        = 459843
+  notes              = laptop plugged in, no open apps (only intellij), night
+  tcp_connect_events = 9
+  tls_matched                = 0.889
+  dns_matched                = 1.0
+  process_context_matched    = 0.0
+  http_matched               = 0.111
+  ssh_sessions       = 0
+============================================================
+
+run_id=7  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 1366302
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 3156
-  tls_matched                = 0.527
-  dns_matched                = 0.134
-  process_context_matched    = 0.014
-  http_matched               = 0.466
+  tcp_connect_events = 656
+  tls_matched                = 0.63
+  dns_matched                = 0.444
+  process_context_matched    = 0.476
+  http_matched               = 0.008
   ssh_sessions       = 0
 ============================================================
 
 run_id=10  scenario=mixed_workday  label=benign
   status             = completed
-  duration_ms   = 733000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 1266
-  tls_matched                = 0.451
-  dns_matched                = 0.102
+  duration_ms        = 1055859
+  notes              = Mixed work session: IDE, browser, Git, Python
+  tcp_connect_events = 100
+  tls_matched                = 0.97
+  dns_matched                = 0.96
   process_context_matched    = 0.02
-  http_matched               = 0.412
+  http_matched               = 0.03
   ssh_sessions       = 0
 ============================================================
 
 run_id=11  scenario=mixed_workday  label=benign
   status             = completed
-  duration_ms   = 1793000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 716
-  tls_matched                = 0.514
-  dns_matched                = 0.619
-  process_context_matched    = 0.466
-  http_matched               = 0.008
+  duration_ms        = 1576192
+  notes              = Mixed work session: IDE, browser, Git, Python
+  tcp_connect_events = 279
+  tls_matched                = 0.889
+  dns_matched                = 0.864
+  process_context_matched    = 0.495
+  http_matched               = 0.025
   ssh_sessions       = 0
 ============================================================
 
 run_id=12  scenario=mixed_workday  label=benign
   status             = completed
-  duration_ms   = 4079000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 1682
-  tls_matched                = 0.429
-  dns_matched                = 0.37
-  process_context_matched    = 0.804
-  http_matched               = 0.009
+  duration_ms        = 1820894
+  notes              = Mixed work session: IDE, browser, Git, Python
+  tcp_connect_events = 406
+  tls_matched                = 0.805
+  dns_matched                = 0.682
+  process_context_matched    = 0.865
+  http_matched               = 0.022
   ssh_sessions       = 0
 ============================================================
 
-run_id=16  scenario=mixed_workday  label=benign
+run_id=13  scenario=mixed_workday  label=benign
   status             = completed
-  duration_ms   = 296000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 25
-  tls_matched                = 0.88
-  dns_matched                = 0.96
+  duration_ms        = 877684
+  notes              = Mixed work session: IDE, browser, Git, Python
+  tcp_connect_events = 123
+  tls_matched                = 0.959
+  dns_matched                = 0.797
   process_context_matched    = 0.0
-  http_matched               = 0.04
+  http_matched               = 0.024
   ssh_sessions       = 0
 ============================================================
 
-run_id=17  scenario=mixed_workday  label=benign
+run_id=15  scenario=docker_workflow  label=benign
   status             = completed
-  duration_ms   = 2473000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 618
-  tls_matched                = 0.57
-  dns_matched                = 0.383
-  process_context_matched    = 0.479
-  http_matched               = 0.016
-  ssh_sessions       = 0
-============================================================
-
-run_id=18  scenario=mixed_workday  label=benign
-  status             = completed
-  duration_ms   = 3391000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 589
-  tls_matched                = 0.908
-  dns_matched                = 0.781
-  process_context_matched    = 0.762
-  http_matched               = 0.031
-  ssh_sessions       = 0
-============================================================
-
-run_id=19  scenario=mixed_workday  label=benign
-  status             = completed
-  duration_ms   = 918000
-  notes              = Mixed work session: IDE, browser, Git, Python and Docker
-  tcp_connect_events = 44
-  tls_matched                = 0.886
-  dns_matched                = 0.795
-  process_context_matched    = 0.0
-  http_matched               = 0.068
-  ssh_sessions       = 0
-============================================================
-
-run_id=20  scenario=package_update  label=benign
-  status             = completed
-  duration_ms   = 2275000
-  notes              = Package updating, software installation
-  tcp_connect_events = 131
-  tls_matched                = 0.832
-  dns_matched                = 0.855
-  process_context_matched    = 0.16
-  http_matched               = 0.137
-  ssh_sessions       = 0
-============================================================
-
-run_id=21  scenario=ssh_admin  label=benign
-  status             = completed
-  duration_ms   = 225000
-  notes              = Establishing ssh sessions from a VM (192.168.122.250)
-  tcp_connect_events = 30
-  tls_matched                = 0.933
-  dns_matched                = 0.933
-  process_context_matched    = 0.133
-  http_matched               = 0.067
-  ssh_sessions       = 1
-============================================================
-
-run_id=22  scenario=broswer_light  label=benign
-  status             = completed
-  duration_ms   = 1012000
-  notes              = Light browsing: documentation, sites
-  tcp_connect_events = 246
-  tls_matched                = 0.967
-  dns_matched                = 0.74
-  process_context_matched    = 0.0
-  http_matched               = 0.033
-  ssh_sessions       = 0
-============================================================
-
-run_id=23  scenario=broswer_light  label=benign
-  status             = completed
-  duration_ms   = 1075000
-  notes              = Light browsing: documentation, sites
-  tcp_connect_events = 566
-  tls_matched                = 0.894
-  dns_matched                = 0.83
-  process_context_matched    = 0.883
-  http_matched               = 0.018
-  ssh_sessions       = 0
-============================================================
-
-run_id=24  scenario=ssh_admin  label=benign
-  status             = completed
-  duration_ms   = 223000
-  notes              = Establishing ssh sessions
-  tcp_connect_events = 16
-  tls_matched                = 1.0
-  dns_matched                = 0.875
-  process_context_matched    = 0.0
-  http_matched               = 0.0
-  ssh_sessions       = 1
-============================================================
-
-run_id=25  scenario=ssh_admin  label=benign
-  status             = completed
-  duration_ms   = 389000
-  notes              = Establishing ssh sessions
-  tcp_connect_events = 30
-  tls_matched                = 0.867
-  dns_matched                = 0.933
-  process_context_matched    = 0.0
-  http_matched               = 0.133
-  ssh_sessions       = 1
-============================================================
-
-run_id=26  scenario=git_workflow  label=benign
-  status             = completed
-  duration_ms   = 621000
-  notes              = Git commands
-  tcp_connect_events = 104
-  tls_matched                = 0.923
-  dns_matched                = 0.904
-  process_context_matched    = 0.058
-  http_matched               = 0.038
-  ssh_sessions       = 0
-============================================================
-
-run_id=27  scenario=git_workflow  label=benign
-  status             = completed
-  duration_ms   = 317000
-  notes              = Git commands
-  tcp_connect_events = 40
-  tls_matched                = 0.8
-  dns_matched                = 0.8
-  process_context_matched    = 0.1
-  http_matched               = 0.1
-  ssh_sessions       = 0
-============================================================
-
-run_id=28  scenario=docker_workflow  label=benign
-  status             = completed
-  duration_ms   = 249000
-  notes              = docker, browsing
-  tcp_connect_events = 594
-  tls_matched                = 0.502
-  dns_matched                = 0.566
-  process_context_matched    = 0.976
+  duration_ms        = 201332
+  notes              = Docker commands, simulation script has been implemented
+  tcp_connect_events = 351
+  tls_matched                = 0.581
+  dns_matched                = 0.481
+  process_context_matched    = 0.983
   http_matched               = 0.003
   ssh_sessions       = 0
 ============================================================
 
-run_id=29  scenario=docker_workflow  label=benign
+run_id=16  scenario=docker_workflow  label=benign
   status             = completed
-  duration_ms   = 260000
-  notes              = docker, browsing
-  tcp_connect_events = 126
-  tls_matched                = 0.905
-  dns_matched                = 0.889
-  process_context_matched    = 0.079
-  http_matched               = 0.0
-  ssh_sessions       = 0
-
-
-run_id=31  scenario=mixed_workday  label=benign
-  status             = completed
-  duration_ms   = 1892000
-  notes              = IDEs, browsing
-  tcp_connect_events = 263
-  tls_matched                = 0.875
-  dns_matched                = 0.692
-  process_context_matched    = 0.548
-  http_matched               = 0.038
+  duration_ms        = 235640
+  notes              = Docker commands, simulation script has been implemented
+  tcp_connect_events = 211
+  tls_matched                = 0.45
+  dns_matched                = 0.185
+  process_context_matched    = 0.209
+  http_matched               = 0.005
   ssh_sessions       = 0
 ============================================================
 
-run_id=32  scenario=system_update  label=benign
+run_id=17  scenario=docker_workflow  label=benign
   status             = completed
-  duration_ms   = 286000
-  notes              = Updates
-  tcp_connect_events = 24
-  tls_matched                = 0.708
-  dns_matched                = 0.542
-  process_context_matched    = 0.5
-  http_matched               = 0.042
+  duration_ms        = 194829
+  notes              = Docker commands, simulation script has been implemented
+  tcp_connect_events = 223
+  tls_matched                = 0.471
+  dns_matched                = 0.179
+  process_context_matched    = 0.251
+  http_matched               = 0.0
+  ssh_sessions       = 0
+============================================================
+
+run_id=18  scenario=light_browsing  label=benign
+  status             = completed
+  duration_ms        = 512564
+  notes              = Some tabs, documentation, news
+  tcp_connect_events = 304
+  tls_matched                = 0.776
+  dns_matched                = 0.832
+  process_context_matched    = 0.977
+  http_matched               = 0.007
   ssh_sessions       = 0
 ============================================================
 
-run_id=1  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+run_id=19  scenario=light_browsing  label=benign
   status             = completed
-  duration_ms        = 10292
-  notes              = Bruteforcing: Guess username and password combinations to gain unauthorized access to the victim
-  tcp_connect_events = 4
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 5
-  attack_run_metadata      = present
-============================================================
-
-run_id=2  scenario=port_scan  label=attack:port_scan:T1046
-  status             = completed
-  duration_ms        = 328
-  notes              = Port scan: sending network packets to a range of port addresses
-  tcp_connect_events = 5
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
+  duration_ms        = 560209
+  notes              = Some tabs, documentation, news
+  tcp_connect_events = 85
+  tls_matched                = 0.859
+  dns_matched                = 0.8
+  process_context_matched    = 0.0
+  http_matched               = 0.024
   ssh_sessions       = 0
-  attack_run_metadata      = present
 ============================================================
 
-run_id=3  scenario=network_discovery  label=attack:network_discovery:T1046
+run_id=20  scenario=light_browsing  label=benign
   status             = completed
-  duration_ms        = 4080
-  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network.
-  tcp_connect_events = 6
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 1
-  attack_run_metadata      = present
+  duration_ms        = 651048
+  notes              = Some tabs, documentation, news
+  tcp_connect_events = 43
+  tls_matched                = 0.814
+  dns_matched                = 0.628
+  process_context_matched    = 0.0
+  http_matched               = 0.047
+  ssh_sessions       = 0
 ============================================================
 
-run_id=4  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+run_id=21  scenario=browser_heavy  label=benign
   status             = completed
-  duration_ms        = 15989
-  notes              = Lateral movement: move progressively through a network after gaining initial access
-  tcp_connect_events = 7
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 5
-  attack_run_metadata      = present
+  duration_ms        = 1937996
+  notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  tcp_connect_events = 813
+  tls_matched                = 0.878
+  dns_matched                = 0.716
+  process_context_matched    = 0.797
+  http_matched               = 0.009
+  ssh_sessions       = 0
 ============================================================
-
-run_id=5  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
-  status             = completed
-  duration_ms        = 11535
-  notes              = Lateral movement: move progressively through a network after gaining initial access
-  tcp_connect_events = 8
-  tls_matched                = 0.0
-  dns_matched                = 0.0
-  process_context_matched    = 1.0
-  http_matched               = 0.0
-  ssh_sessions       = 10
-  attack_run_metadata      = present
-============================================================
-
-
-
 
