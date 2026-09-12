@@ -4,8 +4,6 @@ import sys
 from sqlalchemy import case, func, select
 
 from observation import paths
-from observation.database.connection import connect
-from observation.database.models import AttackRunMetadata, CorrelatedEventModel, ObservationRun, SshSession
 
 
 SUMMARY_FILE = paths.RUN_SUMMARY_FILE

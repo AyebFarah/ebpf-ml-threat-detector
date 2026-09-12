@@ -31,15 +31,14 @@ import time
 from datetime import datetime, timezone
 from sqlalchemy import update
 
-from .pipeline_controller import AttackPipelineController
-from . import config
-from .config import is_target_allowed
-from .label_validator import validate_label
-from .. import paths
-from ..database.connection import connect, apply_migrations
-from ..database.repositories.attack_run_metadata import AttackRunMetadataRepository
-from ..database.repositories.runs import RunsRepository
-from observation.database.models import AttackRunMetadata
+from observation.attack_lab.pipeline_controller import AttackPipelineController
+from observation.attack_lab import config
+from observation.attack_lab.config import is_target_allowed
+from observation.attack_lab.label_validator import validate_label
+from observation import paths
+from observation.database.connection import connect, apply_migrations
+from observation.database.repositories.attack_run_metadata import AttackRunMetadataRepository
+from observation.database.repositories.runs import RunsRepository
 
 COLLECTOR_WARMUP_SECONDS = 5
 SETTLE_SECONDS = 10

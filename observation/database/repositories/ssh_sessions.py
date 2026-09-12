@@ -1,9 +1,6 @@
 from __future__ import annotations
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-
-from observation.database.records import SshSessionRecord
-from observation.database.models import SshSession
+import sqlite3
+from observation.database.models import SshSessionRecord
 
 _COLUMNS = (
     "run_id", "session_key", "username", "src_ip", "src_port", "pid",
@@ -29,8 +26,6 @@ class SshSessionsRepository:
         return len(sessions)
 
     def for_run(self, run_id: int) -> list:
-        return list(self.conn.execute(
-            select(SshSession.__table__).where(
-                SshSession.run_id == run_id
-            ).order_by(SshSession.earliest_event_ts)
-        ).mappings())
+        return self.conn.execute(
+            "SELECT * FROM ssh_sessions WHERE run_id = ? ORDER BY earliest_event_ts", (run_id,)
+        ).fetchall()

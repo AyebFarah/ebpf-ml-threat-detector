@@ -6,11 +6,9 @@ Usage:
     """
 
 import argparse
-from sqlalchemy import select
-from observation.database.models import ObservationRun
-from ..database.connection import connect, apply_migrations
-from . import extractor, baseline
-from .repositories.feature_windows import FeatureWindowsRepository
+from observation.database.connection import connect, apply_migrations
+from observation.features import extractor, baseline
+from observation.features.repositories.feature_windows import FeatureWindowsRepository
 
 
 def _resolve_run_ids(conn, run_ids, all_runs, exclude):

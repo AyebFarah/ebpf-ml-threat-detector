@@ -1,11 +1,7 @@
 from __future__ import annotations
 import json
-from sqlalchemy import select
-from sqlalchemy.dialects.sqlite import insert
-
-from sqlalchemy.orm import Session
-from observation.database.models import DnsEventRaw
-from ...pipeline.event_keys import make_dns_dedup_key
+import sqlite3
+from observation.pipeline.event_keys import make_dns_dedup_key
 
 class DnsEventsRawRepository:
     def __init__(self, conn: Session):
@@ -33,6 +29,6 @@ class DnsEventsRawRepository:
         return count
 
     def for_run(self, run_id: int) -> list:
-        return list(self.conn.execute(select(DnsEventRaw.__table__).where(
-            DnsEventRaw.run_id == run_id
-        ).order_by(DnsEventRaw.timestamp)).mappings())
+        return self.conn.execute(
+            "SELECT * FROM dns_events_raw WHERE run_id = ? ORDER BY timestamp", (run_id,)
+        ).fetchall()

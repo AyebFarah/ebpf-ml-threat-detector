@@ -1,9 +1,6 @@
 import json
-from sqlalchemy.dialects.sqlite import insert
-
-from sqlalchemy.orm import Session
-from observation.database.models import TcpFlowRaw
-from ...pipeline.event_keys import make_tcp_flow_dedup_key
+import sqlite3
+from observation.pipeline.event_keys import make_tcp_flow_dedup_key
 
 
 class TcpFlowsRawRepository:
@@ -31,4 +28,6 @@ class TcpFlowsRawRepository:
             ).on_conflict_do_nothing(index_elements=["run_id", "dedup_key"]))
             if result.rowcount:
                 count += 1
+            except sqlite3.IntegrityError:
+                continue
         return count

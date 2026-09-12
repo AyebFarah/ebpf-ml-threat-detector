@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from observation import paths
 
 from sqlalchemy import create_engine, event, select, text
 from sqlalchemy.engine import Engine
@@ -60,11 +61,6 @@ def apply_migrations() -> None:
             version = migration_file.stem
             if version in applied:
                 continue
-            for statement in _migration_statements(
-                migration_file.read_text(encoding="utf-8")
-            ):
-                connection.execute(text(statement))
-            connection.execute(
-                SchemaMigration.__table__.insert().values(version=version)
-            )
+            conn.executescript(migration_file.read_text(encoding="utf-8"))
+            conn.execute("INSERT INTO schema_migrations (version) VALUES (?)", (version,))
             print(f"[db] applied migration: {version}")
