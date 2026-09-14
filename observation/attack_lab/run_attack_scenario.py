@@ -30,7 +30,6 @@ import sys
 import time
 from datetime import datetime, timezone
 from sqlalchemy import update
-
 from observation.attack_lab.pipeline_controller import AttackPipelineController
 from observation.attack_lab import config
 from observation.attack_lab.config import is_target_allowed
@@ -39,6 +38,8 @@ from observation import paths
 from observation.database.connection import connect, apply_migrations
 from observation.database.repositories.attack_run_metadata import AttackRunMetadataRepository
 from observation.database.repositories.runs import RunsRepository
+from observation.database.models import AttackRunMetadata
+
 
 COLLECTOR_WARMUP_SECONDS = 5
 SETTLE_SECONDS = 10
@@ -69,6 +70,8 @@ def main():
     parser.add_argument("--technique", required=True, help="MITRE technique ID, e.g. T1110.001")
     parser.add_argument("--tool")
     parser.add_argument("--intensity", choices=["low", "medium", "high"])
+    parser.add_argument("--repetitions", type=int, default=1, help="Number of times to run the attack command within this single bracketed observation window (default 1)")
+    parser.add_argument("--pause-seconds", type=float, default=0, help="Seconds to sleep between repetitions (default 0)")
     parser.add_argument("--target")
     parser.add_argument("--target-port", type=int)
     parser.add_argument("--expected", required=True)
@@ -76,6 +79,12 @@ def main():
     parser.add_argument("--operator", required=True)
     parser.add_argument("attack_cmd", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+
+    if args.repetitions < 1:
+        parser.error("--repetitions must be >= 1")
+
+    if args.pause_seconds < 0:
+        parser.error("--pause-seconds must be >= 0")
 
     if not args.attack_cmd or args.attack_cmd[0] != "--":
         parser.error("attack command must be given after a literal '--'")
@@ -107,10 +116,21 @@ def main():
     run_id = None
     try:
         attack_start_ts = _now_iso()
-        print(f"[wrapper] attack starting at {attack_start_ts}")
-        result = subprocess.run(attack_cmd)
+        print(f"[wrapper] attack starting at {attack_start_ts} "
+              f"({args.repetitions} repetition(s), pause={args.pause_seconds}s)")
+
+        exit_codes = []
+        for rep in range(1, args.repetitions + 1):
+            print(f"[wrapper] --- repetition {rep}/{args.repetitions} ---")
+            result = subprocess.run(attack_cmd)
+            exit_codes.append(result.returncode)
+            print(f"[wrapper] repetition {rep} finished (exit code {result.returncode})")
+            if rep < args.repetitions and args.pause_seconds > 0:
+                time.sleep(args.pause_seconds)
+
         attack_end_ts = _now_iso()
-        print(f"[wrapper] attack finished at {attack_end_ts} (exit code {result.returncode})")
+        print(f"[wrapper] all {args.repetitions} repetition(s) finished at {attack_end_ts} "
+              f"(exit codes: {exit_codes})")
 
         time.sleep(SETTLE_SECONDS)
 
@@ -123,15 +143,21 @@ def main():
         )
     finally:
         if run_id is None and controller.supervisor is not None:
-            # stop_and_postprocess never completed
             print("[wrapper] attack run did not complete normally, stopping collectors")
             controller.supervisor.stop_all()
 
     if run_id is None:
         sys.exit(1)
 
+
     tool_version = _tool_version(args.tool) if args.tool else None
-    parameters = {"raw_command": attack_cmd}
+    parameters = {
+        "raw_command": attack_cmd,
+        "repetitions": args.repetitions,
+        "pause_seconds": args.pause_seconds,
+        "exit_codes": exit_codes,
+    }
+
 
     apply_migrations()
     with connect() as conn:
@@ -153,7 +179,8 @@ def main():
         "run_id": run_id, "scenario": args.scenario, "label": label,
         "attack_command": attack_cmd, "parameters": parameters,
         "attack_start_ts": attack_start_ts, "attack_end_ts": attack_end_ts,
-        "duration_ms": duration_ms, "tool": args.tool,
+        "duration_ms": duration_ms, "repetitions": args.repetitions,
+        "pause_seconds": args.pause_seconds, "tool": args.tool,
         "tool_version": tool_version, "target_host": args.target,
         "target_port": args.target_port, "intensity": args.intensity,
         "expected_behavior": args.expected, "notes": args.notes,
