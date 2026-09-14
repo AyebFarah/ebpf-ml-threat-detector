@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 from sqlalchemy import ForeignKey, Index, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -16,4 +17,3 @@ class PrivilegeActivityEvent(Base):
     detail: Mapped[Optional[str]] = mapped_column(Text)
     source_event_key: Mapped[Optional[str]] = mapped_column(Text)
     correlated_event: Mapped["CorrelatedEventModel"] = relationship(back_populates="privilege_activity_events")
-from __future__ import annotations

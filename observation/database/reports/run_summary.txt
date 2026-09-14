@@ -214,3 +214,123 @@ run_id=21  scenario=browser_heavy  label=benign
   ssh_sessions       = 0
 ============================================================
 
+run_id=22  scenario=git_workflow  label=benign
+  status             = completed
+  duration_ms        = 509844
+  notes              = Git commands
+  tcp_connect_events = 197
+  tls_matched                = 0.944
+  dns_matched                = 0.883
+  process_context_matched    = 0.939
+  http_matched               = 0.005
+  ssh_sessions       = 0
+============================================================
+
+run_id=23  scenario=light_browsing  label=benign
+  status             = completed
+  duration_ms        = 1435949
+  notes              = some tabs
+  tcp_connect_events = 262
+  tls_matched                = 0.958
+  dns_matched                = 0.866
+  process_context_matched    = 0.756
+  http_matched               = 0.027
+  ssh_sessions       = 0
+============================================================
+
+run_id=25  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 1635947
+  notes              = Browsing,IDE.. 
+  tcp_connect_events = 141
+  tls_matched                = 0.858
+  dns_matched                = 0.809
+  process_context_matched    = 0.05
+  http_matched               = 0.05
+  ssh_sessions       = 0
+============================================================
+
+run_id=26  scenario=package_update  label=benign
+  status             = completed
+  duration_ms        = 974591
+  notes              = Package updating, software installation
+  tcp_connect_events = 72
+  tls_matched                = 0.778
+  dns_matched                = 0.736
+  process_context_matched    = 0.236
+  http_matched               = 0.139
+  ssh_sessions       = 0
+============================================================
+
+run_id=27  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 3295943
+  notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  tcp_connect_events = 312
+  tls_matched                = 0.926
+  dns_matched                = 0.804
+  process_context_matched    = 0.66
+  http_matched               = 0.035
+  ssh_sessions       = 0
+============================================================
+
+run_id=28  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 1819910
+  notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  tcp_connect_events = 175
+  tls_matched                = 0.943
+  dns_matched                = 0.823
+  process_context_matched    = 0.006
+  http_matched               = 0.034
+  ssh_sessions       = 0
+============================================================
+
+run_id=29  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 2987658
+  notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  tcp_connect_events = 223
+  tls_matched                = 0.91
+  dns_matched                = 0.417
+  process_context_matched    = 0.022
+  http_matched               = 0.04
+  ssh_sessions       = 0
+============================================================
+
+run_id=30  scenario=git_workflow  label=benign
+  status             = completed
+  duration_ms        = 317167
+  notes              = Git workflow Simulation
+  tcp_connect_events = 7
+  tls_matched                = 0.857
+  dns_matched                = 0.714
+  process_context_matched    = 0.0
+  http_matched               = 0.143
+  ssh_sessions       = 0
+============================================================
+
+run_id=31  scenario=package_update  label=benign
+  status             = completed
+  duration_ms        = 88181
+  notes              = Package updates and installation
+  tcp_connect_events = 30
+  tls_matched                = 0.567
+  dns_matched                = 0.233
+  process_context_matched    = 0.933
+  http_matched               = 0.267
+  ssh_sessions       = 0
+============================================================
+
+run_id=32  scenario=git_workflow  label=benign
+  status             = completed
+  duration_ms        = 288765
+  notes              = Git workflow Simulation
+  tcp_connect_events = 22
+  tls_matched                = 0.136
+  dns_matched                = 0.045
+  process_context_matched    = 0.818
+  http_matched               = 0.045
+  ssh_sessions       = 18
+============================================================
+

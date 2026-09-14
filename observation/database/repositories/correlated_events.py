@@ -1,6 +1,8 @@
 from __future__ import annotations
-import sqlite3
-from observation.database.models import CorrelatedEvent
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from observation.database.models import CorrelatedEventModel
+from observation.database.records import CorrelatedEvent
 from observation.database.repositories.process_observations import ProcessObservationsRepository
 from observation.database.repositories.dns_observations import DnsObservationsRepository
 from observation.database.repositories.tls_observations import TlsObservationsRepository
@@ -64,5 +66,6 @@ class CorrelatedEventsRepository:
 
     def for_run(self, run_id: int) -> list:
         return self.conn.execute(
-            "SELECT * FROM correlated_events WHERE run_id = ? ORDER BY timestamp", (run_id,)
-        ).fetchall()
+            text("SELECT * FROM correlated_events WHERE run_id = :run_id ORDER BY timestamp"),
+            {"run_id": run_id},
+        ).mappings().all()

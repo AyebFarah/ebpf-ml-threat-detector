@@ -1,9 +1,7 @@
 from __future__ import annotations
 import json
 from typing import Optional
-
 from sqlalchemy import select
-
 from sqlalchemy.orm import Session
 from observation.database.models import AttackRunMetadata, ObservationRun
 

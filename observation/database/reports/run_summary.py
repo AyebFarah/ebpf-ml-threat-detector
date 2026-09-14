@@ -2,10 +2,12 @@
 
 import sys
 from sqlalchemy import case, func, select
-
+from observation.database.connection import connect
+from observation.database.models.observation_run import ObservationRun
+from observation.database.models.correlated_event import CorrelatedEventModel
+from observation.database.models.ssh_session import SshSession
+from observation.database.models.attack_run_metadata import AttackRunMetadata
 from observation import paths
-
-
 SUMMARY_FILE = paths.RUN_SUMMARY_FILE
 
 
