@@ -2,14 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
-from observation import paths
+from pathlib import Path
 
-from sqlalchemy import create_engine, event, select, text
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from observation import paths
-from observation.database.models import SchemaMigration
 
 
 def get_engine() -> Engine:
@@ -42,25 +43,19 @@ def connect() -> Iterator[Session]:
         session.close()
 
 
-def _migration_statements(script: str) -> Iterator[str]:
-    for statement in script.split(";"):
-        if statement.strip():
-            yield statement
-
-
 def apply_migrations() -> None:
-    engine = get_engine()
-    with engine.begin() as connection:
-        connection.execute(text(
-            "CREATE TABLE IF NOT EXISTS schema_migrations ("
-            "version TEXT PRIMARY KEY, "
-            "applied_at TEXT NOT NULL DEFAULT (datetime('now')))"
-        ))
-        applied = set(connection.execute(select(SchemaMigration.version)).scalars())
-        for migration_file in sorted(paths.MIGRATIONS_DIR.glob("*.sql")):
-            version = migration_file.stem
-            if version in applied:
-                continue
-            conn.executescript(migration_file.read_text(encoding="utf-8"))
-            conn.execute("INSERT INTO schema_migrations (version) VALUES (?)", (version,))
-            print(f"[db] applied migration: {version}")
+    """
+    Brings the SQLite database up to the latest Alembic revision.
+    Replaces the old hand-written .sql runner. Safe to call every time
+    the pipeline starts, calling it when the database is already at
+    head does nothing.
+    """
+    project_root = Path(__file__).resolve().parents[2]
+    alembic_config = Config(str(project_root / "alembic.ini"))
+    alembic_config.set_main_option(
+        "script_location", str(project_root / "observation" / "database" / "alembic")
+    )
+    alembic_config.set_main_option(
+        "sqlalchemy.url", f"sqlite:///{paths.DATABASE_FILE.resolve().as_posix()}"
+    )
+    command.upgrade(alembic_config, "head")

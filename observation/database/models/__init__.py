@@ -1,3 +1,4 @@
+from observation.database.models.base import Base
 from observation.database.models.attack_run_metadata import AttackRunMetadata
 from observation.database.models.correlated_event import CorrelatedEventModel
 from observation.database.models.dns_event_raw import DnsEventRaw
@@ -14,7 +15,7 @@ from observation.database.models.tcp_flow_raw import TcpFlowRaw
 from observation.database.models.tls_observation import TlsObservation
 
 __all__ = [
-    "AttackRunMetadata", "CorrelatedEventModel", "DnsEventRaw", "DnsObservation",
+    "Base", "AttackRunMetadata", "CorrelatedEventModel", "DnsEventRaw", "DnsObservation",
     "FeatureWindow", "FileActivityEvent", "HttpObservation", "ObservationRun",
     "PrivilegeActivityEvent", "ProcessObservation", "SshSession",
     "TcpFlowObservation", "TcpFlowRaw", "TlsObservation",

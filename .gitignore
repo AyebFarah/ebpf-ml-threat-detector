@@ -63,5 +63,3 @@ ci_check.db
 
 observation/database/alembic/__pycache__/
 observation/database/alembic/versions/__pycache__/
-
-
