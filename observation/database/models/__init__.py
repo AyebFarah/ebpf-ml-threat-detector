@@ -8,7 +8,6 @@ from observation.database.models.http_observation import HttpObservation
 from observation.database.models.observation_run import ObservationRun
 from observation.database.models.privilege_activity_event import PrivilegeActivityEvent
 from observation.database.models.process_observation import ProcessObservation
-from observation.database.models.schema_migration import SchemaMigration
 from observation.database.models.ssh_session import SshSession
 from observation.database.models.tcp_flow_observation import TcpFlowObservation
 from observation.database.models.tcp_flow_raw import TcpFlowRaw
@@ -17,6 +16,6 @@ from observation.database.models.tls_observation import TlsObservation
 __all__ = [
     "AttackRunMetadata", "CorrelatedEventModel", "DnsEventRaw", "DnsObservation",
     "FeatureWindow", "FileActivityEvent", "HttpObservation", "ObservationRun",
-    "PrivilegeActivityEvent", "ProcessObservation", "SchemaMigration", "SshSession",
+    "PrivilegeActivityEvent", "ProcessObservation", "SshSession",
     "TcpFlowObservation", "TcpFlowRaw", "TlsObservation",
 ]

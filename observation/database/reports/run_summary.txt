@@ -334,3 +334,15 @@ run_id=32  scenario=git_workflow  label=benign
   ssh_sessions       = 18
 ============================================================
 
+run_id=33  scenario=mixed_workday  label=benign
+  status             = completed
+  duration_ms        = 3217523
+  notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  tcp_connect_events = 678
+  tls_matched                = 0.509
+  dns_matched                = 0.283
+  process_context_matched    = 0.866
+  http_matched               = 0.022
+  ssh_sessions       = 0
+============================================================
+
