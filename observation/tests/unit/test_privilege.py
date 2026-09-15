@@ -30,5 +30,5 @@ def test_normalize_sudo_exec_captures_lineage():
 
 def test_normalize_capability_change_extracts_cap_number():
     event = normalize_capability_change(SAMPLE_CAP)
-    assert event["event_type"] == "capability_use"
+    assert event["event_type"] == "capability_use_raw"
     assert event["extra"]["capability"] == 21

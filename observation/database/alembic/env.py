@@ -3,6 +3,8 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+import os
+from pathlib import Path
 
 
 from logging.config import fileConfig
@@ -25,10 +27,13 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-config.set_main_option(
-    "sqlalchemy.url",
-    f"sqlite:///{paths.DATABASE_FILE.resolve().as_posix()}",
-)
+
+if not config.get_main_option("sqlalchemy.url"):
+    db_path = os.environ.get("OBSERVATION_DB_PATH") or paths.DATABASE_FILE
+    config.set_main_option(
+        "sqlalchemy.url",
+        f"sqlite:///{Path(db_path).resolve().as_posix()}",
+    )
 
 target_metadata = Base.metadata
 

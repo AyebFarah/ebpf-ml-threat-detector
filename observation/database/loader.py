@@ -8,6 +8,7 @@ from observation.database.repositories.correlated_events import CorrelatedEvents
 from observation.database.repositories.ssh_sessions import SshSessionsRepository
 from observation.database.repositories.tcp_flows_raw import TcpFlowsRawRepository
 from observation.database.repositories.dns_events_raw import DnsEventsRawRepository
+from observation.database.models import ObservationRun, CorrelatedEventModel
 
 
 def _read_jsonl(path: Path) -> list:

@@ -10,6 +10,7 @@ from observation.database.repositories.tls_observations import TlsObservationsRe
 from observation.database.repositories.tcp_flow_observations import TcpFlowObservationsRepository
 from observation.database.repositories.http_observations import HttpObservationsRepository
 from observation.database.repositories.file_activity import FileActivityRepository
+from observation.database.models import ObservationRun, CorrelatedEventModel
 
 
 SAMPLE_RECORD = {

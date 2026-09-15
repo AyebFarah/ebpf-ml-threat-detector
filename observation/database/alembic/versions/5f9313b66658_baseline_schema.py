@@ -1,8 +1,8 @@
 """baseline schema
 
-Revision ID: 16c12e3dc85c
+Revision ID: 5f9313b66658
 Revises: 
-Create Date: 2026-09-14 13:39:43.639172
+Create Date: 2026-09-15 18:28:47.558642
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '16c12e3dc85c'
+revision: str = '5f9313b66658'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,11 +35,6 @@ def upgrade() -> None:
     sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('duration_ms', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('run_id')
-    )
-    op.create_table('schema_migrations',
-    sa.Column('version', sa.Text(), nullable=False),
-    sa.Column('applied_at', sa.Text(), server_default=sa.text("(datetime('now'))"), nullable=False),
-    sa.PrimaryKeyConstraint('version')
     )
     op.create_table('attack_run_metadata',
     sa.Column('run_id', sa.Integer(), nullable=False),
@@ -512,6 +507,5 @@ def downgrade() -> None:
         batch_op.drop_index('idx_attack_run_metadata_family')
 
     op.drop_table('attack_run_metadata')
-    op.drop_table('schema_migrations')
     op.drop_table('observation_runs')
     # ### end Alembic commands ###

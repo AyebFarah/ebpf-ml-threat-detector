@@ -298,18 +298,6 @@ run_id=29  scenario=mixed_workday  label=benign
   ssh_sessions       = 0
 ============================================================
 
-run_id=30  scenario=git_workflow  label=benign
-  status             = completed
-  duration_ms        = 317167
-  notes              = Git workflow Simulation
-  tcp_connect_events = 7
-  tls_matched                = 0.857
-  dns_matched                = 0.714
-  process_context_matched    = 0.0
-  http_matched               = 0.143
-  ssh_sessions       = 0
-============================================================
-
 run_id=31  scenario=package_update  label=benign
   status             = completed
   duration_ms        = 88181
@@ -322,10 +310,10 @@ run_id=31  scenario=package_update  label=benign
   ssh_sessions       = 0
 ============================================================
 
-run_id=32  scenario=git_workflow  label=benign
+run_id=32  scenario=docker_workflow  label=benign
   status             = completed
   duration_ms        = 288765
-  notes              = Git workflow Simulation
+  notes              =  Docker workflow simulation
   tcp_connect_events = 22
   tls_matched                = 0.136
   dns_matched                = 0.045
@@ -344,5 +332,17 @@ run_id=33  scenario=mixed_workday  label=benign
   process_context_matched    = 0.866
   http_matched               = 0.022
   ssh_sessions       = 0
+============================================================
+
+run_id=34  scenario=docker_workflow  label=benign
+  status             = completed
+  duration_ms        = 921559
+  notes              = Docker workflow simulation
+  tcp_connect_events = 62
+  tls_matched                = 0.274
+  dns_matched                = 0.161
+  process_context_matched    = 0.581
+  http_matched               = 0.048
+  ssh_sessions       = 36
 ============================================================
 
