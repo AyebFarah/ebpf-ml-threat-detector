@@ -28,6 +28,3 @@ jobs:
           alembic upgrade head
           test -f "$OBSERVATION_DB_PATH"
           alembic check
-
-      - name: Check models match latest migration
-        run: alembic check
