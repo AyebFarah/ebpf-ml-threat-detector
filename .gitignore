@@ -27,6 +27,7 @@ observation/samples/unified_events/*.jsonl
 
 # Attack runs data
 observation/samples/attack_runs/*.json
+observation/samples/attack_runs/*.json.stale
 
 
 # Logs
@@ -37,6 +38,8 @@ observation/samples/**/*.log
 !observation/samples/event_logs_by_policy/.gitkeep
 !observation/samples/collectors_events/.gitkeep
 !observation/samples/unified_events/.gitkeep
+
+
 
 .DS_Store
 Thumbs.db
