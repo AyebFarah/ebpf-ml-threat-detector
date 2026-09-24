@@ -3,10 +3,11 @@ Usage:
     python -m observation.features.cli --run-id <run_id>
     python -m observation.features.cli --all
     python -m observation.features.cli --exclude <run_id>
-    """
+"""
 
 import argparse
 from sqlalchemy import select
+from pathlib import Path
 from observation.database.models import ObservationRun
 from observation.database.connection import connect, apply_migrations
 from observation.features import extractor, baseline
@@ -22,10 +23,10 @@ def _resolve_run_ids(conn, run_ids, all_runs, exclude):
     return [rid for rid in (run_ids or []) if rid not in exclude]
 
 
-def _process_run(run_id: int, ja4_baseline: dict):
+def _process_run(run_id: int, ja4_baseline: dict, database_file: Path | None = None):
     """Own connect() per run: one commit/rollback boundary per run_id,
     so one bad run doesn't roll back or block others in a --all batch."""
-    with connect() as conn:
+    with connect(database_file) as conn:
         windows = extractor.build_feature_windows(conn, run_id, ja4_baseline)
         by_entity = {}
         for w in windows:
@@ -37,15 +38,16 @@ def _process_run(run_id: int, ja4_baseline: dict):
 
 def main():
     parser = argparse.ArgumentParser(description="Build feature_windows from correlated_events")
-    parser.add_argument("--run-id", type=int, action="append", dest="run_ids",
-                        help="Process one run_id")
+    parser.add_argument("--run-id", type=int, action="append", dest="run_ids")
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--exclude", type=int, nargs="*", default=[])
+    parser.add_argument("--database", type=Path, default=None,
+                        help="SQLite file to read/write (default: paths.DATABASE_FILE)")
     args = parser.parse_args()
 
-    apply_migrations()
+    apply_migrations(args.database)
 
-    with connect() as conn:
+    with connect(args.database) as conn:
         run_ids = _resolve_run_ids(conn, args.run_ids, args.all, args.exclude)
         print("[features] building JA4 rarity baseline from benign runs...")
         ja4_baseline = baseline.build_ja4_baseline(conn, exclude_run_ids=args.exclude)
@@ -57,7 +59,7 @@ def main():
     failures = []
     for run_id in run_ids:
         try:
-            _process_run(run_id, ja4_baseline)
+            _process_run(run_id, ja4_baseline, args.database)
         except Exception as exc:
             print(f"[features] FAILED run_id={run_id}: {exc}")
             failures.append(run_id)

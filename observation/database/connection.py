@@ -13,9 +13,10 @@ from sqlalchemy.orm import Session
 from observation import paths
 
 
-def get_engine() -> Engine:
+def get_engine(database_file: Path | None = None) -> Engine:
     paths.DATABASE_DIR.mkdir(parents=True, exist_ok=True)
-    database_url = f"sqlite:///{paths.DATABASE_FILE.resolve().as_posix()}"
+    target = (database_file or paths.DATABASE_FILE).resolve()
+    database_url = f"sqlite:///{target.as_posix()}"
     engine = create_engine(database_url)
 
     @event.listens_for(engine, "connect")
@@ -26,13 +27,13 @@ def get_engine() -> Engine:
     return engine
 
 
-def get_session() -> Session:
-    return Session(get_engine())
+def get_session(database_file: Path | None = None) -> Session:
+    return Session(get_engine(database_file))
 
 
 @contextmanager
-def connect() -> Iterator[Session]:
-    session = get_session()
+def connect(database_file: Path | None = None) -> Iterator[Session]:
+    session = get_session(database_file)
     try:
         yield session
         session.commit()
@@ -54,7 +55,7 @@ def alembic_config(database_file: Path | None = None) -> Config:
     return config
 
 
-def apply_migrations() -> None:
+def apply_migrations(database_file: Path | None = None) -> None:
     """Brings the SQLite database up to the latest Alembic revision.
     Safe to call every time: when already at head it does nothing."""
-    command.upgrade(alembic_config(), "head")
+    command.upgrade(alembic_config(database_file), "head")

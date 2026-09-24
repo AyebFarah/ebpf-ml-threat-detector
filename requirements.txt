@@ -9,3 +9,9 @@ pytest==8.4.2
 
 # Database migration
 alembic>=1.13
+
+# ML
+numpy
+pandas
+lightgbm
+scikit-learn

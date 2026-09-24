@@ -30,6 +30,11 @@ observation/samples/attack_runs/*.json
 observation/samples/attack_runs/*.json.stale
 
 
+models/layer1_host/*.json
+models/layer1_host/*.txt
+
+
+
 # Logs
 observation/samples/*.log
 observation/samples/**/*.log

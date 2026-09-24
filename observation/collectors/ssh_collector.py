@@ -321,7 +321,9 @@ def main():
         for message, ts, pid in source():
             handle_event(message, ts, pid)
     except KeyboardInterrupt:
-        print("\n[SSH] Collector stopped.")
+        pass
+    finally:
+        print("\n[SSH] Collector stopped.", flush=True)
 
 
 if __name__ == "__main__":
