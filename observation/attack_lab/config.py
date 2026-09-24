@@ -4,10 +4,19 @@ import ipaddress
 # outside this list is refused by the wrapper before the pipeline even
 # starts, this is the last line of defense against accidentally pointing
 # an attack tool at a real network.
+
 ALLOWED_TARGET_SUBNETS = [
     "192.168.56.0/24",
     "192.168.100.0/24",
 ]
+
+# Canonical run statuses. observation_runs.status must be one of these,
+# or "awaiting_metadata" (transient, only between load_into_database and
+# the wrapper's metadata insert).
+STATUS_COMPLETED = "completed"      # scenario command succeeded and telemetry was captured
+STATUS_FAILED = "failed"            # scenario command returned nonzero
+STATUS_INTERRUPTED = "interrupted"  # operator stopped the run (Ctrl+C, SIGTERM)
+STATUS_INVALID = "invalid"          # scenario exited 0 but produced no expected telemetry
 
 INTENSITY_PROFILES = {
     "low": {"description": "Low-intensity, minimal footprint"},

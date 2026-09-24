@@ -27,6 +27,11 @@ class RunsRepository:
         self.conn.flush()
         return model.run_id
 
+    def set_quality(self, run_id: int, quality: str, failure_reason: str | None = None) -> None:
+        self.conn.execute(update(ObservationRun).where(
+            ObservationRun.run_id == run_id
+        ).values(quality=quality, failure_reason=failure_reason))
+
     def complete_run(self, run_id: int, correlated_events_count: int,
                      ssh_sessions_count: int, source_correlated_file: Optional[str] = None,
                      source_ssh_sessions_file: Optional[str] = None,
@@ -57,7 +62,7 @@ class RunsRepository:
     def fail_run(self, run_id: int, error: str) -> None:
         self.conn.execute(update(ObservationRun).where(
             ObservationRun.run_id == run_id
-        ).values(ended_at=_now(), status=f"failed: {error}"[:500]))
+        ).values(ended_at=_now(), status="failed", failure_reason=error[:500]))
 
     def get_run(self, run_id: int):
         return self.conn.execute(

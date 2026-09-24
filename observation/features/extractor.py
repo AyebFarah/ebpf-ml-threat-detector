@@ -5,7 +5,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from collections import defaultdict
 from datetime import datetime, timezone
-
+from observation.database.models import (
+    CorrelatedEventModel, DnsEventRaw, DnsObservation, FileActivityEvent, HttpObservation,
+    ObservationRun, PrivilegeActivityEvent, ProcessObservation, SshSession,
+    TcpFlowObservation, TcpFlowRaw, TlsObservation, AttackRunMetadata
+)
 from observation.features.config import WINDOW_SECONDS, STRIDE_SECONDS, FEATURE_VERSION, AGGREGATION_VERSION
 from observation.features import groups
 from observation.features.process_tree import build_ancestry_map, ProcessTreeDepthCalculator
@@ -126,20 +130,12 @@ def fetch_run_tcp_flows_raw(conn: Session, run_id: int) -> list[dict]:
     return pseudo_rows
 
 def fetch_run_dns_events_raw(conn: Session, run_id: int) -> list[dict]:
-    """Every DNS query/response captured for this run, independent of
-    correlator matching. Merged into host-level dns_features() alongside
-    correlated_events rows, always, since correlated_events can never
-    see NXDOMAIN responses at all (they have no answer IP, so the
-    correlator's resolved_ip-based matching, never attaches
-    them to a connection). This is the DNS equivalent of the
-    tcp_flows_raw gap: dns_tunneling-style traffic can be completely
-    invisible to dns_features() without this merge, even when
-    correlated_events isn't empty for the run.
-    """
+    """Every DNS query and response captured for this run, independent of
+    correlator matching. Merged into host level dns features, because
+    correlated_events can never see NXDOMAIN responses (no answer IP to match)."""
     rows = conn.execute(select(
-        DnsEventRaw.id, DnsEventRaw.dedup_key, DnsEventRaw.timestamp,
-        DnsEventRaw.query_name, DnsEventRaw.rcode, DnsEventRaw.resolved_ip,
-        DnsEventRaw.ttl,
+        DnsEventRaw.id, DnsEventRaw.dedup_key, DnsEventRaw.timestamp, DnsEventRaw.event_type,
+        DnsEventRaw.query_name, DnsEventRaw.rcode, DnsEventRaw.resolved_ip, DnsEventRaw.ttl,
     ).where(DnsEventRaw.run_id == run_id)).mappings()
 
     pseudo_events = []
@@ -148,6 +144,7 @@ def fetch_run_dns_events_raw(conn: Session, run_id: int) -> list[dict]:
         pseudo_events.append({
             "event_id": f"dns_raw_{r['id']}",
             "dedup_key": r["dedup_key"],
+            "dns_event_type": r["event_type"],
             "timestamp": r["timestamp"],
             "_ts": _parse_ts(r["timestamp"]) if r["timestamp"] else None,
             "dns_domain": r["query_name"],
@@ -177,6 +174,19 @@ def fetch_ssh_sessions(conn: Session, run_id: int) -> list[dict]:
         SshSession.run_id == run_id
     )).mappings()]
 
+def fetch_control_channel(conn: Session, run_id: int):
+    raw = conn.scalar(select(AttackRunMetadata.parameters).where(AttackRunMetadata.run_id == run_id))
+    if not raw:
+        return None
+    try:
+        return (json.loads(raw) or {}).get("control_channel")
+    except ValueError:
+        return None
+
+
+def is_control_flow(row: dict, control) -> bool:
+    return bool(control) and row.get("dst_ip") == control["host"] and row.get("dst_port") == control["port"]
+
 
 def generate_windows(min_ts, max_ts, window_seconds, stride_seconds):
     windows = []
@@ -200,7 +210,7 @@ def _aggregate(rows, window_start, window_end, file_activity, privilege_activity
     traffic = groups.traffic_volume(rows)
 
     result = {}
-    result.update(groups.basic_counts(rows, len(ssh_in_window), extra_flows=extra_flows))
+    result.update(groups.basic_counts(rows, len(ssh_in_window), extra_flows=extra_flows, extra_dns_events=extra_dns_events))
     result.update(groups.network_topology(rows, extra_flows=extra_flows))
     result.update(traffic)
     result.update(groups.flow_dynamics(rows))
@@ -231,8 +241,9 @@ def build_feature_windows(conn: Session, run_id: int, ja4_baseline: dict,
     scenario = run_row["scenario"]
     label_int, attack_family, attack_technique = parse_label(run_row["label"])
 
-    rows = fetch_run_rows(conn, run_id)
-    flow_rows = fetch_run_tcp_flows_raw(conn, run_id)
+    control = fetch_control_channel(conn, run_id)
+    rows = [r for r in fetch_run_rows(conn, run_id) if not is_control_flow(r, control)]
+    flow_rows = [r for r in fetch_run_tcp_flows_raw(conn, run_id) if not is_control_flow(r, control)]
     dns_rows = fetch_run_dns_events_raw(conn, run_id)
 
     if not rows and not flow_rows and not dns_rows:
@@ -267,6 +278,7 @@ def _build_windows_from_rows(conn, run_id, rows, ja4_baseline, window_seconds, s
 
     if flow_only:
         file_activity, privilege_activity, ssh_sessions = {}, {}, []
+        ssh_sessions = fetch_ssh_sessions(conn, run_id)
         ancestry = {}
     else:
         file_activity = fetch_activity(conn, event_ids, "file_activity_events")

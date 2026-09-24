@@ -16,7 +16,9 @@ class AttackRunMetadataRepository:
                intensity: Optional[str] = None, parameters: Optional[dict] = None,
                attack_start_ts: Optional[str] = None, attack_end_ts: Optional[str] = None,
                expected_behavior: Optional[str] = None, notes: Optional[str] = None,
-               operator: Optional[str] = None, manifest_path: Optional[str] = None) -> None:
+               operator: Optional[str] = None, manifest_path: Optional[str] = None,
+               run_uuid: Optional[str] = None, manifest_hash: Optional[str] = None,
+               allow_nonzero_exit: bool = False) -> None:
         self.conn.add(AttackRunMetadata(
             run_id=run_id, attack_family=attack_family,
             attack_technique=attack_technique, scenario=scenario, tool=tool,
@@ -25,7 +27,8 @@ class AttackRunMetadataRepository:
             parameters=json.dumps(parameters) if parameters else None,
             attack_start_ts=attack_start_ts, attack_end_ts=attack_end_ts,
             expected_behavior=expected_behavior, notes=notes, operator=operator,
-            manifest_path=manifest_path,
+            manifest_path=manifest_path, run_uuid=run_uuid,
+            manifest_hash=manifest_hash, allow_nonzero_exit=int(allow_nonzero_exit),
         ))
 
     def get(self, run_id: int):
@@ -43,6 +46,7 @@ def validate_attack_runs_have_metadata(conn: Session) -> list[int]:
         ).where(
             ObservationRun.label.like("attack:%"),
             AttackRunMetadata.run_id.is_(None),
+            ObservationRun.status.in_(("completed", "awaiting_metadata")),
         )
     ).scalars()
     return list(rows)

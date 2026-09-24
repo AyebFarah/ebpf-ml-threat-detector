@@ -43,19 +43,18 @@ def connect() -> Iterator[Session]:
         session.close()
 
 
-def apply_migrations() -> None:
-    """
-    Brings the SQLite database up to the latest Alembic revision.
-    Replaces the old hand-written .sql runner. Safe to call every time
-    the pipeline starts, calling it when the database is already at
-    head does nothing.
-    """
+def alembic_config(database_file: Path | None = None) -> Config:
     project_root = Path(__file__).resolve().parents[2]
-    alembic_config = Config(str(project_root / "alembic.ini"))
-    alembic_config.set_main_option(
+    target = (database_file or paths.DATABASE_FILE).resolve()
+    config = Config(str(project_root / "alembic.ini"))
+    config.set_main_option(
         "script_location", str(project_root / "observation" / "database" / "alembic")
     )
-    alembic_config.set_main_option(
-        "sqlalchemy.url", f"sqlite:///{paths.DATABASE_FILE.resolve().as_posix()}"
-    )
-    command.upgrade(alembic_config, "head")
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{target.as_posix()}")
+    return config
+
+
+def apply_migrations() -> None:
+    """Brings the SQLite database up to the latest Alembic revision.
+    Safe to call every time: when already at head it does nothing."""
+    command.upgrade(alembic_config(), "head")

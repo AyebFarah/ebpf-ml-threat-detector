@@ -6,6 +6,8 @@ Usage:
     """
 
 import argparse
+from sqlalchemy import select
+from observation.database.models import ObservationRun
 from observation.database.connection import connect, apply_migrations
 from observation.features import extractor, baseline
 from observation.features.repositories.feature_windows import FeatureWindowsRepository

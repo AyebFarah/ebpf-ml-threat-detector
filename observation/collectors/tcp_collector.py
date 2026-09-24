@@ -1,7 +1,10 @@
 import json
 import traceback
 import threading
+import socket
+import struct
 from datetime import datetime, timezone
+from scapy.arch.linux import L2ListenSocket
 from scapy.all import sniff, TCP, IP, IPv6
 from observation import paths
 
@@ -23,6 +26,18 @@ FLAG_NAME_BITS = [
 IDLE_TIMEOUT_SECONDS = 120
 # Scanning the whole flow table on every packet is wasteful under load, so we only sweep for idle flows every N packets processed.
 SWEEP_INTERVAL_PACKETS = 200
+
+# Linux constants
+SOL_PACKET = 263
+PACKET_STATISTICS = 6
+SO_RCVBUFFORCE = 33
+
+CAPTURE_BUFFER_BYTES = 64 * 1024 * 1024
+
+_capture_sock = None
+_kernel_seen_total = 0
+_kernel_dropped_total = 0
+
 
 _flows = {}
 _packet_counter = 0
@@ -74,6 +89,75 @@ def flow_key(ip_a, port_a, ip_b, port_b):
     a, b = (ip_a, port_a), (ip_b, port_b)
     return (a, b) if a < b else (b, a)
 
+def open_capture_socket():
+    """Create the sniffing socket ourselves so we control its buffer."""
+    sock = L2ListenSocket(filter="tcp")
+
+    try:
+        sock.ins.setsockopt(
+            socket.SOL_SOCKET,
+            SO_RCVBUFFORCE,
+            CAPTURE_BUFFER_BYTES
+        )
+        method = "SO_RCVBUFFORCE"
+    except OSError:
+        sock.ins.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_RCVBUF,
+            CAPTURE_BUFFER_BYTES
+        )
+        method = "SO_RCVBUF (capped by net.core.rmem_max)"
+
+    granted = sock.ins.getsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_RCVBUF
+    )
+
+    print(
+        f"[TCP] capture buffer requested={CAPTURE_BUFFER_BYTES} "
+        f"granted={granted} via {method}"
+    )
+
+    return sock
+
+
+def refresh_capture_stats():
+    """Read kernel packet statistics."""
+    global _kernel_seen_total, _kernel_dropped_total
+
+    if _capture_sock is None:
+        return
+
+    try:
+        raw = _capture_sock.ins.getsockopt(
+            SOL_PACKET,
+            PACKET_STATISTICS,
+            8
+        )
+    except OSError:
+        return
+
+    seen, dropped = struct.unpack("II", raw)
+
+    _kernel_seen_total += seen
+    _kernel_dropped_total += dropped
+
+
+def print_capture_summary():
+    refresh_capture_stats()
+
+    pct = (
+        100.0 * _kernel_dropped_total / _kernel_seen_total
+        if _kernel_seen_total
+        else 0.0
+    )
+
+    print(
+        f"[TCP] capture summary: "
+        f"kernel_seen={_kernel_seen_total} "
+        f"dropped={_kernel_dropped_total} "
+        f"({pct:.2f}%)"
+    )
 
 def new_flow(ip, tcp, timestamp):
     return {
@@ -100,6 +184,7 @@ def new_flow(ip, tcp, timestamp):
         "initial_window_in": None,
         "mss_out": get_mss(tcp),
         "mss_in": None,
+        "drops_at_start": _kernel_dropped_total,
     }
 
 
@@ -139,6 +224,10 @@ def update_flow_counters(flow, ip, tcp, packet, timestamp):
 
 
 def finalize_flow(flow, end_ts, reason):
+    refresh_capture_stats()
+    drops_during_flow = (
+        _kernel_dropped_total - flow["drops_at_start"]
+    )
     duration_ms = None
     try:
         duration_ms = round((parse_ts(end_ts) - parse_ts(flow["start_ts"])).total_seconds() * 1000, 3)
@@ -182,6 +271,8 @@ def finalize_flow(flow, end_ts, reason):
         "initial_window_in": flow["initial_window_in"],
         "mss_out": flow["mss_out"],
         "mss_in": flow["mss_in"],
+        "capture_drops_during_flow": drops_during_flow,
+        "capture_complete": drops_during_flow == 0,
     }
     write_event(event)
     print(
@@ -232,6 +323,7 @@ def handle_packet(packet):
 
         if flow is None:
             if is_syn and not is_ack:
+                refresh_capture_stats()
                 flow = new_flow(ip, tcp, timestamp)
                 _flows[key] = flow
             else:
@@ -276,21 +368,26 @@ def handle_packet(packet):
         print("[TCP] ERROR while handling packet:")
         traceback.print_exc()
 
-
 def main():
+    global _capture_sock
+
     print("Starting TCP collector...")
     reset_output_file()
 
+    _capture_sock = open_capture_socket()
+
     try:
         sniff(
-            filter="tcp",
+            opened_socket=_capture_sock,
             prn=handle_packet,
-            store=False,
+            store=False
         )
     except KeyboardInterrupt:
         print("\n[TCP] Collector stopped.")
     finally:
         flush_all_flows()
+        print_capture_summary()
+        _capture_sock.close()
 
 
 if __name__ == "__main__":

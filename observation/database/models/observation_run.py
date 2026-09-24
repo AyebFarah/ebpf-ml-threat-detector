@@ -41,3 +41,5 @@ class ObservationRun(Base):
     attack_metadata: Mapped[Optional["AttackRunMetadata"]] = relationship(
         back_populates="run", cascade="all, delete-orphan", uselist=False
     )
+    quality: Mapped[Optional[str]] = mapped_column(Text)
+    failure_reason: Mapped[Optional[str]] = mapped_column(Text)

