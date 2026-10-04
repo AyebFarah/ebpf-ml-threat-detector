@@ -64,11 +64,11 @@ Run commands from the repository root. Python **3.12** is used by the existing e
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+python -m pip install -r requirements.txt
 python -m pip check
 ```
 
-The requirements pin `torch==2.14.0+cpu`, the extra index allows pip to locate CPU wheels. Installation also depends on pinned versions being available for your Python/platform. Use the repository's existing environment if available, there is no packaging/install entry point, so invoke modules from the root.
+The requirements pin `torch==2.14.0+cpu` and include the PyTorch CPU package index so both local installation and CI can locate CPU wheels. Installation also depends on pinned versions being available for your Python/platform. Use the repository's existing environment if available, there is no packaging/install entry point, so invoke modules from the root.
 
 For complete telemetry, install and start **Tetragon** separately, make the `tetra` CLI available on the root user's `PATH`, and load the YAML policies in `observation/policies/` into that deployment. Tetragon deployment and policy-loading commands depend on whether you use standalone Linux or Kubernetes, this repository does not provision the agent. Check kernel/BTF compatibility for policy hooks. Process lifecycle events come from Tetragon's built-in event stream.
 
