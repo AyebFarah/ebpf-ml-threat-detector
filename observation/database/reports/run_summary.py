@@ -1,9 +1,10 @@
-"""Usage: python3 -m observation.database.reports.run_summary <run_id>"""
 import sys
 import re
 import json
 import os
+import argparse
 from sqlalchemy import case, func, select
+from pathlib import Path
 from observation.database.connection import connect
 from observation.database.models.observation_run import ObservationRun
 from observation.database.models.correlated_event import CorrelatedEventModel
@@ -53,8 +54,8 @@ def dns_content_check(conn, run_id, meta) -> list[str]:
     lines += [f"  *** {p}" for p in problems]
     return lines
 
-def summarize(run_id: int):
-    with connect() as conn:
+def summarize(run_id: int, database_file=None):
+    with connect(database_file) as conn:
         run = conn.execute(select(ObservationRun.__table__).where(
             ObservationRun.run_id == run_id
         )).mappings().first()
@@ -149,9 +150,49 @@ def summarize(run_id: int):
             f.write(summary + "\n" + "=" * 60 + "\n\n")
         print(f"\nSummary appended to: {SUMMARY_FILE}")
 
+def summarize_all(database_file=None):
+    with connect(database_file) as conn:
+        run_ids = conn.execute(
+            select(ObservationRun.run_id)
+            .order_by(ObservationRun.run_id)
+        ).scalars().all()
+
+    if not run_ids:
+        print("No observation runs found.")
+        return
+
+    print(f"Found {len(run_ids)} runs.")
+
+    for run_id in run_ids:
+        summarize(run_id, database_file)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python3 -m observation.database.reports.run_summary <run_id>")
-        sys.exit(1)
-    summarize(int(sys.argv[1]))
+    parser = argparse.ArgumentParser(
+        description="Generate an observation run summary."
+    )
+
+    parser.add_argument(
+        "run_id",
+        help="Run ID to summarize, or 'all' to summarize every run."
+    )
+
+    parser.add_argument(
+        "--db",
+        type=Path,
+        default=None,
+        help="Path to the SQLite database. Defaults to the configured database."
+    )
+
+    args = parser.parse_args()
+
+    if args.run_id.lower() == "all":
+        summarize_all(args.db)
+    else:
+        try:
+            summarize(int(args.run_id), args.db)
+        except ValueError:
+            parser.error(
+                f"invalid run_id '{args.run_id}': "
+                "expected an integer or 'all'"
+            )

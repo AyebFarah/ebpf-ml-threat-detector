@@ -1,6 +1,5 @@
 """
-Latency/throughput benchmarking for a trained detector -- the "measuring
-... latency" half of the project brief's live-demo requirement. Run
+Latency/throughput benchmarking for a trained detector -- the "measuring latency" half of the project brief's live-demo requirement. Run
 separately from train.py/evaluate.py since it cares about wall-clock
 timing, not accuracy, and you generally want to run it a few times / on
 idle hardware to get a stable number.
@@ -11,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 
-def benchmark_layer1(detector, df: pd.DataFrame, n_runs: int = 3) -> dict:
+def benchmark_detector(detector, df: pd.DataFrame, n_runs: int = 3) -> dict:
     """detector: a detection.layer1.predict.Layer1Detector (or anything
     with a .predict(dict) -> (bool, float) method). Scores rows one at a
     time, which is the realistic shape for a live pipeline (one window

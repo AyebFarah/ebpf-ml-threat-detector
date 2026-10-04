@@ -1,18 +1,21 @@
 """
 ML-readiness checks on a loaded feature_windows DataFrame, run before
 training (or standalone via `python -m detection.cli validate`). This is
-distinct from the database merge's integrity checks, those confirm the
+distinct from the database merge's integrity checks -- those confirm the
 DB wasn't corrupted by merging; this confirms the data is actually
 usable for training (enough runs per class, no all-null column, etc).
 """
-
 from __future__ import annotations
+
 import pandas as pd
+
+from detection.config import DB_PATH, ENTITY_TYPES
+from detection.data.extract import load_feature_windows
 from detection.data.schema import feature_columns
 
 
 def validate(df: pd.DataFrame, entity_type: str) -> list[str]:
-    """Returns a list of warning strings, empty list means all checks passed."""
+    """Returns a list of warning strings; empty list means all checks passed."""
     warnings: list[str] = []
 
     if df.empty:
@@ -66,7 +69,7 @@ def validate(df: pd.DataFrame, entity_type: str) -> list[str]:
 
 
 def print_report(df: pd.DataFrame, entity_type: str) -> bool:
-    """Prints the validation report, returns True if there were no warnings."""
+    """Prints the validation report; returns True if there were no warnings."""
     warnings = validate(df, entity_type)
     print(f"[validate] entity_type='{entity_type}': {len(df)} rows, "
           f"{df['run_id'].nunique() if not df.empty else 0} runs")
@@ -76,3 +79,35 @@ def print_report(df: pd.DataFrame, entity_type: str) -> bool:
     for w in warnings:
         print(f"[validate] WARNING: {w}")
     return False
+
+
+def compare_entity_types(db_path: str = DB_PATH, entity_types=None) -> None:
+    """Runs validate() for each entity_type and flags columns that are
+    dead (zero-variance) in one granularity but carry real signal in
+    another -- the signature of a feature that only means something once
+    aggregated across multiple flows (destination diversity, JA4
+    diversity, SSH session stats)."""
+    entity_types = entity_types or ENTITY_TYPES
+    dead_by_type = {}
+
+    for et in entity_types:
+        df = load_feature_windows(db_path, et)
+        if df.empty:
+            print(f"[validate] entity_type='{et}': no rows, skipping")
+            continue
+        cols = feature_columns(df)
+        dead_by_type[et] = {c for c in cols if df[c].nunique(dropna=True) <= 1}
+        print_report(df, et)
+        print()
+
+    types = list(dead_by_type)
+    for i, a in enumerate(types):
+        for b in types[i + 1:]:
+            only_a = dead_by_type[a] - dead_by_type[b]
+            if only_a:
+                print(f"[validate] {len(only_a)} columns dead in '{a}' but live in '{b}' "
+                      f"-- need multi-{a} aggregation to mean anything: {sorted(only_a)}")
+            only_b = dead_by_type[b] - dead_by_type[a]
+            if only_b:
+                print(f"[validate] {len(only_b)} columns dead in '{b}' but live in '{a}': "
+                      f"{sorted(only_b)}")

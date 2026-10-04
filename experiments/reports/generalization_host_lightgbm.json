@@ -1,0 +1,200 @@
+{
+  "0:admin_backup_rsync": {
+    "label": 0,
+    "scenario": "admin_backup_rsync",
+    "n_held_out_runs": 2,
+    "n_held_out_windows": 118,
+    "threshold": 0.3,
+    "false_positive_rate": 0.9067796610169492,
+    "mean_score": 0.4475577023290095
+  },
+  "0:admin_nmap_inventory": {
+    "label": 0,
+    "scenario": "admin_nmap_inventory",
+    "n_held_out_runs": 2,
+    "n_held_out_windows": 171,
+    "threshold": 0.21000000000000002,
+    "false_positive_rate": 0.6666666666666666,
+    "mean_score": 0.23861601922574
+  },
+  "0:browser_heavy": {
+    "label": 0,
+    "scenario": "browser_heavy",
+    "n_held_out_runs": 5,
+    "n_held_out_windows": 885,
+    "threshold": 0.46,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.27839852460556924
+  },
+  "0:dev_dns_burst": {
+    "label": 0,
+    "scenario": "dev_dns_burst",
+    "n_held_out_runs": 1,
+    "n_held_out_windows": 120,
+    "threshold": 0.31,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.30373150624312767
+  },
+  "0:docker_workflow": {
+    "label": 0,
+    "scenario": "docker_workflow",
+    "n_held_out_runs": 5,
+    "n_held_out_windows": 249,
+    "threshold": 0.35000000000000003,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.30661563915508117
+  },
+  "0:git_workflow": {
+    "label": 0,
+    "scenario": "git_workflow",
+    "n_held_out_runs": 4,
+    "n_held_out_windows": 224,
+    "threshold": 0.17,
+    "false_positive_rate": 0.2857142857142857,
+    "mean_score": 0.19282518033593812
+  },
+  "0:idle_desktop": {
+    "label": 0,
+    "scenario": "idle_desktop",
+    "n_held_out_runs": 4,
+    "n_held_out_windows": 398,
+    "threshold": 0.28,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.17818515194975265
+  },
+  "0:light_browsing": {
+    "label": 0,
+    "scenario": "light_browsing",
+    "n_held_out_runs": 7,
+    "n_held_out_windows": 951,
+    "threshold": 0.17,
+    "false_positive_rate": 0.0010515247108307045,
+    "mean_score": 0.060399062567694076
+  },
+  "0:mixed_workday": {
+    "label": 0,
+    "scenario": "mixed_workday",
+    "n_held_out_runs": 18,
+    "n_held_out_windows": 5832,
+    "threshold": 0.26,
+    "false_positive_rate": 0.00205761316872428,
+    "mean_score": 0.00158242581458753
+  },
+  "0:ops_health_check": {
+    "label": 0,
+    "scenario": "ops_health_check",
+    "n_held_out_runs": 2,
+    "n_held_out_windows": 241,
+    "threshold": 0.22,
+    "false_positive_rate": 1.0,
+    "mean_score": 0.46336568608118706
+  },
+  "0:ops_log_collection": {
+    "label": 0,
+    "scenario": "ops_log_collection",
+    "n_held_out_runs": 1,
+    "n_held_out_windows": 114,
+    "threshold": 0.23,
+    "false_positive_rate": 0.38596491228070173,
+    "mean_score": 0.2245865649520341
+  },
+  "0:package_update": {
+    "label": 0,
+    "scenario": "package_update",
+    "n_held_out_runs": 3,
+    "n_held_out_windows": 288,
+    "threshold": 0.39,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.0864484684680437
+  },
+  "0:security_vuln_scan_light": {
+    "label": 0,
+    "scenario": "security_vuln_scan_light",
+    "n_held_out_runs": 2,
+    "n_held_out_windows": 1087,
+    "threshold": 0.34,
+    "false_positive_rate": 0.1609935602575897,
+    "mean_score": 0.3363056261815483
+  },
+  "0:ssh_admin": {
+    "label": 0,
+    "scenario": "ssh_admin",
+    "n_held_out_runs": 3,
+    "n_held_out_windows": 56,
+    "threshold": 0.12,
+    "false_positive_rate": 0.0,
+    "mean_score": 0.08061269368332395
+  },
+  "0:ssh_retry_storm": {
+    "label": 0,
+    "scenario": "ssh_retry_storm",
+    "n_held_out_runs": 3,
+    "n_held_out_windows": 708,
+    "threshold": 0.59,
+    "false_positive_rate": 0.9491525423728814,
+    "mean_score": 0.7989272536604376
+  },
+  "1:c2_beacon": {
+    "label": 1,
+    "scenario": "c2_beacon",
+    "n_held_out_runs": 2,
+    "n_held_out_windows": 1684,
+    "threshold": 0.35000000000000003,
+    "detection_rate": 1.0,
+    "mean_score": 0.36972933093896326
+  },
+  "1:data_exfiltration": {
+    "label": 1,
+    "scenario": "data_exfiltration",
+    "n_held_out_runs": 4,
+    "n_held_out_windows": 26,
+    "threshold": 0.31,
+    "detection_rate": 0.0,
+    "mean_score": 0.3082326719841929
+  },
+  "1:dns_tunneling": {
+    "label": 1,
+    "scenario": "dns_tunneling",
+    "n_held_out_runs": 4,
+    "n_held_out_windows": 135,
+    "threshold": 0.26,
+    "detection_rate": 0.0,
+    "mean_score": 0.25045013115666004
+  },
+  "1:lateral_movement_ssh": {
+    "label": 1,
+    "scenario": "lateral_movement_ssh",
+    "n_held_out_runs": 5,
+    "n_held_out_windows": 864,
+    "threshold": 0.3,
+    "detection_rate": 0.0011574074074074073,
+    "mean_score": 0.18142442806824166
+  },
+  "1:network_discovery": {
+    "label": 1,
+    "scenario": "network_discovery",
+    "n_held_out_runs": 5,
+    "n_held_out_windows": 1287,
+    "threshold": 0.08,
+    "detection_rate": 0.21678321678321677,
+    "mean_score": 0.09725917673658759
+  },
+  "1:port_scan": {
+    "label": 1,
+    "scenario": "port_scan",
+    "n_held_out_runs": 3,
+    "n_held_out_windows": 47,
+    "threshold": 0.76,
+    "detection_rate": 0.02127659574468085,
+    "mean_score": 0.33793349944578144
+  },
+  "1:ssh_bruteforce": {
+    "label": 1,
+    "scenario": "ssh_bruteforce",
+    "n_held_out_runs": 3,
+    "n_held_out_windows": 615,
+    "threshold": 0.8200000000000001,
+    "detection_rate": 0.0,
+    "mean_score": 0.21063221606742308
+  }
+}

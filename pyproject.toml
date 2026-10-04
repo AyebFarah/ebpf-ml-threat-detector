@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["detection/tests", "observation/tests"]
+markers = ["integration: slower end to end tests that train a real model"]
+
+filterwarnings = [
+    "ignore:.*torch.jit.script.*is deprecated:FutureWarning",
+]

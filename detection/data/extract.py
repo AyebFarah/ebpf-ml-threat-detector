@@ -1,28 +1,35 @@
 """
-Reads feature_windows rows out of the SQLite database. This is the only
-module that should ever open a connection to DB_PATH -- everything else
-in detection/ works on the DataFrame this returns.
+Reads feature_windows rows via the same SQLAlchemy engine
+observation.database.connection defines, so the pragmas it sets (foreign
+keys, WAL) apply here too. This is the only module in detection/ that
+should ever open a connection to a database file -- everything else in
+detection/ works on the DataFrame this returns.
+
+db_path is a required, explicit argument -- not silently defaulted --
+on purpose: with several databases in play (observations.db,
+attack_observations.db, merged_observations.db, ...), a report needs to
+be able to state exactly which one produced a given result. Pass
+detection.config.DB_PATH explicitly at call sites rather than relying on
+an implicit default that could point somewhere unexpected.
 """
 from __future__ import annotations
+
 from pathlib import Path
 
 import pandas as pd
-from sqlalchemy import select
+from sqlalchemy import text
 
-from detection.config import DB_PATH
-from observation.database.connection import connect
-from observation.database.models import FeatureWindow
+from observation.database.connection import get_engine
 
 
-def load_feature_windows(entity_type: str, db_path: str = DB_PATH) -> pd.DataFrame:
-    """Loads every feature_windows row for one entity_type ('flow',
-    'host', or 'process'). Rows with label IS NULL shouldn't exist
-    post-windowing, but are excluded defensively."""
-    stmt = (select(FeatureWindow.__table__).where
-        (       FeatureWindow.entity_type == entity_type,
-                FeatureWindow.label.is_not(None),
+def load_feature_windows(db_path: str | Path, entity_type: str) -> pd.DataFrame:
+    engine = get_engine(Path(db_path))
+    try:
+        df = pd.read_sql_query(
+            text("SELECT * FROM feature_windows WHERE entity_type = :entity_type AND label IS NOT NULL"),
+            engine, params={"entity_type": entity_type},
         )
-    )
-
-    with connect(Path(db_path)) as session:
-        return pd.read_sql(stmt, session.connection())
+    finally:
+        engine.dispose()
+    print(f"[extract] loaded {len(df)} '{entity_type}' rows from {db_path}")
+    return df

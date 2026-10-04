@@ -1,588 +1,1858 @@
 run_id=1  scenario=browser_heavy  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 950487
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 312
   tls_matched                = 0.865
   dns_matched                = 0.772
   process_context_matched    = 0.849
   http_matched               = 0.01
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 312
+  dns_events_raw          = 1110 (queries=575, responses=535, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=2  scenario=idle_desktop  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 545450
   notes              = laptop plugged in, no open apps (only intellij), night
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 11
   tls_matched                = 0.818
   dns_matched                = 1.0
   process_context_matched    = 0.0
   http_matched               = 0.182
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 11
+  dns_events_raw          = 32 (queries=16, responses=16, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=3  scenario=browser_heavy  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 556608
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 233
   tls_matched                = 0.884
   dns_matched                = 0.841
   process_context_matched    = 0.948
   http_matched               = 0.009
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 233
+  dns_events_raw          = 1184 (queries=610, responses=574, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=4  scenario=browser_heavy  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 944131
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 109
   tls_matched                = 0.872
   dns_matched                = 0.936
   process_context_matched    = 0.0
   http_matched               = 0.037
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 109
+  dns_events_raw          = 611 (queries=309, responses=302, nxdomain=1)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=5  scenario=browser_heavy  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 692552
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 128
   tls_matched                = 0.773
   dns_matched                = 0.82
   process_context_matched    = 0.617
   http_matched               = 0.047
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 128
+  dns_events_raw          = 588 (queries=296, responses=292, nxdomain=1)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=6  scenario=idle_desktop  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 459843
   notes              = laptop plugged in, no open apps (only intellij), night
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 9
   tls_matched                = 0.889
   dns_matched                = 1.0
   process_context_matched    = 0.0
   http_matched               = 0.111
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 9
+  dns_events_raw          = 34 (queries=17, responses=17, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=7  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1366302
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 656
   tls_matched                = 0.63
   dns_matched                = 0.444
   process_context_matched    = 0.476
   http_matched               = 0.008
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 540
+  dns_events_raw          = 711 (queries=359, responses=352, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=10  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1055859
   notes              = Mixed work session: IDE, browser, Git, Python
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 100
   tls_matched                = 0.97
   dns_matched                = 0.96
   process_context_matched    = 0.02
   http_matched               = 0.03
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 100
+  dns_events_raw          = 634 (queries=317, responses=317, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=11  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1576192
   notes              = Mixed work session: IDE, browser, Git, Python
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 279
   tls_matched                = 0.889
   dns_matched                = 0.864
   process_context_matched    = 0.495
   http_matched               = 0.025
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 275
+  dns_events_raw          = 1346 (queries=684, responses=662, nxdomain=8)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=12  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1820894
   notes              = Mixed work session: IDE, browser, Git, Python
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 406
   tls_matched                = 0.805
   dns_matched                = 0.682
   process_context_matched    = 0.865
   http_matched               = 0.022
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 375
+  dns_events_raw          = 1703 (queries=868, responses=835, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=13  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 877684
   notes              = Mixed work session: IDE, browser, Git, Python
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 123
   tls_matched                = 0.959
   dns_matched                = 0.797
   process_context_matched    = 0.0
   http_matched               = 0.024
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 123
+  dns_events_raw          = 657 (queries=340, responses=317, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=15  scenario=docker_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 201332
   notes              = Docker commands, simulation script has been implemented
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 351
   tls_matched                = 0.581
   dns_matched                = 0.481
   process_context_matched    = 0.983
   http_matched               = 0.003
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 310
+  dns_events_raw          = 185 (queries=94, responses=91, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=16  scenario=docker_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 235640
   notes              = Docker commands, simulation script has been implemented
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 211
   tls_matched                = 0.45
   dns_matched                = 0.185
   process_context_matched    = 0.209
   http_matched               = 0.005
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 85
+  dns_events_raw          = 360 (queries=181, responses=179, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=17  scenario=docker_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 194829
   notes              = Docker commands, simulation script has been implemented
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 223
   tls_matched                = 0.471
   dns_matched                = 0.179
   process_context_matched    = 0.251
   http_matched               = 0.0
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 105
+  dns_events_raw          = 290 (queries=145, responses=145, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=18  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 512564
   notes              = Some tabs, documentation, news
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 304
   tls_matched                = 0.776
   dns_matched                = 0.832
   process_context_matched    = 0.977
   http_matched               = 0.007
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 302
+  dns_events_raw          = 1035 (queries=519, responses=516, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=19  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 560209
   notes              = Some tabs, documentation, news
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 85
   tls_matched                = 0.859
   dns_matched                = 0.8
   process_context_matched    = 0.0
   http_matched               = 0.024
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 85
+  dns_events_raw          = 555 (queries=286, responses=269, nxdomain=5)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=20  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 651048
   notes              = Some tabs, documentation, news
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 43
   tls_matched                = 0.814
   dns_matched                = 0.628
   process_context_matched    = 0.0
   http_matched               = 0.047
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 43
+  dns_events_raw          = 245 (queries=122, responses=123, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=21  scenario=browser_heavy  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1937996
   notes              = Heavy browsing: multiple tabs, social media, videostreaming
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 813
   tls_matched                = 0.878
   dns_matched                = 0.716
   process_context_matched    = 0.797
   http_matched               = 0.009
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 811
+  dns_events_raw          = 3082 (queries=1558, responses=1524, nxdomain=1)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=22  scenario=git_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 509844
   notes              = Git commands
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 197
   tls_matched                = 0.944
   dns_matched                = 0.883
   process_context_matched    = 0.939
   http_matched               = 0.005
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 197
+  dns_events_raw          = 962 (queries=486, responses=476, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=23  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1435949
   notes              = some tabs
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 262
   tls_matched                = 0.958
   dns_matched                = 0.866
   process_context_matched    = 0.756
   http_matched               = 0.027
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 262
+  dns_events_raw          = 1486 (queries=743, responses=743, nxdomain=0)
+  ssh_sessions            = 0
+============================================================
+
+run_id=24  scenario=mixed_workday  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 1530373
+  notes              = Browsing,IDE.. 
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 353
+  tls_matched                = 0.904
+  dns_matched                = 0.807
+  process_context_matched    = 0.708
+  http_matched               = 0.02
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 366
+  dns_events_raw          = 2238 (queries=1120, responses=1118, nxdomain=15)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=25  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1635947
   notes              = Browsing,IDE.. 
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 141
   tls_matched                = 0.858
   dns_matched                = 0.809
   process_context_matched    = 0.05
   http_matched               = 0.05
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 171
+  dns_events_raw          = 983 (queries=492, responses=491, nxdomain=14)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=26  scenario=package_update  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 974591
   notes              = Package updating, software installation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 72
   tls_matched                = 0.778
   dns_matched                = 0.736
   process_context_matched    = 0.236
   http_matched               = 0.139
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 67
+  dns_events_raw          = 154 (queries=81, responses=73, nxdomain=3)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=27  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 3295943
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 312
   tls_matched                = 0.926
   dns_matched                = 0.804
   process_context_matched    = 0.66
   http_matched               = 0.035
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 763
+  dns_events_raw          = 2500 (queries=1266, responses=1234, nxdomain=31)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=28  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1819910
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 175
   tls_matched                = 0.943
   dns_matched                = 0.823
   process_context_matched    = 0.006
   http_matched               = 0.034
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 175
+  dns_events_raw          = 917 (queries=464, responses=453, nxdomain=1)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=29  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 2987658
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 223
   tls_matched                = 0.91
   dns_matched                = 0.417
   process_context_matched    = 0.022
   http_matched               = 0.04
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 311
+  dns_events_raw          = 1627 (queries=830, responses=797, nxdomain=8)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=31  scenario=package_update  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 88181
   notes              = Package updates and installation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 30
   tls_matched                = 0.567
   dns_matched                = 0.233
   process_context_matched    = 0.933
   http_matched               = 0.267
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 30
+  dns_events_raw          = 115 (queries=63, responses=52, nxdomain=15)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=32  scenario=git_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 288765
-  notes              =  Git workflow simulation
+  notes              = Benign git workflow: simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 22
   tls_matched                = 0.136
   dns_matched                = 0.045
   process_context_matched    = 0.818
   http_matched               = 0.045
-  ssh_sessions       = 18
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 4
+  dns_events_raw          = 20 (queries=11, responses=9, nxdomain=0)
+  ssh_sessions            = 18
 ============================================================
 
 run_id=33  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 3217523
   notes              = Mixed work session: IDE, browser, Git, Python and Docker
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 678
   tls_matched                = 0.509
   dns_matched                = 0.283
   process_context_matched    = 0.866
   http_matched               = 0.022
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 878
+  dns_events_raw          = 2251 (queries=1292, responses=959, nxdomain=8)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=34  scenario=git_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 921559
-  notes              = Git workflow simulation
+  notes              = Benign git workflow: simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 62
   tls_matched                = 0.274
   dns_matched                = 0.161
   process_context_matched    = 0.581
   http_matched               = 0.048
-  ssh_sessions       = 36
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 26
+  dns_events_raw          = 68 (queries=34, responses=34, nxdomain=0)
+  ssh_sessions            = 36
 ============================================================
 
 run_id=35  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 2994701
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 686
   tls_matched                = 0.768
   dns_matched                = 0.252
   process_context_matched    = 0.612
   http_matched               = 0.013
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 686
+  dns_events_raw          = 2280 (queries=1158, responses=1122, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=36  scenario=idle_desktop  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 933006
   notes              = The computer is powered on and running background processes but is not actively processing user commands
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 148
   tls_matched                = 0.743
   dns_matched                = 0.284
   process_context_matched    = 0.0
   http_matched               = 0.02
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 102
+  dns_events_raw          = 381 (queries=191, responses=190, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=37  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1225300
   notes              = Some tabs
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 199
   tls_matched                = 0.925
   dns_matched                = 0.362
   process_context_matched    = 0.322
   http_matched               = 0.02
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 199
+  dns_events_raw          = 350 (queries=175, responses=175, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=38  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1717874
   notes              = Some tabs
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 326
   tls_matched                = 0.914
   dns_matched                = 0.172
   process_context_matched    = 0.512
   http_matched               = 0.018
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 326
+  dns_events_raw          = 1043 (queries=525, responses=518, nxdomain=1)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=39  scenario=idle_desktop  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1432760
   notes              = The computer is powered on and running background processes but is not actively processing user commands
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 102
   tls_matched                = 0.559
   dns_matched                = 0.412
   process_context_matched    = 0.0
   http_matched               = 0.049
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 106
+  dns_events_raw          = 315 (queries=158, responses=157, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=40  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 3303586
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 730
   tls_matched                = 0.555
   dns_matched                = 0.119
   process_context_matched    = 0.874
   http_matched               = 0.015
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 910
+  dns_events_raw          = 1906 (queries=958, responses=948, nxdomain=18)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=41  scenario=docker_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 451356
   notes              = Docker workflow simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 630
   tls_matched                = 0.463
   dns_matched                = 0.068
   process_context_matched    = 0.241
   http_matched               = 0.003
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 294
+  dns_events_raw          = 803 (queries=402, responses=401, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=42  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1782761
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 335
   tls_matched                = 0.687
   dns_matched                = 0.254
   process_context_matched    = 0.869
   http_matched               = 0.03
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 335
+  dns_events_raw          = 1673 (queries=838, responses=835, nxdomain=15)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=43  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 2130135
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 409
   tls_matched                = 0.721
   dns_matched                = 0.257
   process_context_matched    = 0.905
   http_matched               = 0.022
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 407
+  dns_events_raw          = 2050 (queries=1031, responses=1019, nxdomain=10)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=44  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1891846
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 297
   tls_matched                = 0.721
   dns_matched                = 0.377
   process_context_matched    = 0.747
   http_matched               = 0.02
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 297
+  dns_events_raw          = 1412 (queries=709, responses=703, nxdomain=10)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=45  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1349751
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 127
   tls_matched                = 0.512
   dns_matched                = 0.339
   process_context_matched    = 0.205
   http_matched               = 0.063
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 130
+  dns_events_raw          = 512 (queries=257, responses=255, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=46  scenario=mixed_workday  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1800321
   notes              = IDE, Browsing, Git etc
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 192
   tls_matched                = 0.557
   dns_matched                = 0.339
   process_context_matched    = 0.073
   http_matched               = 0.036
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 194
+  dns_events_raw          = 723 (queries=362, responses=361, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=48  scenario=docker_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 280234
   notes              = Docker workflow simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 334
   tls_matched                = 0.461
   dns_matched                = 0.045
   process_context_matched    = 0.997
   http_matched               = 0.0
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 220
+  dns_events_raw          = 318 (queries=165, responses=153, nxdomain=0)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=50  scenario=git_workflow  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 422487
   notes              = Git workflow simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 42
   tls_matched                = 0.048
   dns_matched                = 0.048
   process_context_matched    = 0.905
   http_matched               = 0.048
-  ssh_sessions       = 19
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 2
+  dns_events_raw          = 8 (queries=4, responses=4, nxdomain=0)
+  ssh_sessions            = 19
 ============================================================
 
 run_id=51  scenario=light_browsing  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 1154302
   notes              = Some tabs
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 2332
   tls_matched                = 0.859
   dns_matched                = 0.409
   process_context_matched    = 0.985
   http_matched               = 0.005
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 1163
+  dns_events_raw          = 3973 (queries=2099, responses=1874, nxdomain=85)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=52  scenario=package_update  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 3640627
   notes              = Package updates and system upgrades
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 240
   tls_matched                = 0.717
   dns_matched                = 0.55
   process_context_matched    = 0.3
   http_matched               = 0.217
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 120
+  dns_events_raw          = 374 (queries=207, responses=167, nxdomain=13)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=53  scenario=dev_dns_burst  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 848113
   notes              = near miss: benign local DNS service-discovery burst
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 28
   tls_matched                = 0.786
   dns_matched                = 0.714
   process_context_matched    = 0.0
   http_matched               = 0.214
-  ssh_sessions       = 0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 14
+  dns_events_raw          = 1504 (queries=762, responses=742, nxdomain=55)
+  ssh_sessions            = 0
 ============================================================
 
 run_id=54  scenario=ssh_admin  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 336396
   notes              =  Establishing ssh sessions from a VM
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 11
   tls_matched                = 0.818
   dns_matched                = 0.818
   process_context_matched    = 0.0
   http_matched               = 0.091
-  ssh_sessions       = 1
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 13
+  dns_events_raw          = 40 (queries=20, responses=20, nxdomain=0)
+  ssh_sessions            = 1
 ============================================================
 
 run_id=55  scenario=ssh_admin  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 175736
   notes              =  Establishing ssh sessions from a VM
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 2
   tls_matched                = 0.5
   dns_matched                = 0.5
   process_context_matched    = 0.0
   http_matched               = 0.5
-  ssh_sessions       = 1
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 3
+  dns_events_raw          = 12 (queries=6, responses=6, nxdomain=0)
+  ssh_sessions            = 1
 ============================================================
 
 run_id=56  scenario=ssh_admin  label=benign
   status             = completed
+  quality            = (not set)
+  failure_reason     = -
   duration_ms        = 303121
   notes              = Establishing ssh sessions from a VM
+  --- correlated_events (per-connection, TCP-connect anchored) ---
   tcp_connect_events = 2
   tls_matched                = 0.5
   dns_matched                = 0.5
   process_context_matched    = 0.0
   http_matched               = 0.5
-  ssh_sessions       = 1
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 3
+  dns_events_raw          = 14 (queries=7, responses=7, nxdomain=0)
+  ssh_sessions            = 1
+============================================================
+
+run_id=57  scenario=port_scan  label=attack:port_scan:T1046
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 14752
+  notes              = Many short connections across common ports on one target - Medium intensity
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 5
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 577
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-15T22-36-01_port_scan_run1.json
+  manifest_hash           = None
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = medium
+  attack_family/technique = port_scan/T1046
+============================================================
+
+run_id=58  scenario=port_scan  label=attack:port_scan:T1046
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 41020
+  notes              = Many short connections across common ports on one target - Medium intensity
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 60
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 2844
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-15T22-37-26_port_scan_run2.json
+  manifest_hash           = None
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = medium
+  attack_family/technique = port_scan/T1046
+============================================================
+
+run_id=59  scenario=port_scan  label=attack:port_scan:T1046
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 174365
+  notes              = Many short connections across common ports on one target - High intensity
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 300
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 54771
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-15T22-48-41_port_scan_run3.json
+  manifest_hash           = None
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = high
+  attack_family/technique = port_scan/T1046
+============================================================
+
+run_id=60  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 414348
+  notes              = hydra medium intensity
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 120
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 180
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 150
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-15T23-03-56_ssh_bruteforce_run4.json
+  manifest_hash           = None
+  tool                    = hydra
+  target                  = 192.168.100.20:22
+  intensity               = medium
+  attack_family/technique = ssh_bruteforce/T1110.001
+============================================================
+
+run_id=61  scenario=ssh_retry_storm  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 1406758
+  notes              = near miss: misconfigured backup script retrying SSH
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 90
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 90
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=64  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 1364503
+  notes              = hydra medium intensity
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 100
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 600
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 493
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-16T18-17-41_ssh_bruteforce_run8.json
+  manifest_hash           = None
+  tool                    = hydra
+  target                  = 192.168.100.20:22
+  intensity               = medium
+  attack_family/technique = ssh_bruteforce/T1110.001
+============================================================
+
+run_id=67  scenario=admin_backup_rsync  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 69706
+  notes              = near miss: authorized administrative backup using rsync over SSH
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 67
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 67
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=68  scenario=admin_backup_rsync  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 552305
+  notes              = near miss: authorized administrative backup using rsync over SSH
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 100
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 100
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=69  scenario=admin_nmap_inventory  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 638952
+  notes              = near miss: authorized light asset inventory of the lab subnet
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 1200
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=70  scenario=admin_nmap_inventory  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 326418
+  notes              = near miss: authorized light asset inventory of the lab subnet
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 713
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=71  scenario=security_vuln_scan_light  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 736368
+  notes              = near miss: authorized light vulnerability assessment by security operations
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 1583
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 1
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=72  scenario=ops_log_collection  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 679304
+  notes              = near miss: authorized centralized collection of remote logs
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 54
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 54
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=73  scenario=ops_health_check  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 322920
+  notes              = near miss: periodic health checks against known lab services
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 125
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=74  scenario=ops_health_check  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 981048
+  notes              = near miss: periodic health checks against known lab services
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 97
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=75  scenario=c2_beacon  label=attack:command_and_control:T1071.001
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 1205716
+  notes              = Simulated benign-isolated C2 beacon pattern for pipeline validation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 400
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 100
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-17T19-38-10_c2_beacon_run19.json
+  manifest_hash           = None
+  tool                    = nc nc: invalid option -- '-'
+  target                  = 192.168.100.10:4444
+  intensity               = medium
+  attack_family/technique = command_and_control/T1071.001
+============================================================
+
+run_id=76  scenario=data_exfiltration  label=attack:exfiltration:T1041
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 2001
+  notes              = Controlled data exfiltration simulation for pipeline validation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 2
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 1
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-18T21-10-59_data_exfiltration_run20.json
+  manifest_hash           = None
+  tool                    = nc nc: invalid option -- '-'
+  target                  = 192.168.100.10:5555
+  intensity               = medium
+  attack_family/technique = exfiltration/T1041
+============================================================
+
+run_id=77  scenario=data_exfiltration  label=attack:exfiltration:T1041
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 42322
+  notes              = Controlled data exfiltration simulation with 10 repetitions
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 30
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 10
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = None
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-18T22-58-34_data_exfiltration_run21.json
+  manifest_hash           = None
+  tool                    = nc nc: invalid option -- '-'
+  target                  = 192.168.100.10:5555
+  intensity               = medium
+  attack_family/technique = exfiltration/T1041
+============================================================
+
+run_id=78  scenario=dns_tunneling  label=attack:dns_tunneling:T1071.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 32819
+  notes              = Python client against NXDOMAIN sink
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 0
+  dns_events_raw          = 1200 (queries=600, responses=600, nxdomain=600)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 36088ad8-f762-46c2-8cd6-f2cecb9b7358
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-20T23-32-06_dns_tunneling_run22_36088ad8.json
+  manifest_hash           = 13b54e0fff9236a6f5b99460d2593518bb95fc5b8a5f6d6be66064590f97abf9
+  tool                    = python3 Python 3.10.12
+  target                  = 192.168.100.10:53
+  intensity               = medium
+  attack_family/technique = dns_tunneling/T1071.004
+  --- dns content check ---
+  queries observed / expected = 600 / 600
+  responses                   = 600
+  names that are not payloads = 0
+  distinct names / queries    = 600 / 600
+  content verdict             = OK
+============================================================
+
+run_id=80  scenario=dns_tunneling  label=attack:dns_tunneling:T1071.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 98687
+  notes              = Python client against NXDOMAIN sink
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 0
+  dns_events_raw          = 16000 (queries=8000, responses=8000, nxdomain=8000)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 65eb1b0d-1b2d-4b4d-bc01-de1d1a9ed584
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-20T23-51-40_dns_tunneling_run24_65eb1b0d.json
+  manifest_hash           = 4834dbfefcd5f4f1cf84d8dba428c50db8a67ccb95d1dd34870f31b799a6a88e
+  tool                    = python3 Python 3.10.12
+  target                  = 192.168.100.10:53
+  intensity               = high
+  attack_family/technique = dns_tunneling/T1071.004
+  --- dns content check ---
+  queries observed / expected = 8000 / 8000
+  responses                   = 8000
+  names that are not payloads = 0
+  distinct names / queries    = 8000 / 8000
+  content verdict             = OK
+============================================================
+
+run_id=81  scenario=dns_tunneling  label=attack:dns_tunneling:T1071.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 200788
+  notes              = Python client against NXDOMAIN sink
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 0
+  dns_events_raw          = 32000 (queries=16000, responses=16000, nxdomain=16000)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 0371a0a9-c7e2-4bbb-9b4b-0e08ed217996
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T00-01-48_dns_tunneling_run25_0371a0a9.json
+  manifest_hash           = a1676e829df380fd40cf4165593fb66076fc5f5014e323995128ad11796d7a19
+  tool                    = python3 Python 3.10.12
+  target                  = 192.168.100.10:53
+  intensity               = high
+  attack_family/technique = dns_tunneling/T1071.004
+  --- dns content check ---
+  queries observed / expected = 16000 / 16000
+  responses                   = 16000
+  names that are not payloads = 0
+  distinct names / queries    = 16000 / 16000
+  content verdict             = OK
+============================================================
+
+run_id=82  scenario=dns_tunneling  label=attack:dns_tunneling:T1071.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 331688
+  notes              = Python client against NXDOMAIN sink
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 0
+  dns_events_raw          = 3000 (queries=1500, responses=1500, nxdomain=1500)
+  ssh_sessions            = 0
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 2cdcf039-a1f1-4623-93fb-85588b9edc61
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T00-08-18_dns_tunneling_run26_2cdcf039.json
+  manifest_hash           = ac36fedaf7aee3e8b3ec86434f545dcfcc2dc13649a132ed22f857ef9cb78e31
+  tool                    = python3 Python 3.10.12
+  target                  = 192.168.100.10:53
+  intensity               = low
+  attack_family/technique = dns_tunneling/T1071.004
+  --- dns content check ---
+  queries observed / expected = 1500 / 1500
+  responses                   = 1500
+  names that are not payloads = 0
+  distinct names / queries    = 1500 / 1500
+  content verdict             = OK
+============================================================
+
+run_id=83  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 411469
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 5
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 2660
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 3
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 54b0ca34-32a3-4b53-95b5-b959f2d4b820
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T22-26-21_network_discovery_run27_54b0ca34.json
+  manifest_hash           = 5d4569c8a92b9a49461260c1b421b96119d6044ac8050cbca6a830341c5913ce
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = high
+  attack_family/technique = network_discovery/T1046
+============================================================
+
+run_id=84  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 10741
+  notes              = Lateral movement: move progressively through a network after gaining initial access
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 1
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 3
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 2
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 1e5b0f4f-68d6-4e97-8111-d7f858d9c2ee
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T22-39-43_lateral_movement_ssh_run28_1e5b0f4f.json
+  manifest_hash           = 3abcf60186c32b288399ff0768ffcd935ec85d158acf0a5faf79bf1f767932e4
+  tool                    = ssh OpenSSH_8.9p1 Ubuntu-3ubuntu0.17, OpenSSL 3.0.2 15 Mar 2022
+  target                  = 192.168.100.20:22
+  intensity               = low
+  attack_family/technique = lateral_movement/T1021.004
+============================================================
+
+run_id=85  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 1646988
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 20
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 10640
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 16
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 99e75929-2a6d-481e-9913-3a525ce3d65c
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T22-42-38_network_discovery_run29_99e75929.json
+  manifest_hash           = 13317f1284e7bce33587b8163edf97ec5fda9c9e030bed676781a8a4c485e380
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = high
+  attack_family/technique = network_discovery/T1046
+============================================================
+
+run_id=86  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 73949
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 20
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 2040
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 15
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 04123dc2-1767-4ee7-a037-7c7271afb5b0
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T23-16-56_network_discovery_run30_04123dc2.json
+  manifest_hash           = 7787c53a522df2ec86b355c6f2c73824d0105168d03cb692b452895be22ec32f
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = medium
+  attack_family/technique = network_discovery/T1046
+============================================================
+
+run_id=87  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 186917
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 50
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 5100
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 35
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 20ca036e-1cc1-4503-8fee-e1cf8f76e2fd
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T23-23-28_network_discovery_run31_20ca036e.json
+  manifest_hash           = 86f444ddccf1b15cf2e484d72a44aec0a0995f067bfe2fa7ad431e6efc61fb52
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = medium
+  attack_family/technique = network_discovery/T1046
+============================================================
+
+run_id=88  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 13018
+  notes              = Lateral movement: move progressively through a network after gaining initial access
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 1
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 11
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 10
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = d2f9f295-4189-424c-8a1d-f8039831e4be
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T23-27-42_lateral_movement_ssh_run32_d2f9f295.json
+  manifest_hash           = 1711855c3ead300bc57b8e59fb8b7acdd3954a41518cb15d8d869a4548468cd1
+  tool                    = ssh OpenSSH_8.9p1 Ubuntu-3ubuntu0.17, OpenSSL 3.0.2 15 Mar 2022
+  target                  = 192.168.100.20:22
+  intensity               = high
+  attack_family/technique = lateral_movement/T1021.004
+============================================================
+
+run_id=89  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 1372823
+  notes              = Lateral movement: move progressively through a network after gaining initial access
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 100
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 1100
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 960
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 3724a038-447c-44db-aa59-c3db100b5347
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-21T23-31-07_lateral_movement_ssh_run33_3724a038.json
+  manifest_hash           = 2ebeece9503726a17d1df8457fae4168cb5d76f4def126c086cbd8d07a8d7fdf
+  tool                    = ssh OpenSSH_8.9p1 Ubuntu-3ubuntu0.17, OpenSSL 3.0.2 15 Mar 2022
+  target                  = 192.168.100.20:22
+  intensity               = high
+  attack_family/technique = lateral_movement/T1021.004
+============================================================
+
+run_id=90  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 1176148
+  notes              = attacker pivots into victim via valid SSH credentials, requires reverse key auth
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 100
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 300
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 199
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 4ca15e1f-869a-4a86-a8c3-f8433eb75c82
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T12-14-13_lateral_movement_ssh_run34_4ca15e1f.json
+  manifest_hash           = c949e66842d96e8e8be70a2597490c5af050ca2661ba02fc85ea2e364cfb99b5
+  tool                    = ssh OpenSSH_8.9p1 Ubuntu-3ubuntu0.17, OpenSSL 3.0.2 15 Mar 2022
+  target                  = 192.168.100.20:22
+  intensity               = low
+  attack_family/technique = lateral_movement/T1021.004
+============================================================
+
+run_id=91  scenario=lateral_movement_ssh  label=attack:lateral_movement:T1021.004
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 1747735
+  notes              = attacker pivots into victim via valid SSH credentials, requires reverse key auth
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 100
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 600
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 491
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = afbfaaee-39e5-4990-8f31-4036c85b8366
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T12-37-36_lateral_movement_ssh_run35_afbfaaee.json
+  manifest_hash           = f3190fb77317c050df5fac17b2190f6ea4cd4dcb05db9533e48111def26e88bf
+  tool                    = ssh OpenSSH_8.9p1 Ubuntu-3ubuntu0.17, OpenSSL 3.0.2 15 Mar 2022
+  target                  = 192.168.100.20:22
+  intensity               = medium
+  attack_family/technique = lateral_movement/T1021.004
+============================================================
+
+run_id=92  scenario=network_discovery  label=attack:network_discovery:T1046
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 4118045
+  notes              = Network discovery: automated process of identifying, mapping, and monitoring all devices and services connected to a network
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 50
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 26600
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 39
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 8b46317b-6786-43b7-86d9-3e3b58e52439
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T13-20-24_network_discovery_run36_8b46317b.json
+  manifest_hash           = 66369166cdf6796977ced0635c08435bb000a9e42858f966e7384e5819c842fb
+  tool                    = nmap
+  target                  = 192.168.100.20:0
+  intensity               = high
+  attack_family/technique = network_discovery/T1046
+============================================================
+
+run_id=93  scenario=ssh_bruteforce  label=attack:ssh_bruteforce:T1110.001
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 1327171
+  notes              = Bruteforcing: Guess username and password combinations to gain unauthorized access to the victim
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 100
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 600
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 496
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = f5600e96-327b-42c0-b080-e7f5982be94f
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T14-36-32_ssh_bruteforce_run37_f5600e96.json
+  manifest_hash           = 8fda2184d6f92edeceb8457180d69697fae6e1627e86f8fe1f171626d98a408f
+  tool                    = hydra
+  target                  = 192.168.100.20:22
+  intensity               = medium
+  attack_family/technique = ssh_bruteforce/T1110.001
+============================================================
+
+run_id=94  scenario=ssh_retry_storm  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 1232591
+  notes              = near miss: misconfigured backup script retrying SSH
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 60
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 60
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=95  scenario=c2_beacon  label=attack:command_and_control:T1071.001
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 7235699
+  notes              = Simulated benign-isolated C2 beacon pattern for pipeline validation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 600
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 600
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 0ed1878c-2558-4a5b-8158-331dd2dc502d
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T19-44-20_c2_beacon_run39_0ed1878c.json
+  manifest_hash           = b5dec01a563e55cb98a5117edeaf7ff4a1e53e67eaf0225c80982e252fc07111
+  tool                    = nc
+  target                  = 192.168.100.10:4444
+  intensity               = medium
+  attack_family/technique = command_and_control/T1071.001
+============================================================
+
+run_id=96  scenario=security_vuln_scan_light  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 4796772
+  notes              = near miss: authorized light vulnerability assessment by security operations
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 9990
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 8
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
+============================================================
+
+run_id=97  scenario=data_exfiltration  label=attack:exfiltration:T1041
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 46317
+  notes              = Controlled data exfiltration simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 10
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 10
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = 9f90e574-767e-429e-9614-09d8e552730c
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-22T23-54-38_data_exfiltration_run41_9f90e574.json
+  manifest_hash           = 7d293d5ceec12e4fad9f6c97870413c16cbfd26ae2765f997dda137bba8cc0a7
+  tool                    = nc
+  target                  = 192.168.100.10:5555
+  intensity               = high
+  attack_family/technique = exfiltration/T1041
+============================================================
+
+run_id=98  scenario=data_exfiltration  label=attack:exfiltration:T1041
+  status             = completed
+  quality            = full
+  failure_reason     = -
+  duration_ms        = 42638
+  notes              = Controlled data exfiltration simulation
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 10
+  tls_matched                = 0.0
+  dns_matched                = 0.0
+  process_context_matched    = 1.0
+  http_matched               = 0.0
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 10
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 0
+  --- attack metadata ---
+  attack_run_metadata     = present
+  run_uuid                = b3c3ba4c-af08-4acb-acbe-a263abaf28aa
+  manifest_path           = /home/victim/ebpf-ml-threat-detector/observation/samples/attack_runs/2026-09-23T00-26-48_data_exfiltration_run42_b3c3ba4c.json
+  manifest_hash           = fcf839f880262f808857ff761a6d61d42901c3be80300b9e8a9f916d6089ce46
+  tool                    = nc
+  target                  = 192.168.100.10:5555
+  intensity               = high
+  attack_family/technique = exfiltration/T1041
+============================================================
+
+run_id=99  scenario=ssh_retry_storm  label=benign
+  status             = completed
+  quality            = (not set)
+  failure_reason     = -
+  duration_ms        = 2660736
+  notes              = near miss: misconfigured backup script retrying SSH
+  --- correlated_events (per-connection, TCP-connect anchored) ---
+  tcp_connect_events = 0
+  tls_matched                = None
+  dns_matched                = None
+  process_context_matched    = None
+  http_matched               = None
+  --- raw signal tables (independent of correlation) ---
+  tcp_flows_raw           = 116
+  dns_events_raw          = 0 (queries=0, responses=0, nxdomain=0)
+  ssh_sessions            = 115
+  NOTE: 0 correlated_events is expected for UDP-only, inbound-only, or local-only techniques (see docs/010, docs/011). Check the raw tables above before assuming the run failed.
 ============================================================
 

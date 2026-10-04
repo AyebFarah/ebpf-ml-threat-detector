@@ -40,7 +40,7 @@ def group_stratified_split(df: pd.DataFrame, train_frac: float = 0.7, val_frac: 
     rng = random.Random(seed)
     test_frac = max(0.0, 1.0 - train_frac - val_frac)
 
-    run_keys = df.groupby("run_id").apply(lambda g: _stratify_key(g.iloc[0]))
+    run_keys = df.groupby("run_id")[["label", "scenario"]].first().apply(_stratify_key, axis=1)
     runs_by_key: dict[str, list] = defaultdict(list)
     for run_id, key in run_keys.items():
         runs_by_key[key].append(run_id)

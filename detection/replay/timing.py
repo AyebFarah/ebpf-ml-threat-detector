@@ -23,3 +23,6 @@ def compute_delays(window_start_timestamps: list[str], speed: float = 1.0) -> li
         gap = (times[i] - times[i - 1]).total_seconds()
         delays.append(max(0.0, gap / speed) if speed else 0.0)
     return delays
+
+def seconds_between(start_ts: str, end_ts: str) -> float:
+    return (parse_ts(end_ts) - parse_ts(start_ts)).total_seconds()

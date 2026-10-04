@@ -11,7 +11,24 @@ pytest==8.4.2
 alembic>=1.13
 
 # ML
-numpy
-pandas
-lightgbm
-scikit-learn
+numpy==2.5.3
+pandas==3.0.6
+lightgbm==4.7.0
+scikit-learn==1.9.1
+xgboost==3.4.1
+joblib==1.6.0
+hdbscan==0.8.44
+
+# Visualization / analysis
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# Interactive ML analysis
+jupyter==1.1.1
+
+
+# Layer 2
+networkx==3.6.1
+scipy==1.18.1
+torch==2.14.0+cpu
+torch-geometric==2.8.0.post1

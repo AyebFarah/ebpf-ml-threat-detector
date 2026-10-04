@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.ipynb_checkpoints/
 
 # Virtual environments
 venv/
@@ -71,3 +72,45 @@ ci_check.db
 
 observation/database/alembic/__pycache__/
 observation/database/alembic/versions/__pycache__/
+
+# Trained models, one folder per entity type (retrain instead of committing)
+/models/*
+!/models/.gitkeep
+
+# Exported CSV files are large and rebuildable. Manifests stay tracked (small provenance)
+/datasets/exports/*
+!/datasets/exports/.gitkeep
+
+# Experiment output: reports, figures, run logs
+/experiments/reports/*
+!/experiments/reports/.gitkeep
+/experiments/runs/*
+!/experiments/runs/.gitkeep
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Generated graph tensors and indexes; keep JSON provenance manifests
+/datasets/graphs/*.pt
+/datasets/graphs/*.csv
+
+# Experiment logs and replay alerts
+/experiments/logs/*
+!/experiments/logs/.gitkeep
+
+# Generated database summary
+/observation/database/reports/run_summary.txt
+
+# Packet captures
+*.pcap
+*.pcapng
+
+# Allow a documented environment template
+!.env.example
+
+!/experiments/reports/report_host_lightgbm_20260928_150013.md
+!/experiments/reports/generalization_host_lightgbm.json
